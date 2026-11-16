@@ -22,6 +22,19 @@ use x509_parser::prelude::*;
 
 pub use tokio_util::sync::CancellationToken as ScanCancellation;
 
+/// Um redirecionamento é "canônico" (mesmo site) quando só muda o esquema (http→https)
+/// ou alterna o prefixo `www.` do host. Nesses casos seguir é seguro e esperado;
+/// qualquer outro destino continua exigindo nova autorização do usuário.
+fn canonical_redirect(from: &Url, to: &Url) -> bool {
+    match (from.host_str(), to.host_str()) {
+        (Some(a), Some(b)) => {
+            let bare = |h: &str| h.strip_prefix("www.").unwrap_or(h).to_ascii_lowercase();
+            bare(a) == bare(b)
+        }
+        _ => false,
+    }
+}
+
 /// Identificação enviada em todos os pedidos, para o dono do alvo reconhecer a auditoria.
 pub(crate) const USER_AGENT: &str = concat!(
     "Qypher/",
@@ -371,11 +384,25 @@ async fn execute(
                 .join(location)
                 .map_err(|_| "URL de redirecionamento inválida.")?;
             if next.origin() != url.origin() && matches!(next.scheme(), "http" | "https") {
-                // A origem de destino não é segredo e permite ao usuário autorizar o endereço certo.
-                return Err(format!(
-                    "O site redireciona para {} — fora do endereço autorizado. Analise esse endereço.",
-                    next.origin().ascii_serialization()
-                ));
+                if canonical_redirect(&url, &next) {
+                    // Mesmo site (http→https ou apex↔www): seguir é seguro e esperado.
+                    scan.log(
+                        "redirect.canonical",
+                        &format!(
+                            "Redirecionamento canônico seguido para {} (mesmo site).",
+                            next.origin().ascii_serialization()
+                        ),
+                        LogLevel::Info,
+                    );
+                    scan.config.url = next.to_string();
+                    scan.config.path_prefix = "/".into();
+                } else {
+                    // Outro site: a origem de destino não é segredo e permite autorizar o endereço certo.
+                    return Err(format!(
+                        "O site redireciona para {} — fora do endereço autorizado. Analise esse endereço.",
+                        next.origin().ascii_serialization()
+                    ));
+                }
             }
             scan.config.check_url(&next).map_err(|e| e.to_string())?;
             if redirect == scan.config.max_redirects {
@@ -656,6 +683,17 @@ mod tests {
             .checks
             .iter()
             .any(|c| c.status == CheckStatus::NotRun && c.reason.contains("Orçamento")));
+    }
+    #[test]
+    fn canonical_redirect_recognizes_same_site_only() {
+        let u = |s: &str| Url::parse(s).unwrap();
+        // http→https e apex↔www são o mesmo site.
+        assert!(canonical_redirect(&u("http://exemplo.com/"), &u("https://exemplo.com/")));
+        assert!(canonical_redirect(&u("https://exemplo.com/"), &u("https://www.exemplo.com/")));
+        assert!(canonical_redirect(&u("https://www.exemplo.com/"), &u("https://exemplo.com/a")));
+        // Outro domínio ou subdomínio de serviço NÃO é canônico.
+        assert!(!canonical_redirect(&u("https://exemplo.com/"), &u("https://app.exemplo.com/")));
+        assert!(!canonical_redirect(&u("https://meusite.com.br/"), &u("https://meusite.vercel.app/")));
     }
     #[tokio::test]
     async fn redirect_out_of_scope_is_never_requested() {

@@ -438,6 +438,7 @@ pub async fn exposures(
     progress(scan);
     security_txt(scan, base, client, cancel).await?;
     robots(scan, base, client, cancel).await?;
+    sitemap(scan, base, client, cancel).await?;
     progress(scan);
     Ok(())
 }
@@ -523,6 +524,90 @@ pub fn sensitive_robots_paths(body: &str) -> Vec<String> {
     out.dedup();
     out.truncate(10);
     out
+}
+
+/// Extrai caminhos da mesma origem de um sitemap.xml (ou índice de sitemaps).
+/// Retorna no máximo 40 caminhos distintos, ordenados.
+pub fn sitemap_paths(body: &str, base: &Url) -> Vec<String> {
+    let mut out: Vec<String> = vec![];
+    let lower = body.to_ascii_lowercase();
+    let mut from = 0;
+    while let Some(start) = lower[from..].find("<loc>") {
+        let s = from + start + 5;
+        let Some(end) = lower[s..].find("</loc>") else {
+            break;
+        };
+        let raw = body[s..s + end].trim();
+        from = s + end + 6;
+        if let Ok(url) = base.join(raw) {
+            if url.origin() == base.origin() {
+                let path = clean(url.path(), 120);
+                if !out.contains(&path) {
+                    out.push(path);
+                }
+            }
+        }
+        if out.len() >= 400 {
+            break;
+        }
+    }
+    out.sort();
+    out.dedup();
+    out.truncate(40);
+    out
+}
+
+async fn sitemap(
+    scan: &mut Scan,
+    base: &Url,
+    client: &Client,
+    cancel: &CancellationToken,
+) -> Result<(), String> {
+    let id = "disclosure.sitemap";
+    let Ok(target) = base.join("/sitemap.xml") else {
+        return Ok(());
+    };
+    let Some(response) = send(scan, client, cancel, id, Method::GET, &target, None).await? else {
+        return Ok(());
+    };
+    let status = response.status().as_u16();
+    let Some(body) = read_for_check(scan, id, &target, response, 512 * 1024, cancel).await? else {
+        return Ok(());
+    };
+    let paths = if status == 200 && !is_html(&body.bytes) {
+        sitemap_paths(&String::from_utf8_lossy(&body.bytes), base)
+    } else {
+        vec![]
+    };
+    if paths.is_empty() {
+        scan.checks.push(check(
+            id,
+            &target,
+            if body.complete {
+                CheckStatus::Passed
+            } else {
+                CheckStatus::Error
+            },
+            "sitemap.xml ausente, vazio ou acima do limite de leitura.",
+            None,
+        ));
+    } else {
+        scan.log(
+            "discovery.routes",
+            &format!("{} rota(s) pública(s) descoberta(s) no sitemap.", paths.len()),
+            LogLevel::Info,
+        );
+        let shown: Vec<_> = paths.iter().take(20).cloned().collect();
+        let mut f = Finding::at(id, target.as_str(), "Rotas públicas mapeadas pelo sitemap", Severity::Info,
+            &format!("{} rota(s) same-origin no sitemap.xml. Amostra: {}.", paths.len(), shown.join(", ")),
+            "O sitemap revela a superfície pública da aplicação. É útil para SEO, mas também entrega aos atacantes um mapa das rotas, inclusive áreas que você talvez não quisesse divulgar.",
+            "Confirme que nenhuma rota administrativa, de teste ou interna aparece no sitemap. Áreas sensíveis devem exigir autenticação, não depender de ocultação.",
+            WSTG_REF);
+        f.category = "Exposição".into();
+        scan.findings.push(f.clone());
+        scan.checks.push(check(id, &target, CheckStatus::Finding, "Rotas públicas enumeradas.", Some(f)));
+    }
+    Ok(())
 }
 
 async fn robots(
@@ -732,6 +817,17 @@ mod tests {
 
     fn exposure(slug: &str) -> Exposure {
         catalog().into_iter().find(|e| e.slug == slug).unwrap()
+    }
+
+    #[test]
+    fn sitemap_extracts_same_origin_paths() {
+        let base = Url::parse("https://exemplo.com/").unwrap();
+        let xml = r#"<urlset><url><loc>https://exemplo.com/produtos</loc></url>
+            <url><loc>https://exemplo.com/admin/painel</loc></url>
+            <url><loc>https://outro.com/externo</loc></url>
+            <url><loc>https://exemplo.com/produtos</loc></url></urlset>"#;
+        let paths = sitemap_paths(xml, &base);
+        assert_eq!(paths, vec!["/admin/painel", "/produtos"]);
     }
 
     #[test]
