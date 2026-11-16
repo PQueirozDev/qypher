@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07070b" />
+    <title>Qypher — análise de segurança local para sites e código</title>
+    <meta
+      name="description"
+      content="Qypher é um aplicativo desktop que encontra fraquezas e arquivos expostos em sites autorizados e em código local. Local-first, sem telemetria, com interface de terminal."
+    />
+    <meta property="og:title" content="Qypher — análise de segurança local" />
+    <meta
+      property="og:description"
+      content="Encontre arquivos expostos, falhas de configuração HTTP/TLS e credenciais vazadas em sites autorizados. Rust + Tauri + React."
+    />
+    <meta property="og:type" content="website" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23a78bfa'/%3E%3Ctext x='16' y='23' font-size='20' font-family='monospace' font-weight='700' text-anchor='middle' fill='%2307070b'%3Eq%3C/text%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --bg: #07070b;
+        --bg2: #0b0b12;
+        --panel: #0e0e17;
+        --line: #20202e;
+        --line2: #2b2b3d;
+        --text: #e7e7f0;
+        --dim: #9090a6;
+        --faint: #5a5a70;
+        --violet: #a78bfa;
+        --azure: #6ea8ff;
+        --cyan: #4fd1e0;
+        --amber: #f5b14c;
+        --pink: #ff5c7a;
+        --mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, Consolas, monospace;
+        --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(1100px 560px at 50% -180px, #a78bfa18, transparent 70%),
+          radial-gradient(760px 460px at 100% 0, #6ea8ff12, transparent 70%),
+          var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 100;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 2px,
+          #00000026 3px,
+          transparent 4px
+        );
+        mix-blend-mode: overlay;
+        opacity: 0.4;
+      }
+      a {
+        color: inherit;
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+
+      /* Top bar */
+      header.nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #08080ecc;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav .wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        height: 60px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 16px;
+        text-decoration: none;
+      }
+      .brand .mk {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: linear-gradient(135deg, var(--violet), #7c5cff);
+        color: #07070b;
+        font-size: 17px;
+      }
+      .brand b {
+        color: var(--violet);
+      }
+      .nav .sp {
+        flex: 1;
+      }
+      .nav a.lnk {
+        color: var(--dim);
+        text-decoration: none;
+        font-size: 14px;
+        font-family: var(--mono);
+      }
+      .nav a.lnk:hover {
+        color: var(--text);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 16px;
+        border-radius: 8px;
+        font-family: var(--mono);
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid var(--line2);
+        color: var(--text);
+        background: #0f0f19;
+        transition:
+          transform 0.1s,
+          filter 0.15s,
+          background 0.15s;
+      }
+      .btn:hover {
+        background: #15151f;
+      }
+      .btn.primary {
+        border: 0;
+        background: linear-gradient(135deg, var(--violet), #7c5cff);
+        color: #07070b;
+        box-shadow: 0 6px 20px #7c5cff44;
+      }
+      .btn.primary:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+      }
+
+      /* Hero */
+      .hero {
+        padding: 72px 0 40px;
+        text-align: center;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border: 1px solid #2a2342;
+        border-radius: 999px;
+        background: #140f22;
+        color: var(--violet);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+      }
+      .hero h1 {
+        font-family: var(--mono);
+        font-size: clamp(32px, 6vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.02em;
+        margin: 20px 0 14px;
+      }
+      .hero h1 .g {
+        background: linear-gradient(90deg, var(--violet), var(--azure));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .hero p.sub {
+        max-width: 620px;
+        margin: 0 auto 28px;
+        color: var(--dim);
+        font-size: 17px;
+      }
+      .cta {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .hero .note {
+        margin-top: 16px;
+        color: var(--faint);
+        font-size: 13px;
+        font-family: var(--mono);
+      }
+
+      /* Terminal mock */
+      .term {
+        margin: 46px auto 0;
+        max-width: 760px;
+        border: 1px solid var(--line2);
+        border-radius: 12px;
+        background: linear-gradient(180deg, #0c0c15, #0a0a11);
+        box-shadow: 0 30px 80px #0009;
+        overflow: hidden;
+        text-align: left;
+      }
+      .term .bar {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--line);
+        color: var(--faint);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .term .dots {
+        display: flex;
+        gap: 7px;
+      }
+      .term .dots i {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+      .term .dots i:nth-child(1) {
+        background: #ff5f57;
+      }
+      .term .dots i:nth-child(2) {
+        background: #febc2e;
+      }
+      .term .dots i:nth-child(3) {
+        background: #5ac8fa;
+      }
+      .term .body {
+        padding: 18px 18px 22px;
+        font-family: var(--mono);
+        font-size: 13.5px;
+        line-height: 1.8;
+      }
+      .term .pfx {
+        color: var(--violet);
+      }
+      .term .ok {
+        color: var(--cyan);
+      }
+      .term .warn {
+        color: var(--amber);
+      }
+      .term .bad {
+        color: var(--pink);
+      }
+      .term .dim {
+        color: var(--dim);
+      }
+      .caret {
+        display: inline-block;
+        width: 8px;
+        height: 1.05em;
+        background: var(--violet);
+        vertical-align: text-bottom;
+        animation: blink 1.05s steps(1) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* Sections */
+      section {
+        padding: 56px 0;
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--violet);
+      }
+      h2.sec {
+        font-family: var(--mono);
+        font-size: clamp(24px, 4vw, 32px);
+        letter-spacing: -0.01em;
+        margin: 10px 0 8px;
+      }
+      p.lead {
+        color: var(--dim);
+        max-width: 640px;
+        margin: 0 0 30px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+      }
+      .card {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+      }
+      .card .ic {
+        font-family: var(--mono);
+        color: var(--violet);
+        font-size: 13px;
+      }
+      .card h3 {
+        font-size: 16px;
+        margin: 10px 0 6px;
+      }
+      .card p {
+        margin: 0;
+        color: var(--dim);
+        font-size: 14px;
+      }
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+        counter-reset: s;
+      }
+      .step {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        position: relative;
+      }
+      .step::before {
+        counter-increment: s;
+        content: '0' counter(s);
+        font-family: var(--mono);
+        color: var(--faint);
+        font-size: 13px;
+      }
+      .step h3 {
+        font-size: 15px;
+        margin: 8px 0 5px;
+        font-family: var(--mono);
+      }
+      .step p {
+        margin: 0;
+        color: var(--dim);
+        font-size: 14px;
+      }
+      .pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .pill {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--dim);
+        border: 1px solid var(--line2);
+        border-radius: 999px;
+        padding: 5px 12px;
+        background: #0d0d16;
+      }
+      .safe {
+        margin-top: 28px;
+        border: 1px solid #2a2342;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #150f24, #0b0b14);
+        padding: 22px;
+      }
+      .safe h3 {
+        font-family: var(--mono);
+        margin: 0 0 8px;
+        color: var(--violet);
+      }
+      .safe ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--dim);
+      }
+      .safe li {
+        margin: 4px 0;
+      }
+      .cta-band {
+        text-align: center;
+        border: 1px solid var(--line2);
+        border-radius: 16px;
+        background: radial-gradient(600px 220px at 50% 0, #a78bfa14, transparent 70%), var(--panel);
+        padding: 44px 24px;
+      }
+      .cta-band h2 {
+        font-family: var(--mono);
+        font-size: clamp(22px, 4vw, 30px);
+        margin: 0 0 10px;
+      }
+      .cta-band p {
+        color: var(--dim);
+        margin: 0 0 22px;
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 30px 0;
+        color: var(--faint);
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      footer .wrap {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      footer .sp {
+        flex: 1;
+      }
+      footer a {
+        color: var(--dim);
+        text-decoration: none;
+      }
+      footer a:hover {
+        color: var(--text);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap">
+        <a class="brand" href="#top"><span class="mk">q</span>qypher</a>
+        <span class="sp"></span>
+        <a class="lnk" href="#recursos">recursos</a>
+        <a class="lnk" href="#como">como funciona</a>
+        <a class="lnk" href="#seguranca">segurança</a>
+        <a class="btn" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
+          >GitHub ↗</a
+        >
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero wrap">
+        <span class="tag">❯ análise local · sem telemetria · código aberto</span>
+        <h1>Encontre as <span class="g">fraquezas</span><br />de um site antes que outros encontrem.</h1>
+        <p class="sub">
+          Qypher é um aplicativo desktop que varre sites autorizados e código local em busca de
+          arquivos expostos, falhas de configuração e credenciais vazadas — e explica, em linguagem
+          clara, como corrigir.
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
+            >Ver no GitHub</a
+          >
+          <a class="btn" href="#como">Como funciona</a>
+        </div>
+        <p class="note">Rust + Tauri + React · Windows, Linux e macOS · Apache-2.0</p>
+
+        <div class="term" role="img" aria-label="Exemplo de varredura no terminal do Qypher">
+          <div class="bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            qypher — ~/scan
+          </div>
+          <div class="body">
+            <div><span class="pfx">❯</span> qypher scan --deep https://seuprojeto.com.br</div>
+            <div class="dim">resolvendo DNS e validando destino…</div>
+            <div><span class="ok">✓</span> HTTPS e certificado TLS válidos</div>
+            <div><span class="warn">!</span> CSP presente, mas permite scripts inline</div>
+            <div><span class="bad">✗</span> /.env acessível publicamente — credenciais expostas</div>
+            <div><span class="bad">✗</span> /.git/HEAD acessível — código-fonte reconstruível</div>
+            <div><span class="warn">!</span> CORS reflete qualquer origem</div>
+            <div class="dim">84 verificações · 73 requisições</div>
+            <div>
+              <span class="pfx">❯</span> nota de postura:
+              <span class="bad">F · 27/100</span><span class="caret"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="recursos" class="wrap">
+        <span class="eyebrow">// recursos</span>
+        <h2 class="sec">O que o Qypher encontra</h2>
+        <p class="lead">
+          Verificações reais sobre a resposta do alvo — sem força bruta, sem exploração destrutiva e
+          sem simular resultados.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <span class="ic">[ exposição ]</span>
+            <h3>Arquivos e segredos expostos</h3>
+            <p>
+              .env, .git, backups, dumps de banco, credenciais e painéis de debug acessíveis. Mostra
+              uma prévia <strong>mascarada</strong> do que vazou, para você avisar o responsável.
+            </p>
+          </div>
+          <div class="card">
+            <span class="ic">[ http / tls ]</span>
+            <h3>Configuração de transporte</h3>
+            <p>
+              HTTPS, validade e força do certificado, versões de TLS obsoletas, HSTS, e
+              redirecionamento inseguro da porta 80.
+            </p>
+          </div>
+          <div class="card">
+            <span class="ic">[ cabeçalhos ]</span>
+            <h3>Cabeçalhos de segurança</h3>
+            <p>
+              Força da CSP e do HSTS, clickjacking, cookies sem atributos seguros, CORS permissivo e
+              divulgação de versões de software.
+            </p>
+          </div>
+          <div class="card">
+            <span class="ic">[ página ]</span>
+            <h3>Conteúdo da página</h3>
+            <p>
+              Bibliotecas JavaScript vulneráveis, scripts de terceiros sem verificação de
+              integridade, conteúdo misto, formulários sem proteção CSRF e source maps públicos.
+            </p>
+          </div>
+          <div class="card">
+            <span class="ic">[ ativo ]</span>
+            <h3>Testes ativos não destrutivos</h3>
+            <p>
+              Reflexão de origem no CORS, métodos HTTP de escrita anunciados, TRACE e páginas de erro
+              com rastro de pilha — sempre dentro do escopo autorizado.
+            </p>
+          </div>
+          <div class="card">
+            <span class="ic">[ código ]</span>
+            <h3>Análise de código local</h3>
+            <p>
+              Triagem de padrões perigosos, possíveis segredos no repositório e inventário de
+              dependências com consulta OSV opcional. Sem executar o código do alvo.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="como" class="wrap">
+        <span class="eyebrow">// como funciona</span>
+        <h2 class="sec">Cole o link e analise</h2>
+        <p class="lead">
+          Duas intensidades: <strong>Quick Scan</strong> (configurações públicas) e
+          <strong>varredura profunda</strong> (descoberta de arquivos expostos e testes ativos).
+        </p>
+        <div class="steps">
+          <div class="step">
+            <h3>Autorize o alvo</h3>
+            <p>Confirme que o site é seu ou que você tem permissão. O escopo fica preso à origem informada.</p>
+          </div>
+          <div class="step">
+            <h3>O motor varre</h3>
+            <p>Requisições limitadas e controladas sobre o alvo, com DNS validado a cada salto. Nada do corpo é guardado em claro.</p>
+          </div>
+          <div class="step">
+            <h3>Leia e corrija</h3>
+            <p>Cada achado traz evidência, impacto e correção. Gere um prompt pronto para colar no seu assistente de IA.</p>
+          </div>
+        </div>
+        <div class="pills">
+          <span class="pill">quick scan → cadeado</span>
+          <span class="pill">varredura profunda → órbita</span>
+          <span class="pill">prompt para IA</span>
+          <span class="pill">exportar PDF / HTML / JSON</span>
+          <span class="pill">histórico local</span>
+        </div>
+      </section>
+
+      <section id="seguranca" class="wrap">
+        <span class="eyebrow">// segurança e privacidade</span>
+        <h2 class="sec">Feito para uso responsável</h2>
+        <div class="safe">
+          <h3>Princípios</h3>
+          <ul>
+            <li><strong>Local-first:</strong> a análise roda no seu computador. Sem conta, sem servidor obrigatório, sem telemetria.</li>
+            <li><strong>Somente com autorização:</strong> cada execução exige a confirmação de que você pode testar o alvo.</li>
+            <li><strong>Sem exploração destrutiva:</strong> apenas leitura e testes não destrutivos; nada de força bruta ou payloads de ataque.</li>
+            <li><strong>Segredos protegidos:</strong> o conteúdo exposto é exibido mascarado e redigido nas exportações; o valor inteiro nunca é guardado.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="wrap">
+        <div class="cta-band">
+          <h2>Código aberto. Rode você mesmo.</h2>
+          <p>Clone o repositório, compile e audite suas próprias aplicações.</p>
+          <div class="cta" style="justify-content: center">
+            <a class="btn primary" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
+              >github.com/PQueirozDev/qypher</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <a class="brand" href="#top"><span class="mk">q</span>qypher</a>
+        <span class="sp"></span>
+        <span>Análise de segurança local · Apache-2.0</span>
+        <a href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </footer>
+  </body>
+</html>
