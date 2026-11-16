@@ -15,10 +15,8 @@
       content="Encontre arquivos expostos, falhas de configuração HTTP/TLS e credenciais vazadas em sites autorizados. Rust + Tauri + React."
     />
     <meta property="og:type" content="website" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23a78bfa'/%3E%3Ctext x='16' y='23' font-size='20' font-family='monospace' font-weight='700' text-anchor='middle' fill='%2307070b'%3Eq%3C/text%3E%3C/svg%3E"
-    />
+    <meta property="og:image" content="/logo.png" />
+    <link rel="icon" href="/favicon.png" />
     <style>
       :root {
         --bg: #07070b;
@@ -104,14 +102,10 @@
         text-decoration: none;
       }
       .brand .mk {
-        display: grid;
-        place-items: center;
         width: 26px;
         height: 26px;
         border-radius: 7px;
-        background: linear-gradient(135deg, var(--violet), #7c5cff);
-        color: #07070b;
-        font-size: 17px;
+        object-fit: cover;
       }
       .brand b {
         color: var(--violet);
@@ -447,7 +441,7 @@
   <body>
     <header class="nav">
       <div class="wrap">
-        <a class="brand" href="#top"><span class="mk">q</span>qypher</a>
+        <a class="brand" href="#top"><img class="mk" src="/logo.png" alt="" />qypher</a>
         <span class="sp"></span>
         <a class="lnk" href="#recursos">recursos</a>
         <a class="lnk" href="#como">como funciona</a>
@@ -661,7 +655,7 @@
 
     <footer>
       <div class="wrap">
-        <a class="brand" href="#top"><span class="mk">q</span>qypher</a>
+        <a class="brand" href="#top"><img class="mk" src="/logo.png" alt="" />qypher</a>
         <span class="sp"></span>
         <span>Análise de segurança local · Apache-2.0</span>
         <a href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener">GitHub ↗</a>

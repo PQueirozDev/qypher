@@ -1,38 +1,27 @@
-// Gera os ícones do aplicativo a partir do logo "q" (igual ao do site):
-// quadrado arredondado com gradiente violeta e a letra "q" em monoespaçada.
-// Renderiza um SVG no navegador (Playwright/Edge) em vários tamanhos e empacota ICO/ICNS.
+// Gera os ícones do aplicativo a partir do logo em apps/desktop/icon-source.png
+// (o "Q" neon). Redimensiona no navegador (Playwright/Edge) e empacota ICO/ICNS.
 import { chromium } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const out = fileURLToPath(new URL('../apps/desktop/src-tauri/icons/', import.meta.url));
+const root = fileURLToPath(new URL('../', import.meta.url));
+const out = path.join(root, 'apps/desktop/src-tauri/icons/');
+const source = path.join(root, 'apps/desktop/icon-source.png');
 mkdirSync(out, { recursive: true });
 
-function svg(size) {
-  const r = Math.round(size * 0.22);
-  const fs = Math.round(size * 0.66);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#7c5cff"/>
-    </linearGradient></defs>
-    <rect width="${size}" height="${size}" rx="${r}" fill="url(#g)"/>
-    <text x="50%" y="52%" dominant-baseline="central" text-anchor="middle"
-      font-family="'JetBrains Mono','Cascadia Mono',Consolas,monospace" font-size="${fs}"
-      font-weight="700" fill="#07070b">q</text>
-  </svg>`;
-}
-
+const dataUri = `data:image/png;base64,${readFileSync(source).toString('base64')}`;
 const sizes = [32, 128, 256, 512];
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || 'msedge' });
 const assets = new Map();
 for (const size of sizes) {
   const page = await browser.newPage({ viewport: { width: size, height: size } });
   await page.setContent(
-    `<!doctype html><html><body style="margin:0">${svg(size)}</body></html>`,
+    `<!doctype html><html><body style="margin:0;background:#07070b">
+      <img src="${dataUri}" style="width:${size}px;height:${size}px;display:block"/>
+    </body></html>`,
   );
-  const buf = await page.locator('svg').screenshot({ omitBackground: true });
-  assets.set(size, buf);
+  assets.set(size, await page.locator('img').screenshot());
   await page.close();
 }
 await browser.close();
@@ -42,16 +31,11 @@ writeFileSync(path.join(out, '128x128.png'), assets.get(128));
 writeFileSync(path.join(out, '128x128@2x.png'), assets.get(256));
 writeFileSync(path.join(out, '512x512.png'), assets.get(512));
 
-// ICO com um PNG de 256×256 embutido (suportado no Windows Vista+).
+// ICO com um PNG de 256×256 embutido (Windows Vista+).
 const png256 = assets.get(256);
 const ico = Buffer.alloc(22);
-ico.writeUInt16LE(0, 0);
 ico.writeUInt16LE(1, 2);
 ico.writeUInt16LE(1, 4);
-ico[6] = 0; // 0 = 256
-ico[7] = 0;
-ico[8] = 0;
-ico[9] = 0;
 ico.writeUInt16LE(1, 10);
 ico.writeUInt16LE(32, 12);
 ico.writeUInt32LE(png256.length, 14);
@@ -67,4 +51,9 @@ icns.write('ic09', 8);
 icns.writeUInt32BE(png512.length + 8, 12);
 writeFileSync(path.join(out, 'icon.icns'), Buffer.concat([icns, png512]));
 
-console.log('Ícones "q" gerados em', out);
+// Versões para o site: favicon e logo da marca.
+const site = path.join(root, 'site');
+writeFileSync(path.join(site, 'favicon.png'), assets.get(128));
+writeFileSync(path.join(site, 'logo.png'), assets.get(256));
+
+console.log('Ícones gerados a partir do logo neon em', out, 'e em', site);

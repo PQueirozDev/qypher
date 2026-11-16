@@ -369,6 +369,63 @@ fn exposure_finding(id: &str, target: &Url, e: &Exposure) -> Finding {
     f
 }
 
+/// Concorrência da fase de descoberta: pequena e limitada, para acelerar sem sobrecarregar
+/// o alvo. Só GETs de leitura em caminhos estáticos passam por aqui.
+const DISCOVERY_CONCURRENCY: usize = 4;
+
+enum Fetched {
+    Done { status: u16, body: BodyRead },
+    Error,
+}
+
+/// Busca os caminhos planejados com no máximo `DISCOVERY_CONCURRENCY` conexões ao mesmo tempo.
+/// Preserva a ordem de `planned`. Não toca no `Scan` (os resultados são aplicados depois).
+async fn fetch_concurrent(
+    client: &Client,
+    cancel: &CancellationToken,
+    planned: &[(usize, Url)],
+) -> Result<Vec<Fetched>, String> {
+    let mut out: Vec<Option<Fetched>> = (0..planned.len()).map(|_| None).collect();
+    let indices: Vec<usize> = (0..planned.len()).collect();
+    for chunk in indices.chunks(DISCOVERY_CONCURRENCY) {
+        if cancel.is_cancelled() {
+            return Err("cancelled".into());
+        }
+        let mut set = tokio::task::JoinSet::new();
+        for &idx in chunk {
+            let url = planned[idx].1.clone();
+            let client = client.clone();
+            let cancel = cancel.clone();
+            set.spawn(async move {
+                let sent = tokio::select! { biased;
+                    _ = cancel.cancelled() => return (idx, None),
+                    r = client.get(url).send() => r,
+                };
+                let fetched = match sent {
+                    Ok(response) => {
+                        let status = response.status().as_u16();
+                        match read_limited(response, BODY_LIMIT, &cancel).await {
+                            Ok(body) => Fetched::Done { status, body },
+                            Err(_) => Fetched::Error,
+                        }
+                    }
+                    Err(_) => Fetched::Error,
+                };
+                (idx, Some(fetched))
+            });
+        }
+        while let Some(joined) = set.join_next().await {
+            if let Ok((idx, result)) = joined {
+                match result {
+                    Some(f) => out[idx] = Some(f),
+                    None => return Err("cancelled".into()),
+                }
+            }
+        }
+    }
+    Ok(out.into_iter().map(|o| o.unwrap_or(Fetched::Error)).collect())
+}
+
 pub async fn exposures(
     scan: &mut Scan,
     base: &Url,
@@ -383,7 +440,11 @@ pub async fn exposures(
         LogLevel::Info,
     );
     progress(scan);
-    for e in catalog() {
+    let catalog = catalog();
+    // Monta a fila: respeita escopo, pula o heapdump (NotRun) e o orçamento restante.
+    let available = scan.config.max_requests.saturating_sub(scan.request_count) as usize;
+    let mut planned: Vec<(usize, Url)> = vec![];
+    for (i, e) in catalog.iter().enumerate() {
         let id = format!("exposure.{}", e.slug);
         let Some(target) = scoped(base, &scan.config, e.path) else {
             continue;
@@ -393,44 +454,39 @@ pub async fn exposures(
                 "GET pode gerar um dump de memória no servidor. A sonda foi omitida para evitar custo e coleta de conteúdo privado.", None));
             continue;
         }
-        let Some(response) = send(scan, client, cancel, &id, Method::GET, &target, None).await?
-        else {
-            continue;
-        };
-        let status = response.status().as_u16();
-        let Some(body) = read_for_check(scan, &id, &target, response, BODY_LIMIT, cancel).await?
-        else {
-            continue;
-        };
-        let exposed = status == 200 && (e.matches)(&body.bytes);
-        if exposed {
-            let finding = exposure_finding(&id, &target, &e).with_sample(&body.bytes);
-            scan.log(
-                "discovery.exposed",
-                &format!("Exposto: {} ({})", e.path, e.title),
-                LogLevel::Warn,
-            );
-            scan.findings.push(finding.clone());
-            scan.checks.push(check(
-                &id,
-                &target,
-                CheckStatus::Finding,
-                "Assinatura de conteúdo confirmada.",
-                Some(finding),
-            ));
+        if planned.len() < available {
+            planned.push((i, target));
         } else {
-            scan.checks.push(check(
-                &id,
-                &target,
-                if body.complete && matches!(status, 200 | 401 | 403 | 404 | 410) { CheckStatus::Passed } else { CheckStatus::Error },
-                &format!(
-                    "HTTP {status}; nenhuma assinatura observada neste conteúdo. Leitura completa: {}.", body.complete
-                ),
-                None,
-            ));
+            scan.checks.push(check(&id, &target, CheckStatus::NotRun, "Orçamento de requisições esgotado.", None));
         }
-        progress(scan);
     }
+    // Busca os caminhos planejados com concorrência limitada (gentil com o alvo).
+    scan.request_count = scan.request_count.saturating_add(planned.len() as u8);
+    let results = fetch_concurrent(client, cancel, &planned).await?;
+    for ((cat_index, target), outcome) in planned.iter().zip(results) {
+        let e = &catalog[*cat_index];
+        let id = format!("exposure.{}", e.slug);
+        match outcome {
+            Fetched::Done { status, body } => {
+                let exposed = status == 200 && (e.matches)(&body.bytes);
+                if exposed {
+                    let finding = exposure_finding(&id, target, e).with_sample(&body.bytes);
+                    scan.log("discovery.exposed", &format!("Exposto: {} ({})", e.path, e.title), LogLevel::Warn);
+                    scan.findings.push(finding.clone());
+                    scan.checks.push(check(&id, target, CheckStatus::Finding, "Assinatura de conteúdo confirmada.", Some(finding)));
+                } else {
+                    scan.checks.push(check(&id, target,
+                        if body.complete && matches!(status, 200 | 401 | 403 | 404 | 410) { CheckStatus::Passed } else { CheckStatus::Error },
+                        &format!("HTTP {status}; nenhuma assinatura observada neste conteúdo. Leitura completa: {}.", body.complete),
+                        None));
+                }
+            }
+            Fetched::Error => {
+                scan.checks.push(check(&id, target, CheckStatus::Error, "Falha de rede ou timeout; resultado inconclusivo.", None));
+            }
+        }
+    }
+    progress(scan);
     probes::error_page(scan, base, client, cancel).await?;
     probes::directory_listings(scan, base, client, cancel).await?;
     probes::script_bundles(scan, scripts, client, cancel).await?;
