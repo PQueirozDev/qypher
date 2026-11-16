@@ -1,0 +1,41 @@
+name: Pre-deploy security review
+on:
+  workflow_dispatch:
+    inputs:
+      scan_path:
+        description: Authorized directory relative to this repository
+        default: .
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  static-review:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build the local Qypher checker
+        run: cargo build --locked --release -p scanner-source --bin qypher-check
+      - name: Review the authorized directory
+        shell: bash
+        env:
+          QYPHER_SCAN_PATH: ${{ inputs.scan_path }}
+        run: |
+          scan_root=$(realpath -- "$GITHUB_WORKSPACE/$QYPHER_SCAN_PATH")
+          case "$scan_root/" in "$GITHUB_WORKSPACE/"*) ;; *) echo "Directory outside the repository rejected."; exit 1 ;; esac
+          set +e
+          target/release/qypher-check --path "$scan_root" --authorized --output "$RUNNER_TEMP/qypher-source.json" --sarif "$RUNNER_TEMP/qypher-source.sarif" > "$RUNNER_TEMP/qypher-gate.json"
+          qypher_status=$?
+          exit "$qypher_status"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qypher-security-review
+          path: |
+            ${{ runner.temp }}/qypher-source.json
+            ${{ runner.temp }}/qypher-source.sarif
+            ${{ runner.temp }}/qypher-gate.json
+          retention-days: 7

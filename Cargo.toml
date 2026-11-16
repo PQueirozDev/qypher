@@ -1,0 +1,27 @@
+[workspace]
+members = ["crates/scanner-core", "crates/scanner-http", "crates/scanner-source", "crates/scanner-storage", "crates/scanner-report", "apps/desktop/src-tauri"]
+default-members = ["crates/scanner-core", "crates/scanner-http", "crates/scanner-source", "crates/scanner-storage", "crates/scanner-report"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+rust-version = "1.88"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+url = { version = "2", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync", "io-util", "process"] }
+tokio-util = "0.7"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#09090b" />
+    <meta
+      name="description"
+      content="Qypher: aplicativo desktop de auditoria defensiva para quem cria com IA. Evidências claras, análise local e caminhos para corrigir seus projetos."
+    />
+    <title>Qypher — Você cria com IA. O Qypher ajuda a proteger.</title>
+    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="Qypher, início"
+        ><img src="/mark.svg" alt="" width="28" height="28" />qypher<span>_</span></a
+      >
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-navigation"
+      >
+        Menu <span aria-hidden="true">+</span>
+      </button>
+      <nav id="site-navigation" aria-label="Navegação do site">
+        <a href="#app">O aplicativo</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#perguntas">Perguntas</a>
+        <a class="nav-download" href="#download"
+          >Versão desktop <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+    <main id="conteudo">
+      <section class="hero section-shell" id="inicio" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="signal-dot" aria-hidden="true"></span> SECURITY, ON YOUR MACHINE.
+          </div>
+          <h1 id="hero-title">
+            Você cria com IA.<br /><span
+              >Proteja o que<br class="wide-break" />
+              constrói.</span
+            >
+          </h1>
+          <p class="hero-description">
+            Conheça o Qypher. Um aplicativo desktop que ajuda você a encontrar riscos, entender as
+            evidências e corrigir seus próprios projetos.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#app"
+              >Conhecer o app <span aria-hidden="true">↗</span></a
+            >
+            <a class="text-link" href="#recursos"
+              >Explorar os recursos <span aria-hidden="true">↓</span></a
+            >
+          </div>
+          <p class="slogan">De vibe coders, para vibe coders.</p>
+        </div>
+        <div class="hero-art" aria-label="Arte ASCII do Qypher">
+          <div class="art-heading"><span>QYPHER / SHIELD_01</span><span>ASCII · LOCAL</span></div>
+          <div class="art-stage" aria-hidden="true">
+            <pre id="ascii-frame"></pre>
+            <span class="art-coordinate">x + <span>+ y</span></span>
+          </div>
+          <div class="art-footer">
+            <span>Uma linha de defesa.<br />Antes da próxima linha de código.</span
+            ><button id="motion-toggle" type="button" aria-pressed="false">
+              Pausar visual <span aria-hidden="true">Ⅱ</span>
+            </button>
+          </div>
+        </div>
+      </section>
+      <div class="principles section-shell" aria-label="Características do produto">
+        <span>01 / APLICATIVO DESKTOP</span><span>02 / ANÁLISE LOCAL</span
+        ><span>03 / CÓDIGO ABERTO</span><span>04 / ESCOPO AUTORIZADO</span>
+      </div>
+      <section class="app-section section-shell" id="app" aria-labelledby="app-title">
+        <div class="section-heading">
+          <p class="eyebrow">/ CONHEÇA O APLICATIVO</p>
+          <h2 id="app-title">Um terminal.<br /><span>Mais clareza.</span></h2>
+          <p>
+            Segurança não precisa ser uma lista de alertas indecifráveis. O Qypher conecta cada
+            achado ao que foi observado, por que importa e como verificar a correção.
+          </p>
+        </div>
+        <figure class="app-preview">
+          <div class="preview-title">
+            <span><i></i><i></i><i></i></span><b>qypher — security workspace</b
+            ><span>DESKTOP UI</span>
+          </div>
+          <img
+            src="/interface.png"
+            width="1440"
+            height="1180"
+            alt="Prévia da interface do Qypher com arte ASCII, configuração de análise e terminal de eventos."
+            loading="lazy"
+          />
+          <figcaption>
+            Interface do aplicativo em desenvolvimento, exibida no renderer de prévia. Sem
+            resultados de auditoria simulados.
+          </figcaption>
+        </figure>
+        <div class="app-explanation">
+          <p>
+            <strong>No seu computador.</strong> Interface em janela própria, motor Rust e histórico
+            local em SQLite. O site apresenta o projeto; as análises acontecem no aplicativo.
+          </p>
+          <p>
+            <strong>Controle explícito.</strong> Escolha o escopo, confirme sua autorização e
+            acompanhe os eventos reais. Você pode interromper uma análise em andamento.
+          </p>
+        </div>
+      </section>
+      <section
+        class="resources-section section-shell"
+        id="recursos"
+        aria-labelledby="resources-title"
+      >
+        <div class="split-heading">
+          <div>
+            <p class="eyebrow">/ O QUE VOCÊ PODE REVISAR</p>
+            <h2 id="resources-title">Do primeiro deploy<br /><span>à próxima versão.</span></h2>
+          </div>
+          <p>
+            Projetado para desenvolvedores independentes, estudantes e criadores de SaaS que querem
+            cuidar do que estão construindo.
+          </p>
+        </div>
+        <div class="resources-grid">
+          <article class="resource">
+            <span class="resource-number">01</span>
+            <div>
+              <p class="resource-tag">QUICK & DEEP SCAN</p>
+              <h3>Veja além da página.</h3>
+              <p>
+                Revise TLS, cabeçalhos, CSP, cookies e configurações observáveis. A descoberta
+                aprofundada mantém limites e autorização próprios.
+              </p>
+              <span class="resource-foot">Configuração observada ≠ exploração confirmada.</span>
+            </div>
+          </article>
+          <article class="resource">
+            <span class="resource-number">02</span>
+            <div>
+              <p class="resource-tag">CODE & LEAK HUNTER</p>
+              <h3>Encontre o que escapou.</h3>
+              <p>
+                Faça triagem local de código, possíveis segredos e políticas Supabase/Firebase.
+                Entenda a evidência sem expor credenciais completas.
+              </p>
+              <span class="resource-foot"
+                >Análise estática. Nenhum código do alvo é executado.</span
+              >
+            </div>
+          </article>
+          <article class="resource">
+            <span class="resource-number">03</span>
+            <div>
+              <p class="resource-tag">DEPENDÊNCIAS & PRÉ-DEPLOY</p>
+              <h3>Revise antes de publicar.</h3>
+              <p>
+                Inventarie dependências, compare execuções e identifique novos achados. A consulta a
+                advisories OSV é opcional e exige consentimento.
+              </p>
+              <span class="resource-foot">Sem atualização automática de pacotes.</span>
+            </div>
+          </article>
+          <article class="resource">
+            <span class="resource-number">04</span>
+            <div>
+              <p class="resource-tag">LAB & AI FIX STUDIO</p>
+              <h3>Da evidência à correção.</h3>
+              <p>
+                Compare controles de acesso com contas e recursos fictícios. Gere prompts locais
+                para revisar uma correção com seu assistente de código.
+              </p>
+              <span class="resource-foot">Lab somente em ambientes autorizados.</span>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section class="workflow-section section-shell" aria-labelledby="workflow-title">
+        <p class="eyebrow">/ O FLUXO</p>
+        <h2 id="workflow-title">Entenda. Corrija.<br /><span>Verifique novamente.</span></h2>
+        <ol class="workflow">
+          <li>
+            <span>01 /</span>
+            <div>
+              <h3>Defina seu projeto</h3>
+              <p>Selecione código local ou um alvo próprio. Delimite o que pode ser analisado.</p>
+            </div>
+          </li>
+          <li>
+            <span>02 /</span>
+            <div>
+              <h3>Leia as evidências</h3>
+              <p>Veja confiança, severidade, cobertura e limitações de cada verificação.</p>
+            </div>
+          </li>
+          <li>
+            <span>03 /</span>
+            <div>
+              <h3>Feche o ciclo</h3>
+              <p>
+                Revise a correção, repita a análise e compare o resultado com a execução anterior.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+      <section
+        class="download-section section-shell"
+        id="download"
+        aria-labelledby="download-title"
+      >
+        <div class="download-inner">
+          <p class="eyebrow">/ APLICATIVO DESKTOP</p>
+          <h2 id="download-title">A próxima camada<br /><span>do seu projeto.</span></h2>
+          <p>
+            O Qypher está em desenvolvimento. O download público será disponibilizado depois da
+            validação do instalador e dos fluxos nativos.
+          </p>
+          <div class="release-status">
+            <span class="signal-dot" aria-hidden="true"></span
+            ><span>v0.1.0 em desenvolvimento · download ainda indisponível</span>
+          </div>
+          <a class="text-link" href="#perguntas"
+            >O que esperar desta versão <span aria-hidden="true">↓</span></a
+          >
+        </div>
+        <div class="download-mark" aria-hidden="true">
+          <svg viewBox="0 0 250 200" fill="none">
+            <path d="M50 27H20v146h30m150-146h30v146h-30" stroke="currentColor" stroke-width="9" />
+            <circle cx="124" cy="94" r="52" stroke="currentColor" stroke-width="12" />
+            <path d="m142 120 35 38" stroke="currentColor" stroke-width="12" />
+          </svg>
+        </div>
+      </section>
+      <section class="faq-section section-shell" id="perguntas" aria-labelledby="faq-title">
+        <div>
+          <p class="eyebrow">/ SEM MISTÉRIO</p>
+          <h2 id="faq-title">Antes de<br /><span>começar.</span></h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>O Qypher é um site ou um aplicativo?<span aria-hidden="true">+</span></summary>
+            <p>
+              É um aplicativo desktop com Tauri e Rust. Esta página é a apresentação do projeto. Ela
+              não recebe alvos, executa scanners ou acessa o histórico do aplicativo.
+            </p>
+          </details>
+          <details>
+            <summary>Posso analisar qualquer sistema?<span aria-hidden="true">+</span></summary>
+            <p>
+              Analise apenas seus próprios projetos ou sistemas para os quais você tem autorização
+              explícita. O Lab requer contas de teste e recursos fictícios fornecidos pelo
+              proprietário.
+            </p>
+          </details>
+          <details>
+            <summary>Meu código vai para uma IA?<span aria-hidden="true">+</span></summary>
+            <p>
+              O AI Fix Studio monta prompts localmente. Ele não envia código a modelos nem aplica
+              mudanças automaticamente. Consultas externas opcionais, como OSV, têm consentimento
+              separado.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Uma análise sem alertas garante segurança?<span aria-hidden="true">+</span>
+            </summary>
+            <p>
+              Não. O resultado depende das verificações executadas e da cobertura observada. O
+              Qypher informa falhas de execução e limitações; auditoria automatizada não substitui
+              revisão manual.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer section-shell">
+      <a class="brand" href="#inicio"
+        ><img src="/mark.svg" alt="" width="25" height="25" />qypher<span>_</span></a
+      >
+      <p>De vibe coders, para vibe coders.</p>
+      <a href="https://pqueirozdev.com.br/" target="_blank" rel="noopener noreferrer"
+        >Por Pedro Queiroz <span aria-hidden="true">↗</span></a
+      ><small>© 2026 Qypher · Apache-2.0</small>
+    </footer>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

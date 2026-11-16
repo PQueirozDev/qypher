@@ -1,0 +1,53 @@
+{
+  "name": "qypher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite --config apps/desktop/vite.config.ts",
+    "build": "tsc --noEmit && vite build --config apps/desktop/vite.config.ts",
+    "preview": "vite preview --config apps/desktop/vite.config.ts",
+    "site:dev": "vite --config apps/showcase/vite.config.ts",
+    "site:build": "vite build --config apps/showcase/vite.config.ts",
+    "desktop:dev": "cd apps/desktop && tauri dev",
+    "desktop:preview": "node scripts/desktop-preview.mjs",
+    "desktop:build": "cd apps/desktop && tauri build",
+    "test": "vitest run",
+    "test:schema": "node --test tests/storage/schema.test.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "icons": "node scripts/generate-icons.mjs",
+    "test:e2e": "playwright test",
+    "lint": "eslint apps/desktop/src apps/showcase/main.js apps/showcase/vite.config.ts tests scripts --max-warnings 0",
+    "format": "prettier --write apps/desktop/src docs *.md",
+    "check:rust": "cargo test && cargo clippy --all-targets -- -D warnings",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "lucide-react": "^0.468.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "axe-core": "4.13.0",
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "1.63.0",
+    "@tauri-apps/cli": "^2.9.0",
+    "@types/node": "^24.13.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "eslint": "^9.39.0",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
+  }
+}

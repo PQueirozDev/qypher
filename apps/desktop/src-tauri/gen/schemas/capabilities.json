@@ -1,0 +1,1 @@
+{"main":{"identifier":"main","description":"Only local application window may listen to scanner progress. No shell, filesystem or remote capabilities.","local":true,"windows":["main"],"permissions":["core:event:allow-listen","core:event:allow-unlisten","core:window:allow-start-dragging","core:window:allow-toggle-maximize"]}}

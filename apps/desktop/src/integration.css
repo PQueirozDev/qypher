@@ -1,0 +1,161 @@
+/* Integration with the existing terminal shell; preserves its layout and components. */
+:root {
+  --t-bg: #09090b;
+  --t-bg-2: #111115;
+  --t-panel: #111115;
+  --t-panel-2: #16161c;
+  --t-line: #27272f;
+  --t-line-2: #3f3f46;
+  --t-text: #f4f4f5;
+  --t-dim: #a1a1aa;
+  --t-faint: #a1a1aa;
+  --t-violet: #a78bfa;
+  --accent: #8b5cf6;
+}
+.t-shell {
+  background: var(--t-bg);
+}
+.t-shell::after,
+.t-rain {
+  display: none;
+}
+.t-dots i {
+  background: var(--t-line-2) !important;
+}
+.t-command {
+  background: var(--t-panel-2);
+  border: 1px solid var(--t-line);
+  color: var(--t-text);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font: 11px var(--t-mono);
+}
+.t-shell > .console-dock {
+  flex: none;
+  background: var(--t-panel);
+  border-top: 1px solid var(--t-line);
+  max-height: 32vh;
+}
+.t-shell .console-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+}
+.t-shell .console-filters label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1 1 240px;
+  max-width: 480px;
+}
+.t-shell .console-filters input { width:100%; min-width:0; }
+.t-shell .console-filters select { width:160px; flex:0 0 160px; }
+.t-main { font-family:var(--t-sans); }
+.t-shell .button.primary { background:var(--t-panel-2); color:var(--t-text); border-color:#8b5cf6; }
+.t-shell .console-filters input,
+.t-shell .console-filters select {
+  min-height: 30px;
+  background: var(--t-panel-2);
+  color: var(--t-text);
+  border: 1px solid var(--t-line);
+}
+.t-shell .console-filters > span {
+  color: var(--t-dim);
+  font-size: 11px;
+}
+.lab-fields {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+.lab-fields > label:not(.checkbox-label),
+.source-readiness > label {
+  display: grid;
+  gap: 6px;
+}
+.lab-fields :is(input, select) {
+  min-width: 0;
+}
+.source-readiness,
+.fix-studio {
+  padding: 18px;
+  margin: 18px 0;
+  border: 1px solid var(--t-line);
+  background: var(--t-panel);
+  border-radius: 8px;
+}
+.fix-studio-heading,
+.fix-studio-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.fix-studio-controls label,
+.fix-preview {
+  display: grid;
+  gap: 6px;
+}
+.fix-preview textarea {
+  width: 100%;
+  margin-top: 10px;
+}
+.muted-text,
+.source-readiness p,
+.fix-studio p {
+  color: var(--t-dim);
+  font: 12px/1.65 var(--t-sans);
+}
+.security-dashboard {
+  display: grid;
+  gap: 20px;
+}
+.dashboard-source {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 18px;
+  background: var(--t-panel);
+  color: var(--t-text);
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+}
+.dashboard-source small {
+  display: block;
+  margin-top: 5px;
+  color: var(--t-dim);
+}
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+.dashboard-stats > div,
+.dashboard-card {
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  padding: 16px;
+}
+.dashboard-stats strong {
+  display: block;
+  font-size: 24px;
+}
+@media (max-width: 900px) {
+  .t-path,
+  .t-status,
+  .t-dots {
+    display: none;
+  }
+  .t-topbar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+  .t-nav button {
+    padding: 6px;
+  }
+}

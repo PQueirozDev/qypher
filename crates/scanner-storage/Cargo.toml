@@ -1,0 +1,16 @@
+[package]
+name = "scanner-storage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+scanner-http = { path = "../scanner-http" }
+scanner-core = { path = "../scanner-core" }
+scanner-source = { path = "../scanner-source" }
+rusqlite = { version = "0.37", features = ["bundled"] }
+serde_json.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+

@@ -1,0 +1,877 @@
+/* Terminal workbench: decorative source motion is separate from real execution events. */
+.t-shell {
+  background: radial-gradient(ellipse at 70% 0, #8b5cf609, transparent 55%), #09090b;
+}
+.t-topbar {
+  height: 52px;
+  background: #0c0c11;
+  border-color: #292733;
+}
+.t-brand {
+  white-space: nowrap;
+  flex: none;
+}
+.t-more > button {
+  white-space: nowrap;
+}
+.t-main {
+  padding: 30px 28px 40px;
+}
+.t-wrap {
+  max-width: 1180px;
+}
+.t-hero {
+  padding: 0;
+  border-radius: 12px;
+  border-color: #322b45;
+  background: #0d0d13;
+  box-shadow: 0 18px 65px #0006;
+}
+.t-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(290px, 0.8fr);
+  text-align: left;
+}
+.hero-copy {
+  min-width: 0;
+  padding: 26px 30px 28px;
+}
+.hero-window-title {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font: 11px var(--t-mono);
+  color: #a1a1aa;
+  margin-bottom: 26px;
+}
+.hero-window-title > span:first-child {
+  color: #c4b5fd;
+}
+.hero-window-title > span:nth-child(2) {
+  margin-right: auto;
+}
+.hero-session-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 12px #a78bfa66;
+}
+.t-hero .t-tag {
+  margin: 0 0 18px;
+  border: 0;
+  padding: 0;
+  background: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 9px;
+}
+.t-hero h1 {
+  font: 600 clamp(27px, 3vw, 42px)/1.18 var(--t-sans);
+  letter-spacing: -0.055em;
+  max-width: 480px;
+  margin-bottom: 16px;
+}
+.t-hero p {
+  margin: 0 0 20px;
+  max-width: 500px;
+  font: 13px/1.75 var(--t-sans);
+  color: #b0abbc;
+}
+.hero-tabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid #292632;
+  margin: 0 0 22px;
+}
+.hero-tabs button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 11px 0;
+  color: #aaa4b9;
+  font: 11px var(--t-mono);
+}
+.hero-tabs button[aria-selected='true'] {
+  color: #ddd6fe;
+  border-bottom-color: #8b5cf6;
+}
+.hero-tabs button:hover {
+  color: #e9e5f4;
+}
+.hero-tabs button:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 4px;
+}
+.t-prompt {
+  max-width: none;
+  padding: 9px 10px 9px 14px;
+  border-radius: 7px;
+  background: #09090f;
+}
+.t-prompt input {
+  font-size: 12px;
+}
+.t-shell .t-prompt input {
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: 28px;
+  background: none;
+}
+.t-prompt .sign {
+  color: #a78bfa;
+}
+.t-run {
+  border-radius: 5px;
+  padding: 9px 13px;
+  background: #8b5cf6;
+  color: #fff;
+  font: 600 11px var(--t-mono);
+}
+.t-run:disabled {
+  background: #262030;
+  color: #b8abc9;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.t-opts {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+  justify-content: stretch;
+}
+.t-opt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #bdb6cb;
+}
+.t-opt select {
+  background: #17131f;
+  border: 1px solid #3c324e;
+  border-radius: 5px;
+  padding: 7px 9px;
+  color: #e0d9ed;
+  font: 11px var(--t-mono);
+  width: auto;
+  max-width: 100%;
+}
+.t-consent {
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: left;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.t-consent input,
+.t-opt input[type='checkbox'] {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 2px 0 0;
+}
+/* Native checkboxes retain label, keyboard and form behavior in the desktop WebView. */
+.t-shell input[type='checkbox'] {
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
+  padding: 0;
+  border: 1px solid #746383;
+  border-radius: 5px;
+  background: #131018;
+  cursor: pointer;
+  vertical-align: middle;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+.t-shell input[type='checkbox']::before {
+  content: '';
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg) scale(0);
+  transform-origin: center;
+  transition: transform 120ms ease;
+}
+.t-shell input[type='checkbox']:checked {
+  background: #8b5cf6;
+  border-color: #b59aff;
+}
+.t-shell input[type='checkbox']:checked::before {
+  transform: translateY(-1px) rotate(45deg) scale(1);
+}
+.t-shell input[type='checkbox']:hover:not(:disabled) {
+  border-color: #c4b5fd;
+}
+.t-shell input[type='checkbox']:focus-visible {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 5px #8b5cf61c;
+}
+.t-shell input[type='checkbox']:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.t-shell input[type='checkbox']:indeterminate::before {
+  width: 8px;
+  height: 0;
+  border: 0;
+  border-bottom: 2px solid #c4b5fd;
+  transform: none;
+}
+.t-shell .scope-permission {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px 13px;
+  border: 1px solid #302b39;
+  border-radius: 7px;
+  background: #111015;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+.scope-permission:hover {
+  border-color: #645072;
+  background: #17121e;
+}
+.scope-permission:has(input:focus-visible) {
+  border-color: #b59aff;
+}
+.scope-permission:has(input:checked) {
+  border-color: #705098;
+  background: #1a1323;
+}
+.t-shell .scope-permission input {
+  margin-top: 1px;
+  flex: none;
+}
+.permission-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.permission-copy strong {
+  color: #e7e0ef;
+  font: 500 11px/1.4 var(--t-sans);
+}
+.permission-copy > span {
+  color: #aaa0b7;
+  font: 11px/1.6 var(--t-sans);
+}
+.scope-permission:has(input:checked) .permission-copy strong {
+  color: #dfd0fc;
+}
+.permission-tag {
+  flex: none;
+  margin-left: auto;
+  padding: 3px 5px;
+  color: #b4a5c3;
+  background: #1a1521;
+  border: 1px solid #3d3149;
+  border-radius: 3px;
+  font: 8px/1.3 var(--t-mono);
+}
+@media (forced-colors: active) {
+  .t-shell input[type='checkbox'] {
+    appearance: auto;
+  }
+  .t-shell input[type='checkbox']::before {
+    display: none;
+  }
+  .t-shell .scope-permission {
+    border-color: CanvasText;
+  }
+  .permission-copy strong,
+  .permission-copy > span,
+  .permission-tag {
+    color: CanvasText;
+  }
+}
+@media (max-width: 1100px) {
+  .permission-tag {
+    display: none;
+  }
+}
+.t-hero .scan-prerequisites {
+  font-size: 11px;
+  color: #b3a8c5;
+  border-left: 2px solid #634299;
+  padding-left: 11px;
+  margin-top: 18px;
+}
+.t-hero .t-hint {
+  display: none;
+}
+.code-atmosphere {
+  align-self: stretch;
+  position: relative;
+  min-width: 0;
+  border-left: 1px solid #2b2437;
+  background: linear-gradient(155deg, #18102060, #09090f 70%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 22px 20px;
+}
+.code-atmosphere::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#8b5cf608 1px, transparent 1px),
+    linear-gradient(90deg, #8b5cf608 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+.atmosphere-title {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font: 9px var(--t-mono);
+  color: #b5a3d3;
+  border-bottom: 1px solid #332740;
+  padding-bottom: 13px;
+  margin-bottom: 6px;
+}
+.atmosphere-title > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.atmosphere-title i {
+  width: 5px;
+  height: 5px;
+  background: #b2a0d4;
+}
+.atmosphere-title span:last-child {
+  font-size: 8px;
+  color: #a39aaf;
+}
+.atmosphere-code {
+  position: relative;
+  min-height: 235px;
+}
+.atmosphere-line {
+  display: flex;
+  gap: 16px;
+  line-height: 2.4;
+  font: 11px/2.4 var(--t-mono);
+  white-space: pre;
+  animation: code-motion-in 0.7s ease both;
+}
+.atmosphere-line code {
+  overflow: hidden;
+}
+.atmosphere-number {
+  color: #80758e;
+  width: 20px;
+  flex: none;
+  user-select: none;
+}
+.atmosphere-line.policy code {
+  color: #d7c4f5;
+}
+.atmosphere-line.value code {
+  color: #b6c8ed;
+}
+.atmosphere-line.comment code {
+  color: #a695b5;
+}
+.atmosphere-cursor {
+  display: block;
+  width: 5px;
+  height: 9px;
+  background: #a78bfa;
+  margin: 0;
+  animation: code-cursor 1.2s steps(1) infinite;
+}
+.atmosphere-footer {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #2a2235;
+  padding-top: 12px;
+  margin-top: 15px;
+  font: 8px var(--t-mono);
+  color: #aa9bbf;
+  letter-spacing: 0.08em;
+}
+.ascii-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 1;
+  min-height: 370px;
+}
+.ascii-coordinate,
+.ascii-axis {
+  position: absolute;
+  font: 8px var(--t-mono);
+  color: #9786ad;
+  letter-spacing: 0.1em;
+  left: 0;
+  right: 0;
+}
+.ascii-coordinate {
+  top: 13px;
+}
+.ascii-axis {
+  bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.ascii-art {
+  font: clamp(5px, 0.53vw, 7.4px)/1.2 var(--t-mono);
+  letter-spacing: 0;
+  white-space: pre;
+  background: linear-gradient(125deg, #7d6a98 8%, #ddd3ee 38%, #b99aef 64%, #6e568b 91%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #c3acdf;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  user-select: none;
+  text-shadow: none;
+}
+.ascii-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ascii-controls > div {
+  display: flex;
+  gap: 5px;
+}
+.ascii-controls button {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 6px 8px;
+  background: none;
+  color: #ad9cbe;
+  font: 9px var(--t-mono);
+}
+.ascii-controls button[aria-pressed='true'] {
+  background: #21182e;
+  border-color: #463256;
+  color: #dfd1f4;
+}
+.ascii-controls button:hover {
+  background: #201729;
+  color: #f0e6fd;
+}
+.ascii-controls button:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 3px;
+}
+.ascii-play {
+  display: grid;
+  place-items: center;
+}
+.t-shell .t-dots i {
+  background: #554961;
+  filter: none;
+}
+.t-shell .t-dots i:nth-child(2) {
+  background: #8e78aa;
+}
+.t-shell .t-dots i:nth-child(3) {
+  background: #c4b4d7;
+}
+.t-shell::after {
+  opacity: 0.16;
+}
+.t-hero {
+  border-radius: 6px;
+}
+.t-hero-inner {
+  grid-template-columns: minmax(0, 1.12fr) minmax(310px, 0.88fr);
+}
+.t-hero h1 {
+  font-size: clamp(28px, 3.05vw, 43px);
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+}
+.t-hero h1 .b {
+  color: #c4b5fd;
+}
+.workflows {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid #2a2533;
+  border-radius: 5px;
+  margin-top: 18px;
+  background: #0e0c12;
+}
+.workflows > button {
+  display: flex;
+  text-align: left;
+  align-items: center;
+  gap: 13px;
+  padding: 19px 17px;
+  border: 0;
+  border-right: 1px solid #2a2533;
+  background: none;
+  color: #ddd4e8;
+  border-radius: 0;
+}
+.workflows > button:last-child {
+  border-right: 0;
+}
+.workflows > button:hover {
+  background: #17111f;
+}
+.workflows > button:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: -3px;
+}
+.workflows .workflow-index {
+  font: 10px var(--t-mono);
+  color: #a78bfa;
+  align-self: flex-start;
+  padding-top: 2px;
+}
+.workflows strong {
+  display: block;
+  font: 500 11px var(--t-mono);
+  margin-bottom: 7px;
+}
+.workflows small {
+  display: block;
+  font: 11px/1.6 var(--t-sans);
+  color: #a9a0b5;
+}
+.workflows svg {
+  margin-left: auto;
+  color: #8e7e9e;
+  flex: none;
+}
+.code-atmosphere::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 45px;
+  background: linear-gradient(transparent, #9f7aea07, transparent);
+  pointer-events: none;
+  animation: code-light-pass 12s linear infinite;
+}
+.runtime-notice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 24px;
+  background: #13101b;
+  border-bottom: 1px solid #352846;
+  flex: none;
+  color: #b7a5ce;
+}
+.runtime-notice > div:first-of-type {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+.runtime-notice strong {
+  font: 600 10px var(--t-mono);
+  color: #ddd4ed;
+}
+.runtime-notice span {
+  font: 11px/1.5 var(--t-sans);
+  color: #b2a7c1;
+}
+.runtime-notice > button,
+.runtime-instructions > button:not(.icon-button) {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid #4e3b67;
+  border-radius: 5px;
+  background: #21182e;
+  color: #e7ddf5;
+  font: 10px var(--t-mono);
+}
+.runtime-instructions {
+  position: absolute;
+  right: 24px;
+  top: calc(100% + 8px);
+  width: min(520px, calc(100vw - 40px));
+  background: #15111d;
+  border: 1px solid #624585;
+  box-shadow: 0 20px 50px #0009;
+  border-radius: 10px;
+  padding: 24px;
+  z-index: 30;
+}
+.runtime-instructions .icon-button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+.runtime-instructions h3 {
+  font: 600 15px var(--t-sans);
+  margin: 0 20px 16px 0;
+  color: #f0eaf7;
+}
+.runtime-instructions p {
+  font: 12px/1.7 var(--t-sans);
+  color: #bfb3cd;
+}
+.runtime-instructions code {
+  display: block;
+  background: #09090f;
+  border: 1px solid #382b47;
+  border-radius: 5px;
+  padding: 12px;
+  color: #d8c5f3;
+  margin: 14px 0;
+  font-size: 12px;
+}
+.t-shell > .console-dock {
+  height: 220px;
+  max-height: 35vh;
+  border-top: 1px solid #3a2b4e;
+  background: #0d0c12;
+  display: flex;
+  flex-direction: column;
+}
+.t-shell > .console-dock.collapsed {
+  height: auto;
+}
+.t-shell .console-tabs {
+  background: #100e17;
+  border-bottom: 1px solid #272130;
+  min-height: 33px;
+}
+.t-shell .console-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 7px 17px;
+  background: #100e16;
+  border-bottom: 1px solid #231c2e;
+}
+.t-shell .console-filters > label {
+  margin: 0;
+  flex: 1;
+  max-width: 400px;
+  min-width: 0;
+  flex-direction: row;
+}
+.t-shell .console-filters input {
+  height: 27px;
+  min-height: 27px;
+  font: 10px var(--t-mono);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.t-shell .console-filters select {
+  height: 27px;
+  min-height: 27px;
+  width: 138px;
+  flex-basis: 138px;
+  font: 10px var(--t-mono);
+  padding: 4px 8px;
+}
+.t-shell .console-filters > span {
+  margin-left: auto;
+  white-space: nowrap;
+  font: 9px var(--t-mono);
+}
+.t-shell .console-output {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  padding: 9px 17px;
+  font: 10px/1.65 var(--t-mono);
+}
+.t-shell .console-prompt {
+  background: #111019;
+  min-height: 34px;
+  border-top: 1px solid #2d2239;
+  font: 11px var(--t-mono);
+}
+.t-shell .console-prompt > span:first-child {
+  color: #c4b5fd;
+}
+.t-shell .console-prompt > b {
+  color: #a78bfa;
+}
+.t-shell .console-prompt input {
+  font: 11px var(--t-mono);
+  caret-color: #a78bfa;
+}
+.t-shell .console-message {
+  margin: 0;
+  padding: 5px 17px;
+  background: #191321;
+  color: #d7c5ea;
+  font-size: 10px;
+}
+.motion-preference {
+  display: grid;
+  gap: 9px;
+  max-width: 400px;
+  color: #d4c8e2;
+  font: 13px var(--t-sans);
+}
+.motion-preference small {
+  color: #aaa1b7;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.t-inner {
+  animation: panel-motion-in 0.18s ease-out both;
+}
+@keyframes code-motion-in {
+  from {
+    opacity: 0;
+    transform: translateX(-9px);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes code-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes code-light-pass {
+  from {
+    top: -45px;
+  }
+  to {
+    top: 110%;
+  }
+}
+@keyframes panel-motion-in {
+  from {
+    opacity: 0.5;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+html[data-motion='off'] .t-shell *,
+html[data-motion='off'] .t-shell *::before,
+html[data-motion='off'] .t-shell *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-shell *,
+  .t-shell *::before,
+  .t-shell *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .atmosphere-cursor {
+    opacity: 1;
+  }
+}
+@media (max-width: 1100px) {
+  .t-path {
+    display: none;
+  }
+  .hero-copy {
+    padding: 22px;
+  }
+  .code-atmosphere {
+    padding: 22px 18px;
+  }
+  .ascii-art {
+    font-size: 6px;
+  }
+  .runtime-notice span {
+    font-size: 10px;
+  }
+  .runtime-notice {
+    padding: 9px 18px;
+  }
+}
+@media (max-height: 800px) {
+  .t-shell > .console-dock:not(.collapsed) {
+    height: 180px;
+  }
+}
+@media (max-width: 850px) {
+  .t-hero-inner {
+    grid-template-columns: 1fr;
+  }
+  .code-atmosphere {
+    border-left: 0;
+    border-top: 1px solid #2b2437;
+    padding: 18px;
+  }
+  .ascii-stage {
+    min-height: 310px;
+  }
+  .ascii-art {
+    font-size: 6px;
+  }
+  .workflows {
+    grid-template-columns: 1fr;
+  }
+  .workflows > button {
+    border-right: 0;
+    border-bottom: 1px solid #2a2533;
+  }
+  .workflows > button:last-child {
+    border-bottom: 0;
+  }
+  .runtime-notice {
+    flex-wrap: wrap;
+  }
+  .runtime-notice > div:first-of-type {
+    min-width: 220px;
+  }
+  .t-main {
+    padding: 20px 16px;
+  }
+  .t-shell .prompt-key {
+    display: none;
+  }
+  .t-shell .console-filters > span {
+    display: none;
+  }
+}
+
+/* Rótulo do modo (cadeado/órbita) ligado ao tipo de varredura */
+.ascii-mode {
+  font-family: var(--t-mono, 'JetBrains Mono', monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t-violet, #a78bfa);
+}

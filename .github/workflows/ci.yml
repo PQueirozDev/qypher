@@ -1,0 +1,52 @@
+name: Quality
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Linux desktop prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev build-essential
+      - name: Install dependencies (lockfiles required before release)
+        shell: bash
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:schema
+      - run: npm run lint
+      - run: cargo fmt --all -- --check
+      - name: Rust tests and desktop compile
+        shell: bash
+        run: |
+          if [ -f Cargo.lock ]; then
+            cargo test --workspace --locked
+          else
+            cargo test --workspace
+          fi
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: npx playwright install chromium --with-deps
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-evidence-${{ matrix.os }}
+          path: test-results/
+          retention-days: 7
