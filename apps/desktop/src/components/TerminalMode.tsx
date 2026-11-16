@@ -305,7 +305,6 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
             autoFocus
             aria-label="Terminal do Qypher"
           />
-          <span className="tui-caret" />
         </form>
       </div>
       <div className="tui-status">

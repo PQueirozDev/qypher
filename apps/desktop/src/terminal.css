@@ -1027,15 +1027,7 @@ body {
   color: var(--t-text);
   font-family: var(--t-mono);
   font-size: 13.5px;
-  caret-color: transparent;
-}
-.tui-input .tui-caret {
-  width: 9px;
-  height: 1.05em;
-  margin-left: -7px;
-  background: var(--t-violet);
-  animation: t-blink 1.05s steps(1) infinite;
-  flex: none;
+  caret-color: var(--t-violet);
 }
 .tui-status {
   flex: none;

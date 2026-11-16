@@ -1,4 +1,5 @@
-export type AsciiScene = 'shield' | 'orbit' | 'globe' | 'cube' | 'wave' | 'radar' | 'helix';
+export type AsciiScene =
+  'shield' | 'orbit' | 'globe' | 'cube' | 'wave' | 'radar' | 'helix' | 'matrix' | 'torus';
 const columns = 78;
 const rows = 44;
 const ramp = '.,:;+=xX$#@';
@@ -49,6 +50,8 @@ export function asciiFrame(time: number, scene: AsciiScene): string {
   else if (scene === 'cube') renderCube(point);
   else if (scene === 'radar') renderRadar(point, time);
   else if (scene === 'helix') renderHelix(point, time);
+  else if (scene === 'matrix') renderMatrix(point, time);
+  else if (scene === 'torus') renderTorus(point, time);
   else renderWave(point, time);
 
   const output = [];
@@ -75,6 +78,10 @@ function cameraFor(scene: AsciiScene, time: number): [number, number] {
       return [0.0, 0.62];
     case 'helix':
       return [time * 0.22, 0.12];
+    case 'matrix':
+      return [0, 0];
+    case 'torus':
+      return [time * 0.5, 0.72];
   }
 }
 
@@ -233,6 +240,45 @@ function renderHelix(point: Plot, time: number) {
       for (let s = 0.1; s < 1; s += 0.12) {
         point(x1 + (x2 - x1) * s, t, z1 + (z2 - z1) * s, 0.25, '-');
       }
+    }
+  }
+}
+
+// Chuva de caracteres: colunas caindo com cabeça brilhante e cauda que esmaece.
+const MATRIX_GLYPHS = '01<>[]{}/|=+*#$%&';
+function renderMatrix(point: Plot, time: number) {
+  const cols = 40;
+  for (let i = 0; i < cols; i++) {
+    const x = -1.52 + (i / (cols - 1)) * 3.04;
+    const speed = 0.45 + (((i * 73) % 17) / 17) * 1.25;
+    const phase = (((i * 131) % 100) / 100) * 3.1;
+    const headY = -1.42 + ((time * speed + phase) % 3.0);
+    for (let t = 0; t < 14; t++) {
+      const y = headY - t * 0.125;
+      if (y < -1.44 || y > 1.44) continue;
+      const bright = t === 0 ? 1 : Math.max(0.05, 0.72 - t * 0.055);
+      const glyph = MATRIX_GLYPHS[(i * 7 + Math.floor(time * 9) + t * 5) % MATRIX_GLYPHS.length];
+      point(x, y, 0, bright, t <= 2 ? glyph : undefined);
+    }
+  }
+}
+
+// Toro (donut) clássico, com sombreamento aproximado pela normal.
+function renderTorus(point: Plot, time: number) {
+  const r = 0.34,
+    R = 0.82;
+  for (let u = 0; u < Math.PI * 2; u += 0.09) {
+    for (let v = 0; v < Math.PI * 2; v += 0.05) {
+      const cu = Math.cos(u),
+        su = Math.sin(u);
+      const cv = Math.cos(v),
+        sv = Math.sin(v);
+      const x = (R + r * cv) * cu;
+      const y = r * sv;
+      const z = (R + r * cv) * su;
+      // Luz vinda de cima-frente: realça a face superior do tubo.
+      const bright = 0.3 + 0.7 * Math.max(0, (sv * 0.7 + cv * 0.5 + Math.sin(time) * 0.2 + 1) / 2);
+      point(x, y, z, bright);
     }
   }
 }

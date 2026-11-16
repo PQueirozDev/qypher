@@ -10,6 +10,8 @@ const GALLERY: { scene: AsciiScene; label: string; fig: string }[] = [
   { scene: 'wave', label: 'onda', fig: 'FIG_05 / ONDA' },
   { scene: 'radar', label: 'radar', fig: 'FIG_06 / RADAR' },
   { scene: 'helix', label: 'hélice', fig: 'FIG_07 / HÉLICE' },
+  { scene: 'matrix', label: 'matriz', fig: 'FIG_08 / MATRIZ' },
+  { scene: 'torus', label: 'toro', fig: 'FIG_09 / TORO' },
 ];
 
 /** Geometria local e decorativa. O modo de análise define a arte inicial (cadeado/órbita);
