@@ -327,7 +327,7 @@
         font-size: 16px;
         margin: 10px 0 6px;
       }
-      .card p {
+      .card.dl{text-decoration:none;transition:border-color .15s,transform .1s}.card.dl:hover{border-color:var(--line2);transform:translateY(-2px)}.card p {
         margin: 0;
         color: var(--dim);
         font-size: 14px;
@@ -451,6 +451,7 @@
         <span class="sp"></span>
         <a class="lnk" href="#recursos">recursos</a>
         <a class="lnk" href="#como">como funciona</a>
+        <a class="lnk" href="#downloads">downloads</a>
         <a class="lnk" href="#seguranca">segurança</a>
         <a class="btn" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
           >GitHub ↗</a
@@ -598,6 +599,51 @@
             <li><strong>Segredos protegidos:</strong> o conteúdo exposto é exibido mascarado e redigido nas exportações; o valor inteiro nunca é guardado.</li>
           </ul>
         </div>
+      </section>
+
+      <section id="downloads" class="wrap">
+        <span class="eyebrow">// downloads</span>
+        <h2 class="sec">Baixe e instale</h2>
+        <p class="lead">
+          Instaladores para Windows, Linux e macOS são publicados nas releases do GitHub. O
+          aplicativo se atualiza sozinho quando uma nova versão sai.
+        </p>
+        <div class="grid">
+          <a
+            class="card dl"
+            href="https://github.com/PQueirozDev/qypher/releases/latest"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="ic">[ windows ]</span>
+            <h3>Windows 10/11</h3>
+            <p>Instalador .exe (NSIS), por usuário, sem privilégio de administrador.</p>
+          </a>
+          <a
+            class="card dl"
+            href="https://github.com/PQueirozDev/qypher/releases/latest"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="ic">[ linux ]</span>
+            <h3>Linux</h3>
+            <p>AppImage e pacote .deb.</p>
+          </a>
+          <a
+            class="card dl"
+            href="https://github.com/PQueirozDev/qypher/releases/latest"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="ic">[ macos ]</span>
+            <h3>macOS</h3>
+            <p>Imagem .dmg.</p>
+          </a>
+        </div>
+        <p class="note" style="margin-top: 14px; color: var(--faint); font-family: var(--mono); font-size: 13px">
+          Ainda sem release validada? Clone o repositório e compile do código — veja o
+          <a href="https://github.com/PQueirozDev/qypher#começar-no-windows" style="color: var(--violet)">README</a>.
+        </p>
       </section>
 
       <section class="wrap">
