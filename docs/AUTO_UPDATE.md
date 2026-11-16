@@ -1,66 +1,16 @@
 # Atualização automática
 
-O Qypher usa o atualizador do Tauri: o aplicativo verifica as releases do GitHub e, quando há
-uma versão nova assinada, baixa e instala sozinho. Para isso funcionar são necessários uma
-**chave de assinatura** (gerada uma única vez) e o **workflow de release** (já incluído em
-`.github/workflows/release.yml`).
+O Qypher usa o atualizador do Tauri. O aplicativo instalado verifica as releases do GitHub ao
+abrir e, quando há uma versão nova **assinada**, baixa e instala em segundo plano, reiniciando
+com a versão atualizada. Já está tudo configurado:
 
-> O ambiente onde este repositório foi montado não tem o CLI do Tauri, então a chave **não**
-> pôde ser gerada aqui. Os passos abaixo são feitos uma vez, na sua máquina.
+- Par de chaves de assinatura **gerado**.
+- Chave **pública** embutida em `apps/desktop/src-tauri/tauri.conf.json` (`plugins.updater.pubkey`).
+- Endpoint apontando para as releases: `.../releases/latest/download/latest.json`.
+- Plugin `tauri-plugin-updater` registrado, com verificação em segundo plano no `setup` (apenas em build de release).
+- Secrets `TAURI_SIGNING_PRIVATE_KEY` e `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` **configurados** no repositório; o workflow de release (`.github/workflows/release.yml`) os usa para assinar os artefatos do atualizador.
 
-## 1. Gerar a chave de assinatura
-
-Com o [CLI do Tauri](https://v2.tauri.app/) disponível (via `npm`/`cargo`):
-
-```bash
-npm install -g @tauri-apps/cli
-tauri signer generate -w ./qypher-updater.key
-```
-
-O comando imprime a **chave pública** (`untrusted comment: ...`) e grava a **chave privada** em
-`qypher-updater.key`. Guarde a senha escolhida. Nunca faça commit da chave privada
-(ela já está coberta por `*.key` no `.gitignore`).
-
-## 2. Apontar o aplicativo para o atualizador
-
-No `apps/desktop/src-tauri/tauri.conf.json`, adicione (trocando `SUA_CHAVE_PUBLICA`):
-
-```jsonc
-{
-  "bundle": { "createUpdaterArtifacts": true },
-  "plugins": {
-    "updater": {
-      "pubkey": "SUA_CHAVE_PUBLICA",
-      "endpoints": [
-        "https://github.com/PQueirozDev/qypher/releases/latest/download/latest.json"
-      ]
-    }
-  }
-}
-```
-
-E habilite o plugin no crate (`apps/desktop/src-tauri`):
-
-```bash
-cargo add tauri-plugin-updater
-```
-
-No `lib.rs`, registre o plugin no builder:
-
-```rust
-.plugin(tauri_plugin_updater::Builder::new().build())
-```
-
-## 3. Guardar a chave privada como secret no GitHub
-
-No repositório → **Settings → Secrets and variables → Actions**, crie:
-
-- `TAURI_SIGNING_PRIVATE_KEY` — conteúdo do arquivo `qypher-updater.key`.
-- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — a senha definida na geração.
-
-O workflow de release já lê esses secrets e assina os artefatos do atualizador.
-
-## 4. Publicar uma versão
+## Publicar uma versão (dispara o auto-update)
 
 ```bash
 git tag v0.1.0
@@ -68,11 +18,24 @@ git push origin v0.1.0
 ```
 
 O GitHub Actions compila os instaladores das três plataformas, assina os artefatos do
-atualizador e cria uma **release em rascunho**. Revise e publique. A partir daí, versões
-instaladas se atualizam sozinhas quando você publica uma tag maior.
+atualizador, gera o `latest.json` e cria uma **release em rascunho**. Revise e publique. A partir
+daí, as versões instaladas se atualizam sozinhas quando você publica uma tag maior.
 
-## Sem a chave
+## Guarde a chave privada
 
-Enquanto a chave não existir, o workflow ainda gera e publica os **instaladores** normalmente
-(a seção de downloads do site já aponta para eles). Apenas a atualização automática fica
-desligada até os passos 1–3 serem concluídos.
+A chave privada e a senha foram gravadas localmente em `qypher-updater.key` e
+`qypher-updater.pass` (ambos ignorados pelo git). **Guarde esses dois arquivos em local seguro.**
+Se perdê-los, não será possível assinar novas atualizações para quem já instalou — seria preciso
+gerar um novo par e redistribuir o aplicativo. Eles também estão como secrets no GitHub, mas
+secrets não podem ser lidos de volta.
+
+## Trocar a chave (se necessário)
+
+```bash
+cargo install tauri-cli --version "^2"      # se ainda não tiver
+cargo tauri signer generate -p "SUA_SENHA" -w qypher-updater.key -f
+```
+
+Depois, atualize `pubkey` no `tauri.conf.json` com o conteúdo de `qypher-updater.key.pub` e
+refaça os secrets `TAURI_SIGNING_PRIVATE_KEY` (conteúdo de `qypher-updater.key`) e
+`TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.

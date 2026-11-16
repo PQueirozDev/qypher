@@ -267,6 +267,7 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .on_page_load(|_, payload| {
             if matches!(payload.event(), tauri::webview::PageLoadEvent::Finished) {
                 startup("frontend_navigation_finished");
@@ -302,6 +303,21 @@ pub fn run() {
                 exit_after_cancel: AtomicBool::new(false),
             });
             startup("store_ready");
+            // Atualização automática: verifica as releases assinadas e instala em segundo plano.
+            #[cfg(not(debug_assertions))]
+            {
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    use tauri_plugin_updater::UpdaterExt;
+                    if let Ok(updater) = handle.updater() {
+                        if let Ok(Some(update)) = updater.check().await {
+                            if update.download_and_install(|_, _| {}, || {}).await.is_ok() {
+                                handle.restart();
+                            }
+                        }
+                    }
+                });
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

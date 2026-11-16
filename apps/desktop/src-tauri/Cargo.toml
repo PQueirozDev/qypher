@@ -19,6 +19,7 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 tauri-plugin-single-instance = "2"
+tauri-plugin-updater = "2"
 scanner-core = { path = "../../../crates/scanner-core" }
 scanner-http = { path = "../../../crates/scanner-http" }
 scanner-source = { path = "../../../crates/scanner-source" }
