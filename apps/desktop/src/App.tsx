@@ -11,6 +11,7 @@ import { Reports } from './components/Reports';
 import { Tools } from './components/Tools';
 import { About, Settings } from './components/InfoPages';
 import { SourceLab } from './components/SourceLab';
+import { TerminalMode } from './components/TerminalMode';
 import { Dashboard } from './components/Dashboard';
 import { LabMode } from './components/LabMode';
 import { ConsoleDock, type ConsoleMessage } from './components/ConsoleDock';
@@ -20,6 +21,7 @@ import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
 
 const navPrimary = [
+  { id: 'terminal', label: 'terminal', accessible: 'Modo terminal' },
   { id: 'home', label: 'analisar', accessible: 'Analisar site' },
   { id: 'source', label: 'código', accessible: 'Análise de código' },
   { id: 'findings', label: 'achados', accessible: 'Achados' },
@@ -37,6 +39,7 @@ const navMore = [
 ];
 
 const paths: Record<string, string> = {
+  terminal: '~',
   dashboard: '~/dashboard',
   lab: '~/lab',
   home: '~/scan',
@@ -54,7 +57,7 @@ const paths: Record<string, string> = {
 export default function App() {
   const w = useWorkspace();
   const { setError } = w;
-  const [page, setPage] = useState('home');
+  const [page, setPage] = useState('terminal');
   const [scanDraft, setScanDraft] = useState({
     url: '',
     mode: 'quick' as 'quick' | 'deep',
@@ -154,7 +157,8 @@ export default function App() {
   }
 
   let content;
-  if (page === 'home')
+  if (page === 'terminal') content = <TerminalMode workspace={w} exit={() => navigate('home')} />;
+  else if (page === 'home')
     content = (
       <Home
         key={scanDraft.revision}
@@ -207,6 +211,7 @@ export default function App() {
   else content = <About />;
 
   const isHome = page === 'home';
+  const isTerminal = page === 'terminal';
   return (
     <div className="t-shell">
       <a className="skip-link" href="#main">
@@ -307,19 +312,21 @@ export default function App() {
             </div>
           </div>
         )}
-        <div className={isHome ? '' : 'q-page t-inner'} key={page}>
+        <div className={isTerminal ? 'tui-host' : isHome ? '' : 'q-page t-inner'} key={page}>
           {content}
         </div>
       </main>
-      <ConsoleDock
-        workspace={w}
-        messages={messages}
-        execute={(command) => void execute(command)}
-        collapsed={collapsed}
-        toggle={() => setCollapsed((value) => !value)}
-        clear={clear}
-        clearedAt={clearedAt}
-      />
+      {!isTerminal && (
+        <ConsoleDock
+          workspace={w}
+          messages={messages}
+          execute={(command) => void execute(command)}
+          collapsed={collapsed}
+          toggle={() => setCollapsed((value) => !value)}
+          clear={clear}
+          clearedAt={clearedAt}
+        />
+      )}
       {palette && (
         <CommandPalette
           close={() => setPalette(false)}

@@ -956,3 +956,107 @@ body {
     display: none;
   }
 }
+
+/* ===== Modo terminal (TUI): o app inteiro como um terminal ===== */
+.tui {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(1000px 500px at 50% -160px, #a78bfa12, transparent 70%), var(--t-bg);
+  font-family: var(--t-mono);
+  cursor: text;
+}
+.tui-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 26px 8px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.tui-line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--t-text);
+}
+.tui-line pre {
+  margin: 0;
+  font-family: var(--t-mono);
+  line-height: 1.1;
+}
+.tui-line.t-accent {
+  color: var(--t-violet);
+}
+.tui-line.t-muted {
+  color: var(--t-dim);
+}
+.tui-line.t-ok {
+  color: var(--t-cyan);
+}
+.tui-line.t-warn {
+  color: var(--t-amber);
+}
+.tui-line.t-bad {
+  color: var(--t-pink);
+}
+.tui-line.t-low {
+  color: var(--t-low);
+}
+.tui-line.t-info {
+  color: var(--t-info);
+}
+.tui-line.t-prompt-echo {
+  color: #cfcfe4;
+}
+.tui-input {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 2px;
+}
+.tui-ps {
+  color: var(--t-violet);
+  user-select: none;
+  flex: none;
+}
+.tui-input input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--t-text);
+  font-family: var(--t-mono);
+  font-size: 13.5px;
+  caret-color: transparent;
+}
+.tui-input .tui-caret {
+  width: 9px;
+  height: 1.05em;
+  margin-left: -7px;
+  background: var(--t-violet);
+  animation: t-blink 1.05s steps(1) infinite;
+  flex: none;
+}
+.tui-status {
+  flex: none;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 9px 26px;
+  border-top: 1px solid var(--t-line);
+  background: #09090f;
+  color: var(--t-faint);
+  font-size: 11.5px;
+}
+.tui-status span:first-child {
+  color: var(--t-dim);
+}
+
+/* Modo terminal ocupa a área inteira, sem padding */
+.t-main:has(.tui-host) {
+  padding: 0;
+  overflow: hidden;
+}
+.tui-host {
+  height: 100%;
+}
