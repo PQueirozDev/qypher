@@ -1,4 +1,4 @@
-export type AsciiScene = 'shield' | 'orbit' | 'globe' | 'cube' | 'wave';
+export type AsciiScene = 'shield' | 'orbit' | 'globe' | 'cube' | 'wave' | 'radar' | 'helix';
 const columns = 78;
 const rows = 44;
 const ramp = '.,:;+=xX$#@';
@@ -47,6 +47,8 @@ export function asciiFrame(time: number, scene: AsciiScene): string {
   else if (scene === 'orbit') renderOrbit(point);
   else if (scene === 'globe') renderGlobe(point);
   else if (scene === 'cube') renderCube(point);
+  else if (scene === 'radar') renderRadar(point, time);
+  else if (scene === 'helix') renderHelix(point, time);
   else renderWave(point, time);
 
   const output = [];
@@ -69,6 +71,10 @@ function cameraFor(scene: AsciiScene, time: number): [number, number] {
       return [time * 0.3, 0.5 + Math.sin(time * 0.2) * 0.25];
     case 'wave':
       return [Math.sin(time * 0.3) * 0.3, 1.02];
+    case 'radar':
+      return [0.0, 0.62];
+    case 'helix':
+      return [time * 0.22, 0.12];
   }
 }
 
@@ -178,6 +184,55 @@ function renderWave(point: Plot, time: number) {
     for (let yy = -1.4; yy <= 1.4; yy += 0.05) {
       const h = 0.34 * Math.sin(3 * x + time * 2.0) * Math.cos(3 * yy + time * 1.3);
       point(x, h, yy, 0.3 + 0.7 * ((h + 0.34) / 0.68));
+    }
+  }
+}
+
+// Varredura de radar: anéis, eixos, feixe giratório e alvos pulsantes.
+function renderRadar(point: Plot, time: number) {
+  const sweep = time % (Math.PI * 2);
+  for (let r = 0.28; r <= 1.18; r += 0.3) {
+    for (let a = 0; a < Math.PI * 2; a += 0.07) {
+      point(Math.cos(a) * r, 0, Math.sin(a) * r, 0, a % 0.35 < 0.18 ? '.' : ':');
+    }
+  }
+  for (let t = -1.18; t <= 1.18; t += 0.035) {
+    point(t, 0, 0, 0, '.');
+    point(0, 0, t, 0, '.');
+  }
+  // Rastro do feixe (fade atrás da borda de ataque).
+  for (let d = 0; d < 1.1; d += 0.05) {
+    const a = sweep - d * 0.85;
+    for (let r = 0; r <= 1.18; r += 0.028) {
+      point(Math.cos(a) * r, 0, Math.sin(a) * r, Math.max(0, 1 - d));
+    }
+  }
+  const blips: Array<[number, number]> = [
+    [0.7, 0.95],
+    [1.9, 0.55],
+    [2.7, 1.08],
+    [4.6, 0.8],
+  ];
+  for (const [ba, br] of blips) {
+    const pulse = 0.5 + 0.5 * Math.sin(time * 3 + ba * 2);
+    point(Math.cos(ba) * br, 0, Math.sin(ba) * br, 0.6 + 0.4 * pulse, pulse > 0.6 ? '@' : 'o');
+  }
+}
+
+// Dupla hélice: dois filamentos em rotação com degraus ligando-os.
+function renderHelix(point: Plot, time: number) {
+  for (let t = -1.3; t <= 1.3; t += 0.018) {
+    const a = t * 5 + time * 1.6;
+    const x1 = Math.cos(a) * 0.52,
+      z1 = Math.sin(a) * 0.52;
+    const x2 = Math.cos(a + Math.PI) * 0.52,
+      z2 = Math.sin(a + Math.PI) * 0.52;
+    point(x1, t, z1, 0.3 + 0.7 * ((z1 + 0.52) / 1.04), '0');
+    point(x2, t, z2, 0.3 + 0.7 * ((z2 + 0.52) / 1.04), 'O');
+    if (Math.abs((((t * 5) % 1.0) + 1.0) % 1.0) < 0.04) {
+      for (let s = 0.1; s < 1; s += 0.12) {
+        point(x1 + (x2 - x1) * s, t, z1 + (z2 - z1) * s, 0.25, '-');
+      }
     }
   }
 }

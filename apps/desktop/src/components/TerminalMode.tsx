@@ -8,6 +8,7 @@ import { normalizeTarget } from './Home';
 
 type Line = { text: string; cls?: string; pre?: boolean };
 const privateHost = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|\[::1\])/;
+const SPIN = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 const severityClass: Record<Severity, string> = {
   high: 't-bad',
   medium: 't-warn',
@@ -45,6 +46,7 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
   const [histIndex, setHistIndex] = useState(-1);
   const [pending, setPending] = useState<{ target: URL; deep: boolean } | null>(null);
   const [scanId, setScanId] = useState('');
+  const [spin, setSpin] = useState(0);
   const seenLogs = useRef(0);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +59,14 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
   useEffect(() => {
     bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
   }, [lines]);
+
+  // Spinner animado enquanto a varredura roda.
+  const running = scan?.status === 'running';
+  useEffect(() => {
+    if (!running) return;
+    const timer = setInterval(() => setSpin((s) => s + 1), 90);
+    return () => clearInterval(timer);
+  }, [running]);
 
   function finishScan() {
     if (!scan) return;
@@ -275,7 +285,6 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
     }
   }
 
-  const running = scan?.status === 'running';
   return (
     <div className="tui" onClick={() => inputRef.current?.focus()}>
       <div className="tui-body" ref={bodyRef}>
@@ -302,7 +311,9 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
       <div className="tui-status">
         <span>{native && w.ready ? '● motor conectado' : '○ motor desconectado'}</span>
         <span>
-          {running ? `analisando… ${scan?.requestCount}/${scan?.config.maxRequests}` : 'pronto'}
+          {running
+            ? `${SPIN[spin % SPIN.length]} analisando… ${scan?.requestCount}/${scan?.config.maxRequests}`
+            : 'pronto'}
         </span>
         <span>ajuda · analisar · historico · gui</span>
       </div>
