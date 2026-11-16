@@ -235,6 +235,72 @@ pub fn registry() -> Vec<Rule> {
             fix: "Crie um usuário sem privilégios e aplique permissões mínimas na imagem.",
             cwe: "CWE-250",
         },
+        Rule {
+            id: "docker.add-url",
+            category: "sast",
+            title: "Dockerfile baixa arquivo remoto com ADD",
+            needles: &["ADD http"],
+            extensions: &["dockerfile"],
+            severity: Severity::Medium,
+            impact: "ADD a partir de uma URL traz conteúdo remoto sem verificação de integridade para dentro da imagem.",
+            fix: "Prefira COPY de arquivos versionados ou baixe com verificação de hash/assinatura antes de usar.",
+            cwe: "CWE-494",
+        },
+        Rule {
+            id: "k8s.privileged",
+            category: "sast",
+            title: "Container Kubernetes privilegiado",
+            needles: &["privileged:", "true"],
+            extensions: &["yml", "yaml"],
+            severity: Severity::High,
+            impact: "Um container privilegiado tem acesso quase total ao nó; um comprometimento vira comprometimento do host.",
+            fix: "Remova privileged: true, use securityContext com privilégios mínimos e runAsNonRoot.",
+            cwe: "CWE-250",
+        },
+        Rule {
+            id: "k8s.host-network",
+            category: "sast",
+            title: "Pod Kubernetes usa a rede do host",
+            needles: &["hostNetwork:", "true"],
+            extensions: &["yml", "yaml"],
+            severity: Severity::Medium,
+            impact: "hostNetwork expõe o pod à rede do nó, contornando o isolamento de rede do cluster.",
+            fix: "Desative hostNetwork a menos que seja estritamente necessário e justificado.",
+            cwe: "CWE-668",
+        },
+        Rule {
+            id: "terraform.open-ingress",
+            category: "sast",
+            title: "Regra de rede aberta para a internet (0.0.0.0/0)",
+            needles: &["0.0.0.0/0"],
+            extensions: &["tf"],
+            severity: Severity::Medium,
+            impact: "Liberar 0.0.0.0/0 expõe o recurso a toda a internet. É aceitável para HTTP/HTTPS públicos, mas perigoso para SSH, RDP ou bancos.",
+            fix: "Restrinja o CIDR às faixas necessárias; para administração, use VPN ou IPs específicos.",
+            cwe: "CWE-284",
+        },
+        Rule {
+            id: "terraform.public-bucket",
+            category: "sast",
+            title: "Bucket ou ACL pública em Terraform",
+            needles: &["public-read"],
+            extensions: &["tf"],
+            severity: Severity::Medium,
+            impact: "Uma ACL public-read torna os objetos legíveis por qualquer um, o que já causou vários vazamentos de dados.",
+            fix: "Use ACL privada e políticas explícitas; bloqueie acesso público na conta sempre que possível.",
+            cwe: "CWE-732",
+        },
+        Rule {
+            id: "actions.unpinned-uses",
+            category: "sast",
+            title: "GitHub Action sem versão fixada por SHA",
+            needles: &["uses:", "@master"],
+            extensions: &["yml", "yaml"],
+            severity: Severity::Low,
+            impact: "Referenciar uma action por @master (ou tag móvel) executa o que o mantenedor publicar depois, inclusive uma versão comprometida.",
+            fix: "Fixe cada action por commit SHA completo e revise atualizações.",
+            cwe: "CWE-829",
+        },
 ].into_iter().collect()
 }
 pub fn finding(rule: &Rule, path: &str, line: usize) -> SourceFinding {
@@ -307,6 +373,15 @@ pub fn analyze_text(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn iac_rules_flag_insecure_infrastructure() {
+        let k8s = analyze_text("deploy.yaml", "yaml", "    securityContext:\n      privileged: true\n", true, false, false);
+        assert!(k8s.iter().any(|f| f.rule_id == "k8s.privileged"));
+        let tf = analyze_text("main.tf", "tf", "  cidr_blocks = [\"0.0.0.0/0\"]\n", true, false, false);
+        assert!(tf.iter().any(|f| f.rule_id == "terraform.open-ingress"));
+        let docker = analyze_text("Dockerfile", "dockerfile", "ADD https://x/y.sh /tmp/y.sh\n", true, false, false);
+        assert!(docker.iter().any(|f| f.rule_id == "docker.add-url"));
+    }
     #[test]
     fn distinguishes_heuristics_and_never_copies_secret() {
         let secret = ["ghp_", "abcdefghijklmnopqrstuvwxyz1234567890"].concat();
