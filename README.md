@@ -1,11 +1,36 @@
+<p align="center">
+  <img src="site/assets/qypher-wordmark.png" width="280" alt="Logo atual do Qypher, com escudo roxo e símbolo de terminal" />
+</p>
+
 # Qypher
+
+**De VibeCoders para VibeCoders.**
 
 **Análise de segurança local para sites e código.** Aplicativo desktop de código aberto que encontra arquivos expostos, falhas de configuração e credenciais vazadas em alvos autorizados — e explica, em linguagem clara, como corrigir. Rust + Tauri 2 + React/TypeScript + SQLite. Sem conta, sem telemetria, sem APIs pagas e sem servidor obrigatório.
 
 - **Site:** https://qypher.pqueirozdev.com.br
 - **Repositório:** https://github.com/PQueirozDev/qypher
 
-> **Estado: em desenvolvimento (0.1.0), ainda sem release validada.** O frontend compila e os testes passam; a validação de ponta a ponta do desktop, do PDF nativo e do instalador ainda está pendente. Nenhum resultado é simulado no produto.
+> **Estado: em desenvolvimento (0.1.0), ainda sem release validada.** O website possui build e testes próprios; a validação de ponta a ponta do desktop, do PDF nativo e do instalador continua pendente. Nenhum resultado é simulado no produto. As simulações identificadas nesta página pertencem exclusivamente à apresentação do website.
+
+![Website do Qypher com a identidade atual, radar HUD e arte ASCII](site/assets/website-desktop.png)
+
+_Prévia do website. O radar, seus achados e o terminal demonstrativo usam dados fictícios; não executam análises de segurança._
+
+## Identidade e experiência visual
+
+A identidade combina o escudo com símbolo de terminal, preto profundo e tons de roxo e lavanda. A logo oficial é preservada no cabeçalho e no rodapé. O estudo abaixo é uma interpretação complementar em pixel art, construída a partir da arte de caracteres do website.
+
+<p align="center">
+  <img src="site/favicon.png" width="180" height="180" alt="Emblema oficial Qypher" />
+  <img src="site/assets/qypher-pixel.svg" width="180" height="160" alt="Estudo complementar do escudo Qypher em pixel art roxa e lavanda" />
+</p>
+
+O website apresenta um radar com painéis sincronizados com a varredura, seleção por mouse, toque e teclado, uma logo ASCII com montagem e dissolução e chuva de código ambiental. As animações respeitam movimento reduzido, pausa manual e a visibilidade da página.
+
+![Terminal guiado do website, com saídas fictícias e comandos predefinidos](site/assets/terminal-demo.png)
+
+O terminal do website aceita somente `help`, `demo`, `clear` e `about`. É uma demonstração frontend: não há shell, endpoint de análise ou integração com o motor desktop. Uma aba separada mostra a captura real do renderer em desenvolvimento.
 
 ## O que o Qypher encontra
 
@@ -23,12 +48,55 @@ Cada achado traz **evidência, impacto e correção**, classificado por CWE e OW
 
 ## Interface
 
+![Captura real da interface de desenvolvimento do Qypher](site/interface.png)
+
+_Renderer de prévia em desenvolvimento, sem motor nativo conectado. Esta captura não comprova execução de scanners, relatórios ou instalação nativa._
+
 Interface de terminal, com duas intensidades de varredura:
 
 - **Quick Scan** — configurações públicas (ícone de cadeado).
 - **Varredura profunda** — descoberta de arquivos expostos e testes ativos (ícone de órbita).
 
 Cole o link, confirme a autorização e analise. O resultado traz a nota de postura (A–F), os achados filtráveis por gravidade e o conteúdo exposto mascarado.
+
+<details>
+<summary>Ver o website no mobile</summary>
+
+![Website do Qypher em uma viewport de smartphone](site/assets/website-mobile.png)
+
+_Painéis reposicionados abaixo do radar, menu acessível e efeitos de mouse desativados em dispositivos touch._
+
+</details>
+
+## Executar o website
+
+Com as dependências existentes instaladas, execute na raiz do repositório:
+
+```powershell
+npm.cmd --prefix site run dev
+```
+
+Abra **http://127.0.0.1:4173/**. O website está em `site/` e permanece separado do aplicativo desktop. O comando `npm run site:dev` serve a outra vitrine, em `apps/showcase/`.
+
+```powershell
+npm.cmd --prefix site run typecheck
+npm.cmd --prefix site test
+node site/tests/browser.mjs
+npm.cmd --prefix site run build
+```
+
+O teste de navegador requer a prévia local em execução, as dependências de desenvolvimento da raiz e Chrome instalado; `PLAYWRIGHT_CHANNEL` permite usar outro canal já disponível. `npm.cmd --prefix site run build` também executa a checagem de tipos e o build, gerando `site/dist/`. Na hospedagem, publique esse diretório compilado: os módulos TypeScript não são servidos diretamente ao navegador. A validação do website não substitui a validação nativa do produto.
+
+### Verificações da experiência visual
+
+- TypeScript estrito e build de produção do website.
+- Testes de lógica para varredura, geometria, arte ASCII e comandos permitidos.
+- Testes no Chromium para sincronização radar/terminal, seleção fixada, comandos, abas e textura CRT.
+- Navegação por teclado e toque, pausa, movimento reduzido e conteúdo essencial sem JavaScript.
+- Viewports de 320, 360, 390, 768, 1024, 1440 e 1920 px, sem overflow horizontal.
+- Regras WCAG A/AA selecionadas do axe, links, downloads e assets do build.
+
+As capturas do website estão em `site/assets/`; os resultados locais de QA são gerados em `tmp/visual2/`. O website não importa o runtime desktop e mantém o motor de segurança isolado.
 
 ## Começar no Windows
 
@@ -83,6 +151,9 @@ crates/scanner-source/  Análise de código local (SAST lexical, segredos, depen
 crates/scanner-storage/ SQLite e migrations
 crates/scanner-report/  Relatórios JSON, HTML e PDF
 site/                   Site de divulgação (estático)
+site/experience/        Módulos visuais TypeScript exclusivos do website
+site/assets/            Capturas de apresentação e estudo original em pixel art
+apps/showcase/          Vitrine independente do renderer de desenvolvimento
 examples/               Fixture HTTP local para validação do motor
 docs/                   Arquitetura, modelo de ameaças, desenvolvimento e roadmap
 ```
@@ -90,3 +161,5 @@ docs/                   Arquitetura, modelo de ameaças, desenvolvimento e roadm
 ## Licença
 
 [Apache-2.0](LICENSE).
+
+Desenvolvido por [Pedro Queiroz](https://pqueirozdev.com.br/).

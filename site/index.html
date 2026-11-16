@@ -16,661 +16,452 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/logo.png" />
-    <link rel="icon" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/favicon.png?v=shield" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        --bg: #06060a;
-        --bg2: #0a0a11;
-        --panel: #0d0d16;
-        --panel2: #10101c;
-        --line: #1e1e2c;
-        --line2: #2a2a3d;
-        --text: #e9e9f2;
-        --dim: #9a9ab0;
-        --faint: #5c5c72;
-        --violet: #a78bfa;
-        --violet-deep: #7c5cff;
-        --azure: #6ea8ff;
-        --cyan: #4fd1e0;
-        --amber: #f5b14c;
-        --pink: #ff5c7a;
-        --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
-        --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font-family: var(--sans);
-        -webkit-font-smoothing: antialiased;
-        line-height: 1.6;
-        overflow-x: hidden;
-      }
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-      /* Textura de scanlines sobre toda a página */
-      body::after {
-        content: '';
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        z-index: 100;
-        background: repeating-linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0) 0px,
-          rgba(0, 0, 0, 0) 2px,
-          rgba(0, 0, 0, 0.16) 3px,
-          rgba(0, 0, 0, 0) 4px
-        );
-        opacity: 0.5;
-        mix-blend-mode: multiply;
-      }
-      .wrap {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-      .mono {
-        font-family: var(--mono);
-      }
-
-      /* ===== Topo ===== */
-      header {
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        backdrop-filter: blur(12px);
-        background: rgba(6, 6, 10, 0.72);
-        border-bottom: 1px solid var(--line);
-      }
-      .nav {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        height: 60px;
-      }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: var(--mono);
-        font-weight: 700;
-        letter-spacing: 0.5px;
-      }
-      .brand img {
-        width: 26px;
-        height: 26px;
-        filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.6));
-      }
-      .nav .spacer {
-        flex: 1;
-      }
-      .nav .links {
-        display: flex;
-        gap: 4px;
-      }
-      .nav .links a {
-        font-family: var(--mono);
-        font-size: 13px;
-        color: var(--dim);
-        padding: 7px 12px;
-        border-radius: 7px;
-        transition: all 0.16s;
-      }
-      .nav .links a:hover {
-        color: var(--text);
-        background: #ffffff0a;
-      }
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-family: var(--mono);
-        font-size: 13px;
-        font-weight: 600;
-        padding: 9px 16px;
-        border-radius: 8px;
-        border: 1px solid var(--line2);
-        color: var(--text);
-        transition: all 0.16s;
-        cursor: pointer;
-      }
-      .btn:hover {
-        border-color: var(--violet);
-        box-shadow: 0 0 0 1px var(--violet) inset;
-      }
-      .btn.primary {
-        background: linear-gradient(135deg, var(--violet), var(--violet-deep));
-        border-color: transparent;
-        color: #0a0516;
-        box-shadow: 0 6px 24px -8px rgba(124, 92, 255, 0.8);
-      }
-      .btn.primary:hover {
-        box-shadow: 0 8px 30px -6px rgba(124, 92, 255, 0.9);
-        transform: translateY(-1px);
-      }
-
-      /* ===== Hero ===== */
-      .hero {
-        position: relative;
-        overflow: hidden;
-        border-bottom: 1px solid var(--line);
-        background:
-          radial-gradient(900px 480px at 50% -120px, rgba(167, 139, 250, 0.16), transparent 70%),
-          radial-gradient(700px 420px at 90% 10%, rgba(110, 168, 255, 0.1), transparent 70%);
-      }
-      #rain {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.4;
-        z-index: 0;
-        mask-image: radial-gradient(ellipse 70% 80% at 50% 35%, #000 20%, transparent 85%);
-        -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 35%, #000 20%, transparent 85%);
-      }
-      .hero-inner {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 96px 24px 72px;
-      }
-      .tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--violet);
-        border: 1px solid var(--line2);
-        background: #ffffff06;
-        padding: 6px 14px;
-        border-radius: 999px;
-        margin-bottom: 26px;
-      }
-      .tag b {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--cyan);
-        box-shadow: 0 0 8px var(--cyan);
-        animation: pulse 1.8s infinite;
-      }
-      @keyframes pulse {
-        50% {
-          opacity: 0.3;
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/experience.css" />
+    <noscript>
+      <style>
+        @media (max-width: 760px) {
+          .site-header .nav {
+            height: auto;
+            flex-wrap: wrap;
+            padding-block: 18px;
+          }
+          .site-header {
+            height: auto;
+          }
+          .menu-toggle {
+            display: none;
+          }
+          .nav-cta {
+            margin-left: auto;
+          }
+          .links {
+            display: flex;
+            position: static;
+            order: 3;
+            width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 10px 0 0;
+            gap: 5px 16px;
+            border: 0;
+          }
+          .links a {
+            padding: 8px 0;
+          }
         }
-      }
-      .hero h1 {
-        font-family: var(--sans);
-        font-weight: 800;
-        font-size: clamp(34px, 6vw, 68px);
-        line-height: 1.04;
-        letter-spacing: -1.5px;
-        margin: 0 auto 22px;
-        max-width: 14ch;
-      }
-      .hero h1 .glow {
-        color: var(--violet);
-        text-shadow: 0 0 26px rgba(167, 139, 250, 0.6);
-      }
-      .hero p.lead {
-        font-size: clamp(15px, 2vw, 18px);
-        color: var(--dim);
-        max-width: 56ch;
-        margin: 0 auto 34px;
-      }
-      .cta {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .stackline {
-        margin-top: 26px;
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--faint);
-        letter-spacing: 0.5px;
-      }
-      .stackline span {
-        color: var(--dim);
-      }
-
-      /* ===== Terminal demo ===== */
-      .term {
-        position: relative;
-        z-index: 1;
-        max-width: 760px;
-        margin: 40px auto 0;
-        border: 1px solid var(--line2);
-        border-radius: 12px;
-        background: linear-gradient(180deg, #0b0b13, #090910);
-        box-shadow:
-          0 40px 90px -40px rgba(124, 92, 255, 0.45),
-          0 0 0 1px #ffffff05 inset;
-        overflow: hidden;
-      }
-      .term-bar {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 11px 14px;
-        border-bottom: 1px solid var(--line);
-        background: #0a0a12;
-      }
-      .term-bar i {
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        background: #2a2a3a;
-      }
-      .term-bar i:nth-child(1) {
-        background: #ff5f57;
-      }
-      .term-bar i:nth-child(2) {
-        background: #febc2e;
-      }
-      .term-bar i:nth-child(3) {
-        background: #28c840;
-      }
-      .term-bar span {
-        margin-left: 8px;
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--faint);
-      }
-      .term-body {
-        font-family: var(--mono);
-        font-size: 13.5px;
-        line-height: 1.75;
-        padding: 20px 22px 24px;
-        min-height: 268px;
-        text-align: left;
-        white-space: pre-wrap;
-      }
-      .term-body .l {
-        display: block;
-      }
-      .c-prompt {
-        color: var(--violet);
-      }
-      .c-dim {
-        color: var(--faint);
-      }
-      .c-ok {
-        color: var(--cyan);
-      }
-      .c-warn {
-        color: var(--amber);
-      }
-      .c-bad {
-        color: var(--pink);
-      }
-      .c-info {
-        color: var(--azure);
-      }
-      .cursor {
-        display: inline-block;
-        width: 8px;
-        height: 1.05em;
-        vertical-align: text-bottom;
-        background: var(--violet);
-        box-shadow: 0 0 8px var(--violet);
-        animation: blink 1.05s steps(1) infinite;
-      }
-      @keyframes blink {
-        50% {
-          opacity: 0;
-        }
-      }
-
-      /* ===== Seções ===== */
-      section {
-        padding: 86px 0;
-        border-bottom: 1px solid var(--line);
-      }
-      .kicker {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--violet);
-        letter-spacing: 1px;
-        margin-bottom: 14px;
-      }
-      h2 {
-        font-weight: 800;
-        font-size: clamp(26px, 4vw, 40px);
-        letter-spacing: -1px;
-        margin: 0 0 14px;
-      }
-      .sub {
-        color: var(--dim);
-        max-width: 60ch;
-        margin: 0 0 42px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-      }
-      .card {
-        position: relative;
-        border: 1px solid var(--line);
-        background: linear-gradient(180deg, var(--panel), var(--bg2));
-        border-radius: 14px;
-        padding: 24px 22px;
-        transition: all 0.2s;
-        overflow: hidden;
-      }
-      .card::before {
-        content: '';
-        position: absolute;
-        inset: 0 0 auto 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--violet), transparent);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-      .card:hover {
-        border-color: var(--line2);
-        transform: translateY(-3px);
-        box-shadow: 0 24px 50px -30px rgba(124, 92, 255, 0.5);
-      }
-      .card:hover::before {
-        opacity: 0.8;
-      }
-      .card .glyph {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--violet);
-        margin-bottom: 14px;
-      }
-      .card h3 {
-        font-size: 17px;
-        font-weight: 700;
-        margin: 0 0 9px;
-      }
-      .card p {
-        color: var(--dim);
-        font-size: 14.5px;
-        margin: 0;
-      }
-      .card p b {
-        color: var(--text);
-        font-weight: 600;
-      }
-
-      /* Como funciona */
-      .steps {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-        counter-reset: step;
-      }
-      .step {
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 26px 22px;
-        background: var(--panel);
-        position: relative;
-      }
-      .step .n {
-        font-family: var(--mono);
-        font-size: 13px;
-        color: var(--violet-deep);
-        margin-bottom: 12px;
-      }
-      .step h3 {
-        margin: 0 0 8px;
-        font-size: 17px;
-      }
-      .step p {
-        margin: 0;
-        color: var(--dim);
-        font-size: 14.5px;
-      }
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 26px;
-      }
-      .chip {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--dim);
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 6px 13px;
-      }
-
-      /* Segurança */
-      .panel-box {
-        border: 1px solid var(--line2);
-        border-radius: 16px;
-        padding: 32px;
-        background:
-          radial-gradient(600px 300px at 0 0, rgba(167, 139, 250, 0.08), transparent 70%),
-          var(--panel);
-      }
-      .panel-box h3 {
-        font-family: var(--mono);
-        color: var(--violet);
-        margin: 0 0 20px;
-        font-size: 15px;
-      }
-      .principles {
-        display: grid;
-        gap: 16px;
-      }
-      .principle {
-        display: flex;
-        gap: 14px;
-        align-items: flex-start;
-      }
-      .principle .mk {
-        font-family: var(--mono);
-        color: var(--cyan);
-        flex: none;
-        margin-top: 1px;
-      }
-      .principle p {
-        margin: 0;
-        color: var(--dim);
-        font-size: 15px;
-      }
-      .principle b {
-        color: var(--text);
-      }
-
-      /* Downloads */
-      .dl-card {
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 24px 22px;
-        background: linear-gradient(180deg, var(--panel), var(--bg2));
-        transition: all 0.2s;
-      }
-      .dl-card:hover {
-        border-color: var(--violet);
-        transform: translateY(-3px);
-      }
-      .dl-card .os {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--violet);
-        margin-bottom: 12px;
-      }
-      .dl-card h3 {
-        margin: 0 0 6px;
-        font-size: 18px;
-      }
-      .dl-card p {
-        margin: 0 0 18px;
-        color: var(--dim);
-        font-size: 14px;
-      }
-      .dl-card a.get {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-family: var(--mono);
-        font-size: 13px;
-        color: var(--text);
-        border: 1px solid var(--line2);
-        border-radius: 8px;
-        padding: 9px 15px;
-        transition: all 0.16s;
-      }
-      .dl-card a.get:hover {
-        border-color: var(--violet);
-        background: #ffffff06;
-      }
-      .note {
-        margin-top: 22px;
-        font-family: var(--mono);
-        font-size: 13px;
-        color: var(--faint);
-      }
-      .note a {
-        color: var(--violet);
-      }
-
-      /* CTA final */
-      .finale {
-        text-align: center;
-        border: 1px solid var(--line2);
-        border-radius: 18px;
-        padding: 56px 32px;
-        background:
-          radial-gradient(700px 300px at 50% 0, rgba(124, 92, 255, 0.14), transparent 70%),
-          var(--panel);
-      }
-      .finale h2 {
-        margin-bottom: 14px;
-      }
-      .finale p {
-        color: var(--dim);
-        margin: 0 0 28px;
-      }
-
-      footer {
-        padding: 30px 0;
-        color: var(--faint);
-      }
-      .foot {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        font-family: var(--mono);
-        font-size: 13px;
-      }
-      .foot .spacer {
-        flex: 1;
-      }
-      .foot img {
-        width: 20px;
-        height: 20px;
-        opacity: 0.8;
-      }
-
-      @media (max-width: 860px) {
-        .grid,
-        .steps {
-          grid-template-columns: 1fr;
-        }
-        .nav .links {
-          display: none;
-        }
-        section {
-          padding: 60px 0;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        #rain {
-          display: none;
-        }
-        .cursor,
-        .tag b {
-          animation: none;
-        }
-      }
-    </style>
+      </style>
+    </noscript>
   </head>
   <body>
-    <header>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <canvas id="ambient" aria-hidden="true"></canvas>
+    <div class="ambient-glow" aria-hidden="true"></div>
+    <div class="cursor-halo" aria-hidden="true"></div>
+    <header class="site-header">
       <div class="wrap nav">
-        <a class="brand" href="#top"><img src="/logo.png" alt="Qypher" /> qypher</a>
-        <div class="spacer"></div>
-        <nav class="links">
-          <a href="#recursos">recursos</a>
-          <a href="#como">como funciona</a>
-          <a href="#downloads">downloads</a>
-          <a href="#seguranca">segurança</a>
+        <a class="brand" href="#top" aria-label="Qypher, início">
+          <span class="brand-art" aria-hidden="true">
+            <img src="/logo.png" alt="" width="1280" height="1280" />
+            <img class="brand-contrast" src="/logo.png" alt="" width="1280" height="1280" />
+          </span>
+        </a>
+        <span class="nav-divider" aria-hidden="true"></span
+        ><span class="nav-caption">LOCAL-FIRST<span>CÓDIGO ABERTO</span></span>
+        <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" type="button">
+          Menu <span aria-hidden="true">+</span>
+        </button>
+        <nav class="links" id="navigation" aria-label="Navegação principal">
+          <a href="#recursos">Recursos</a><a href="#como">Como funciona</a
+          ><a href="#downloads">Downloads</a><a href="#seguranca">Segurança</a>
+          <a
+            class="nav-github"
+            href="https://github.com/PQueirozDev/qypher"
+            target="_blank"
+            rel="noopener"
+            >GitHub <span aria-hidden="true">↗</span></a
+          >
         </nav>
-        <a class="btn" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
-          >GitHub ↗</a
+        <a class="btn nav-cta" href="#downloads"
+          ><span>Baixar<span class="nav-product-name"> Qypher</span></span>
+          <span aria-hidden="true">↗</span></a
         >
       </div>
     </header>
-
-    <main id="top">
-      <!-- HERO -->
-      <div class="hero">
-        <canvas id="rain"></canvas>
+    <main id="conteudo">
+      <section class="hero" id="top" aria-labelledby="hero-title">
         <div class="hero-inner wrap">
-          <div class="tag"><b></b> análise local · sem telemetria · código aberto</div>
-          <h1>Encontre as <span class="glow">fraquezas</span> antes que outros encontrem.</h1>
-          <p class="lead">
-            Qypher é um aplicativo desktop que varre sites autorizados e código local em busca de
-            arquivos expostos, falhas de configuração e credenciais vazadas — e explica, em
-            linguagem clara, como corrigir.
-          </p>
-          <div class="cta">
-            <a class="btn primary" href="#downloads">⤓ Baixar</a>
-            <a
-              class="btn"
-              href="https://github.com/PQueirozDev/qypher"
-              target="_blank"
-              rel="noopener"
-              >Ver no GitHub</a
+          <div class="hero-copy">
+            <div class="tag"><b aria-hidden="true"></b> De VibeCoders para VibeCoders</div>
+            <p class="hero-overline">CONSTRUA COM IA. PUBLIQUE COM CONSCIÊNCIA.</p>
+            <h1 id="hero-title">
+              Seu próximo deploy.<br /><span class="glow">Menos pontos <br />cegos.</span>
+            </h1>
+            <p class="lead">
+              Você cria. O Qypher ajuda a proteger. Encontre arquivos expostos, falhas de
+              configuração e credenciais vazadas nos seus sites autorizados e código local. Entenda
+              o risco. Saiba como corrigir.
+            </p>
+            <div class="cta">
+              <a class="btn primary magnetic" href="#downloads"
+                ><span aria-hidden="true">↓</span> Baixar Qypher
+                <span aria-hidden="true">↗</span></a
+              ><a
+                class="btn secondary magnetic"
+                href="https://github.com/PQueirozDev/qypher"
+                target="_blank"
+                rel="noopener"
+                ><svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path
+                    d="M9 19c-4 1-4-2-6-2m12 4v-3.5c0-1 .1-1.4-.5-2 3-.4 6-1.5 6-6.5a5 5 0 0 0-1.4-3.5A4.6 4.6 0 0 0 19 2s-1.2-.4-4 1.4a14 14 0 0 0-6 0C6.2 1.6 5 2 5 2a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 3.5 9c0 5 3 6.1 6 6.5-.5.5-.6 1.1-.5 2V21"
+                  /></svg
+                >Ver no GitHub</a
+              >
+            </div>
+            <div class="hero-platforms">
+              <span>DESKTOP, POR PRINCÍPIO.</span><span>Windows / Linux / macOS</span>
+            </div>
+          </div>
+          <div
+            class="radar-scene"
+            aria-label="Radar interativo demonstrativo. Marcadores e informações são fictícios."
+          >
+            <div class="radar-top">
+              <span
+                ><i class="status-dot"></i>
+                <span class="system-label" data-scramble aria-hidden="true"
+                  >QYPHER / OBSERVATORY</span
+                ></span
+              ><span class="demo-badge">DEMONSTRAÇÃO VISUAL</span>
+            </div>
+            <div class="radar-parallax">
+              <div class="radar" aria-hidden="true">
+                <div class="radar-ticks"></div>
+                <div class="radar-disc">
+                  <div class="radar-sweep"></div>
+                  <div class="radar-cross"></div>
+                  <i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i
+                  ><i class="ring r4"></i><i class="ring r5"></i>
+                  <div class="radar-core">
+                    <span class="radar-symbol"
+                      ><img src="/favicon.png" alt="" width="1280" height="1280"
+                    /></span>
+                  </div>
+                </div>
+                <span class="bearing b0">000</span><span class="bearing b90">090</span
+                ><span class="bearing b180">180</span><span class="bearing b270">270</span>
+              </div>
+              <button
+                class="blip blip-a"
+                data-finding="csp"
+                aria-pressed="false"
+                aria-controls="radar-panel"
+                type="button"
+                aria-label="Exemplo: política CSP ausente"
+                aria-describedby="tip-a"
+              >
+                <span class="blip-dot"></span><span class="blip-label">CSP</span
+                ><span class="radar-tooltip" role="tooltip" id="tip-a"
+                  >EXEMPLO / 01<strong>Política CSP ausente</strong
+                  ><span>Achado fictício · cabeçalhos HTTP</span></span
+                >
+              </button>
+              <button
+                class="blip blip-b"
+                data-finding="tls"
+                aria-pressed="false"
+                aria-controls="radar-panel"
+                type="button"
+                aria-label="Exemplo: certificado válido"
+                aria-describedby="tip-b"
+              >
+                <span class="blip-dot"></span><span class="blip-label">TLS</span
+                ><span class="radar-tooltip" role="tooltip" id="tip-b"
+                  >EXEMPLO / 02<strong>Certificado válido</strong
+                  ><span>Verificação fictícia · transporte</span></span
+                >
+              </button>
+              <button
+                class="blip blip-c"
+                data-finding="env"
+                aria-pressed="false"
+                aria-controls="radar-panel"
+                type="button"
+                aria-label="Exemplo: arquivo exposto"
+                aria-describedby="tip-c"
+              >
+                <span class="blip-dot"></span><span class="blip-label">.ENV</span
+                ><span class="radar-tooltip" role="tooltip" id="tip-c"
+                  >EXEMPLO / 03<strong>Arquivo exposto</strong
+                  ><span>Achado fictício · credencial mascarada</span></span
+                >
+              </button>
+            </div>
+            <aside
+              class="hud hud-threat"
+              id="radar-panel"
+              aria-labelledby="hud-title"
+              data-finding="csp"
+              data-mode="auto"
             >
-          </div>
-          <div class="stackline">
-            <span>Rust</span> + <span>Tauri</span> + <span>React</span> · Windows, Linux e macOS ·
-            Apache-2.0
+              <div class="hud-heading">
+                <span><i class="status-dot" aria-hidden="true"></i> EVENTO DEMONSTRATIVO</span
+                ><button
+                  id="radar-close"
+                  type="button"
+                  aria-label="Fechar seleção e voltar ao modo automático"
+                  hidden
+                >
+                  ×
+                </button>
+              </div>
+              <div class="hud-content">
+                <div class="hud-identity">
+                  <span id="hud-code">DEMO-001</span><span>SIMULAÇÃO</span>
+                </div>
+                <p id="hud-category">HTTP / SECURITY HEADERS</p>
+                <h3 id="hud-title">Cabeçalho ausente</h3>
+                <p id="hud-detail">Content-Security-Policy</p>
+                <p id="hud-description">
+                  O projeto fictício não declarou uma política para as origens de conteúdo.
+                </p>
+                <dl class="hud-properties">
+                  <div>
+                    <dt>Severidade ilustrativa</dt>
+                    <dd id="hud-severity">Moderada</dd>
+                  </div>
+                  <div>
+                    <dt>Estado</dt>
+                    <dd id="hud-state">Revisão sugerida</dd>
+                  </div>
+                </dl>
+              </div>
+              <div class="hud-controls">
+                <span id="radar-mode">VARREDURA AUTOMÁTICA</span
+                ><button id="radar-auto" type="button">Fixar este painel</button>
+              </div>
+            </aside>
+            <div class="ascii-dock" aria-hidden="true">
+              <div class="ascii-label">QYPHER / CHARACTER STUDY</div>
+              <pre id="ascii-logo">
+        +##+
+     +##    ##+
+   ##          ##
+   #   &gt;_       #
+   #            #
+    ##        ##
+      ##    ##
+        ##  ####</pre>
+              <span id="ascii-phase">SHIELD / STABLE</span>
+            </div>
+            <div class="radar-bottom">
+              <span>SEM CONEXÃO COM O MOTOR</span
+              ><button id="motion-toggle" type="button" aria-pressed="false">
+                Pausar animações <span aria-hidden="true">Ⅱ</span>
+              </button>
+            </div>
           </div>
         </div>
-
-        <!-- Terminal auto-digitando -->
-        <div class="term">
-          <div class="term-bar">
-            <i></i><i></i><i></i><span>qypher — ~/scan</span>
-          </div>
-          <div class="term-body" id="demo"></div>
+        <div class="hero-baseline wrap">
+          <span><i class="status-dot"></i> SEGURANÇA NO SEU COMPUTADOR</span>
+          <div><span>RUST</span><i>+</i><span>TAURI</span><i>+</i><span>REACT</span></div>
+          <a href="#recursos">EXPLORE O QYPHER <span aria-hidden="true">↓</span></a>
         </div>
-        <div style="height: 72px"></div>
-      </div>
+      </section>
+      <section id="produto" class="product-section" aria-labelledby="product-title">
+        <div class="wrap">
+          <div class="section-intro">
+            <div>
+              <div class="kicker" data-scramble>01 / SEU WORKSPACE DE SEGURANÇA</div>
+              <h2 id="product-title">
+                Da dúvida à evidência.<br /><span>Tudo no seu desktop.</span>
+              </h2>
+            </div>
+            <p class="sub">
+              Um espaço para analisar, entender os achados e preparar a correção. Sem sair do seu
+              fluxo de desenvolvimento.
+            </p>
+          </div>
+          <div
+            class="product-tabs"
+            id="product-tabs"
+            role="tablist"
+            aria-label="Prévia do produto"
+            hidden
+          >
+            <button
+              type="button"
+              role="tab"
+              id="tab-terminal"
+              aria-selected="true"
+              aria-controls="terminal-preview"
+            >
+              01 / Terminal demonstrativo
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="tab-interface"
+              aria-selected="false"
+              aria-controls="interface-preview"
+              tabindex="-1"
+            >
+              02 / Interface real
+            </button>
+          </div>
+          <figure class="product-window product-terminal term" id="terminal-preview" data-crt="on">
+            <div class="window-bar">
+              <span class="window-dots"><i></i><i></i><i></i></span>
+              <span>qypher — ~/demo</span><span id="terminal-status">DEMONSTRAÇÃO GUIADA</span
+              ><label class="texture-toggle" data-js-control hidden
+                ><input type="checkbox" id="crt-toggle" role="switch" checked /> Textura CRT</label
+              ><span class="window-label">DEMONSTRAÇÃO VISUAL</span>
+            </div>
+            <div
+              class="term-body"
+              id="demo"
+              aria-label="Terminal ilustrativo com resultados fictícios"
+            >
+              <div class="terminal-command">
+                <span>qypher@demo:~$</span> <span id="typed-command">demo</span
+                ><i class="typing-caret" aria-hidden="true"></i>
+              </div>
+              <div class="terminal-output">
+                <p class="terminal-line c-dim">[+] Inicializando demonstração local</p>
+                <p class="terminal-line c-ok">[+] HTTPS e certificado TLS válidos</p>
+                <p class="terminal-line c-info">[+] Verificando cabeçalhos de segurança</p>
+                <p class="terminal-line c-warn">[!] Content-Security-Policy ausente</p>
+                <p class="terminal-line c-bad">[!] /.env exposto · segredo: sk_••••••••</p>
+                <p class="terminal-line c-info">[+] Preparando recomendação de correção</p>
+                <p class="terminal-line c-ok">[+] Análise demonstrativa concluída</p>
+              </div>
+              <div class="terminal-result">
+                <div>
+                  <span>POSTURA ILUSTRATIVA</span><strong>82<span>/100</span></strong>
+                </div>
+                <div class="terminal-progress" aria-hidden="true"><span></span></div>
+                <span class="c-dim">Resultado fictício. Sem requisições de análise.</span>
+                <p id="terminal-recommendation">
+                  Exemplo de correção: revisar as origens permitidas na política CSP e validar o
+                  comportamento da aplicação.
+                </p>
+              </div>
+            </div>
 
+            <div
+              id="command-output"
+              role="log"
+              aria-live="polite"
+              aria-label="Resposta ao comando demonstrativo"
+              hidden
+            ></div>
+            <section
+              class="radar-feed"
+              id="radar-feed"
+              aria-label="Eventos fictícios recebidos do radar"
+            >
+              <div class="radar-feed-heading">
+                <span>RADAR → TERMINAL</span><span>EVENTOS FICTÍCIOS</span>
+              </div>
+              <ol>
+                <li>
+                  <span>AGUARDANDO VARREDURA</span
+                  ><span>Os marcadores da hero alimentam este registro demonstrativo.</span>
+                </li>
+              </ol>
+            </section>
+            <div class="terminal-toolbar" data-js-control hidden>
+              <form id="demo-form">
+                <label for="demo-command">qypher@demo:~$</label
+                ><input
+                  id="demo-command"
+                  name="command"
+                  placeholder="help, demo, clear ou about"
+                  maxlength="40"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="command-help"
+                /><button type="submit" aria-label="Executar comando demonstrativo">↵</button>
+              </form>
+              <div class="command-shortcuts" role="group" aria-label="Comandos da demonstração">
+                <button type="button" data-command="help">help</button
+                ><button type="button" data-command="demo">demo</button
+                ><button type="button" data-command="clear">clear</button
+                ><button type="button" data-command="about">about</button>
+              </div>
+              <p id="command-help">
+                Somente quatro comandos predefinidos. Nenhum shell ou scanner é executado.
+              </p>
+            </div>
+            <figcaption>
+              <span class="status-dot"></span>
+              <span
+                >Terminal demonstrativo · domínio e resultados fictícios. Nenhum comando é
+                executado.</span
+              >
+              <button class="text-button" id="terminal-replay" type="button">
+                Rever demonstração <span aria-hidden="true">↻</span>
+              </button>
+            </figcaption>
+          </figure>
+          <figure
+            class="product-window real-preview"
+            id="interface-preview"
+            role="tabpanel"
+            aria-labelledby="tab-interface"
+            tabindex="0"
+            hidden
+          >
+            <div class="window-bar">
+              <span class="window-dots"><i></i><i></i><i></i></span
+              ><span>qypher — renderer de desenvolvimento</span
+              ><span class="window-label">CAPTURA REAL</span>
+            </div>
+            <img
+              src="/interface.png"
+              width="1440"
+              height="1180"
+              loading="lazy"
+              alt="Captura real do renderer de desenvolvimento do Qypher, com escopo de análise, autorização, módulos, histórico e terminal de eventos; motor desconectado."
+            />
+            <figcaption>
+              Captura real da interface em desenvolvimento. Sem motor nativo conectado.
+              <a href="/interface.png" target="_blank" rel="noopener">Abrir captura ↗</a>
+            </figcaption>
+          </figure>
+          <noscript
+            ><p class="note">
+              <a href="/interface.png">Ver a captura real da interface em desenvolvimento.</a>
+            </p></noscript
+          >
+          <div class="product-notes">
+            <p>
+              <span>01 /</span><strong>Escopo sob seu controle.</strong> Analise apenas seus
+              projetos e sistemas autorizados.
+            </p>
+            <p>
+              <span>02 /</span><strong>Contexto para corrigir.</strong> Evidência, impacto e
+              próximos passos no mesmo fluxo.
+            </p>
+            <p>
+              <span>03 /</span><strong>Local por princípio.</strong> Seu workspace e histórico no
+              seu computador.
+            </p>
+          </div>
+        </div>
+      </section>
       <!-- RECURSOS -->
       <section id="recursos">
         <div class="wrap">
-          <div class="kicker">// RECURSOS</div>
-          <h2>O que o Qypher encontra</h2>
+          <div class="kicker" data-scramble>02 / SUPERFÍCIE DE ANÁLISE</div>
+          <h2>O que você não vê<br /><span>também importa.</span></h2>
           <p class="sub">
             Verificações reais sobre a resposta do alvo — sem força bruta, sem exploração destrutiva
             e sem simular resultados.
@@ -681,7 +472,8 @@
               <h3>Arquivos e segredos expostos</h3>
               <p>
                 <b>.env</b>, <b>.git</b>, backups, dumps de banco, credenciais e painéis de debug
-                acessíveis. Mostra uma prévia mascarada do que vazou, para você avisar o responsável.
+                acessíveis. Mostra uma prévia mascarada do que vazou, para você avisar o
+                responsável.
               </p>
             </div>
             <div class="card">
@@ -721,7 +513,8 @@
               <h3>Análise de código local</h3>
               <p>
                 Triagem de padrões perigosos, possíveis segredos no repositório, infraestrutura como
-                código (Docker/K8s/Terraform) e inventário de dependências com consulta OSV opcional.
+                código (Docker/K8s/Terraform) e inventário de dependências com consulta OSV
+                opcional.
               </p>
             </div>
           </div>
@@ -731,10 +524,11 @@
       <!-- COMO FUNCIONA -->
       <section id="como">
         <div class="wrap">
-          <div class="kicker">// COMO FUNCIONA</div>
-          <h2>Cole o link e analise</h2>
+          <div class="kicker" data-scramble>03 / DA ANÁLISE À CORREÇÃO</div>
+          <h2>Encontre. Entenda.<br /><span>Corrija com contexto.</span></h2>
           <p class="sub">
-            Duas intensidades: <b>Quick Scan</b> (configurações públicas) e <b>varredura profunda</b>
+            Duas intensidades: <b>Quick Scan</b> (configurações públicas) e
+            <b>varredura profunda</b>
             (descoberta de arquivos expostos e testes ativos).
           </p>
           <div class="steps">
@@ -750,8 +544,8 @@
               <div class="n">02 /</div>
               <h3>O motor varre</h3>
               <p>
-                Requisições limitadas e controladas sobre o alvo, com DNS validado a cada salto. Nada
-                do corpo é guardado em claro.
+                Requisições limitadas e controladas sobre o alvo, com DNS validado a cada salto.
+                Nada do corpo é guardado em claro.
               </p>
             </div>
             <div class="step">
@@ -763,6 +557,7 @@
               </p>
             </div>
           </div>
+
           <div class="chips">
             <span class="chip">quick scan + cadeado</span>
             <span class="chip">varredura profunda + órbita</span>
@@ -777,7 +572,7 @@
       <!-- SEGURANÇA -->
       <section id="seguranca">
         <div class="wrap">
-          <div class="kicker">// SEGURANÇA E PRIVACIDADE</div>
+          <div class="kicker" data-scramble>04 / SEGURANÇA E PRIVACIDADE</div>
           <h2>Feito para uso responsável</h2>
           <p class="sub"></p>
           <div class="panel-box">
@@ -819,7 +614,7 @@
       <!-- DOWNLOADS -->
       <section id="downloads">
         <div class="wrap">
-          <div class="kicker">// DOWNLOADS</div>
+          <div class="kicker" data-scramble>05 / COMECE PELO SEU SISTEMA</div>
           <h2>Baixe e instale</h2>
           <p class="sub">
             Instaladores para Windows, Linux e macOS são publicados nas releases do GitHub. O
@@ -873,10 +668,11 @@
       </section>
 
       <!-- FINALE -->
-      <section style="border-bottom: 0">
+      <section class="finale-section">
         <div class="wrap">
           <div class="finale">
-            <h2>Código aberto. Rode você mesmo.</h2>
+            <div class="kicker" data-scramble>O PRÓXIMO COMMIT É SEU.</div>
+            <h2>Crie sem limites.<br /><span>Revise com Qypher.</span></h2>
             <p>Clone o repositório, compile e audite suas próprias aplicações.</p>
             <a
               class="btn primary"
@@ -892,117 +688,24 @@
 
     <footer>
       <div class="wrap foot">
-        <img src="/logo.png" alt="" /> <span>qypher</span>
+        <a class="brand footer-brand" href="#top" aria-label="Qypher, início">
+          <span class="brand-art" aria-hidden="true">
+            <img src="/logo.png" alt="" width="1280" height="1280" />
+            <img class="brand-contrast" src="/logo.png" alt="" width="1280" height="1280" />
+          </span>
+        </a>
         <div class="spacer"></div>
-        <span class="c-dim">Análise de segurança local · Apache-2.0</span>
+        <span class="c-dim">De VibeCoders para VibeCoders · Apache-2.0</span>
+        <span class="author-credit"
+          >Desenvolvido por
+          <a href="https://pqueirozdev.com.br/" target="_blank" rel="noopener noreferrer"
+            >Pedro Queiroz <span aria-hidden="true">↗</span></a
+          ></span
+        >
         <a href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </footer>
 
-    <script>
-      // ===== Chuva de código no hero (canvas) =====
-      (function () {
-        const c = document.getElementById('rain');
-        if (!c) return;
-        const ctx = c.getContext('2d');
-        const glyphs = '01<>[]{}/|=+*#$%&xX01ʂ'.replace(/[^\x20-\x7e]/g, '');
-        const colors = ['#a78bfa', '#6ea8ff', '#4fd1e0'];
-        let cols,
-          drops,
-          fs = 15,
-          w,
-          h;
-        function size() {
-          const hero = c.parentElement;
-          w = c.width = hero.offsetWidth;
-          h = c.height = hero.offsetHeight;
-          cols = Math.floor(w / fs);
-          drops = new Array(cols).fill(0).map(() => Math.random() * -40);
-        }
-        size();
-        window.addEventListener('resize', size);
-        function frame() {
-          ctx.fillStyle = 'rgba(6,6,10,0.09)';
-          ctx.fillRect(0, 0, w, h);
-          ctx.font = fs + 'px JetBrains Mono, monospace';
-          for (let i = 0; i < cols; i++) {
-            const g = glyphs[(Math.random() * glyphs.length) | 0];
-            const x = i * fs;
-            const y = drops[i] * fs;
-            // cabeça mais clara
-            ctx.fillStyle = Math.random() > 0.97 ? '#e9e9f2' : colors[i % colors.length];
-            ctx.globalAlpha = 0.85;
-            ctx.fillText(g, x, y);
-            ctx.globalAlpha = 1;
-            if (y > h && Math.random() > 0.975) drops[i] = Math.random() * -20;
-            drops[i] += 0.5;
-          }
-          requestAnimationFrame(frame);
-        }
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) frame();
-      })();
-
-      // ===== Terminal auto-digitando =====
-      (function () {
-        const el = document.getElementById('demo');
-        if (!el) return;
-        const lines = [
-          { t: '❯ qypher scan --deep https://seuprojeto.com.br', c: 'c-prompt' },
-          { t: 'resolvendo DNS e validando destino…', c: 'c-dim' },
-          { t: '✓ HTTPS e certificado TLS válidos', c: 'c-ok' },
-          { t: '! CSP presente, mas permite scripts inline', c: 'c-warn' },
-          { t: '✗ /.env acessível publicamente — credenciais expostas', c: 'c-bad' },
-          { t: '✗ /.git/HEAD acessível — código-fonte reconstruível', c: 'c-bad' },
-          { t: '! CORS reflete qualquer origem', c: 'c-warn' },
-          { t: 'ⓘ 3 bibliotecas desatualizadas no front-end', c: 'c-info' },
-          { t: '84 verificações · 73 requisições', c: 'c-dim' },
-          { t: '❯ nota de postura: F · 27/100', c: 'c-prompt' },
-        ];
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let li = 0,
-          ci = 0;
-        const done = [];
-        function render(active) {
-          el.innerHTML =
-            done.map((d) => `<span class="l ${d.c}">${esc(d.t)}</span>`).join('') +
-            (active !== null
-              ? `<span class="l ${lines[li].c}">${esc(active)}<span class="cursor"></span></span>`
-              : '');
-        }
-        function esc(s) {
-          return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-        function tick() {
-          if (li >= lines.length) {
-            setTimeout(() => {
-              done.length = 0;
-              li = 0;
-              ci = 0;
-              tick();
-            }, 4200);
-            return;
-          }
-          const full = lines[li].t;
-          if (reduce) {
-            done.push(lines[li]);
-            li++;
-            render(null);
-            if (li < lines.length) setTimeout(tick, 1);
-            return;
-          }
-          ci++;
-          render(full.slice(0, ci));
-          if (ci >= full.length) {
-            done.push(lines[li]);
-            li++;
-            ci = 0;
-            setTimeout(tick, 360);
-          } else {
-            setTimeout(tick, 16 + Math.random() * 34);
-          }
-        }
-        tick();
-      })();
-    </script>
+    <script type="module" src="/main.js"></script>
   </body>
 </html>
