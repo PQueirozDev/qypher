@@ -17,22 +17,30 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/logo.png" />
     <link rel="icon" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
-        --bg: #07070b;
-        --bg2: #0b0b12;
-        --panel: #0e0e17;
-        --line: #20202e;
-        --line2: #2b2b3d;
-        --text: #e7e7f0;
-        --dim: #9090a6;
-        --faint: #5a5a70;
+        --bg: #06060a;
+        --bg2: #0a0a11;
+        --panel: #0d0d16;
+        --panel2: #10101c;
+        --line: #1e1e2c;
+        --line2: #2a2a3d;
+        --text: #e9e9f2;
+        --dim: #9a9ab0;
+        --faint: #5c5c72;
         --violet: #a78bfa;
+        --violet-deep: #7c5cff;
         --azure: #6ea8ff;
         --cyan: #4fd1e0;
         --amber: #f5b14c;
         --pink: #ff5c7a;
-        --mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, Consolas, monospace;
+        --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
         --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
       }
       * {
@@ -43,15 +51,18 @@
       }
       body {
         margin: 0;
-        background:
-          radial-gradient(1100px 560px at 50% -180px, #a78bfa18, transparent 70%),
-          radial-gradient(760px 460px at 100% 0, #6ea8ff12, transparent 70%),
-          var(--bg);
+        background: var(--bg);
         color: var(--text);
         font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
         line-height: 1.6;
         overflow-x: hidden;
       }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      /* Textura de scanlines sobre toda a página */
       body::after {
         content: '';
         position: fixed;
@@ -59,138 +70,169 @@
         pointer-events: none;
         z-index: 100;
         background: repeating-linear-gradient(
-          to bottom,
-          transparent 0,
-          transparent 2px,
-          #00000026 3px,
-          transparent 4px
+          0deg,
+          rgba(0, 0, 0, 0) 0px,
+          rgba(0, 0, 0, 0) 2px,
+          rgba(0, 0, 0, 0.16) 3px,
+          rgba(0, 0, 0, 0) 4px
         );
-        mix-blend-mode: overlay;
-        opacity: 0.4;
-      }
-      a {
-        color: inherit;
+        opacity: 0.5;
+        mix-blend-mode: multiply;
       }
       .wrap {
-        max-width: 1040px;
+        max-width: 1120px;
         margin: 0 auto;
-        padding: 0 22px;
+        padding: 0 24px;
+      }
+      .mono {
+        font-family: var(--mono);
       }
 
-      /* Top bar */
-      header.nav {
+      /* ===== Topo ===== */
+      header {
         position: sticky;
         top: 0;
-        z-index: 20;
-        background: #08080ecc;
-        backdrop-filter: blur(10px);
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background: rgba(6, 6, 10, 0.72);
         border-bottom: 1px solid var(--line);
       }
-      .nav .wrap {
+      .nav {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 18px;
         height: 60px;
       }
       .brand {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 9px;
+        gap: 10px;
         font-family: var(--mono);
         font-weight: 700;
-        font-size: 16px;
-        text-decoration: none;
+        letter-spacing: 0.5px;
       }
-      .brand .mk {
+      .brand img {
         width: 26px;
         height: 26px;
-        border-radius: 7px;
-        object-fit: cover;
+        filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.6));
       }
-      .brand b {
-        color: var(--violet);
-      }
-      .nav .sp {
+      .nav .spacer {
         flex: 1;
       }
-      .nav a.lnk {
-        color: var(--dim);
-        text-decoration: none;
-        font-size: 14px;
-        font-family: var(--mono);
+      .nav .links {
+        display: flex;
+        gap: 4px;
       }
-      .nav a.lnk:hover {
+      .nav .links a {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--dim);
+        padding: 7px 12px;
+        border-radius: 7px;
+        transition: all 0.16s;
+      }
+      .nav .links a:hover {
         color: var(--text);
+        background: #ffffff0a;
       }
       .btn {
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 600;
         padding: 9px 16px;
         border-radius: 8px;
-        font-family: var(--mono);
-        font-size: 13.5px;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
         border: 1px solid var(--line2);
         color: var(--text);
-        background: #0f0f19;
-        transition:
-          transform 0.1s,
-          filter 0.15s,
-          background 0.15s;
+        transition: all 0.16s;
+        cursor: pointer;
       }
       .btn:hover {
-        background: #15151f;
+        border-color: var(--violet);
+        box-shadow: 0 0 0 1px var(--violet) inset;
       }
       .btn.primary {
-        border: 0;
-        background: linear-gradient(135deg, var(--violet), #7c5cff);
-        color: #07070b;
-        box-shadow: 0 6px 20px #7c5cff44;
+        background: linear-gradient(135deg, var(--violet), var(--violet-deep));
+        border-color: transparent;
+        color: #0a0516;
+        box-shadow: 0 6px 24px -8px rgba(124, 92, 255, 0.8);
       }
       .btn.primary:hover {
+        box-shadow: 0 8px 30px -6px rgba(124, 92, 255, 0.9);
         transform: translateY(-1px);
-        filter: brightness(1.08);
       }
 
-      /* Hero */
+      /* ===== Hero ===== */
       .hero {
-        padding: 72px 0 40px;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(900px 480px at 50% -120px, rgba(167, 139, 250, 0.16), transparent 70%),
+          radial-gradient(700px 420px at 90% 10%, rgba(110, 168, 255, 0.1), transparent 70%);
+      }
+      #rain {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.4;
+        z-index: 0;
+        mask-image: radial-gradient(ellipse 70% 80% at 50% 35%, #000 20%, transparent 85%);
+        -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 35%, #000 20%, transparent 85%);
+      }
+      .hero-inner {
+        position: relative;
+        z-index: 1;
         text-align: center;
+        padding: 96px 24px 72px;
       }
       .tag {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 6px 14px;
-        border: 1px solid #2a2342;
-        border-radius: 999px;
-        background: #140f22;
-        color: var(--violet);
+        gap: 9px;
         font-family: var(--mono);
         font-size: 12px;
-        letter-spacing: 0.04em;
+        color: var(--violet);
+        border: 1px solid var(--line2);
+        background: #ffffff06;
+        padding: 6px 14px;
+        border-radius: 999px;
+        margin-bottom: 26px;
+      }
+      .tag b {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow: 0 0 8px var(--cyan);
+        animation: pulse 1.8s infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.3;
+        }
       }
       .hero h1 {
-        font-family: var(--mono);
-        font-size: clamp(32px, 6vw, 52px);
-        line-height: 1.08;
-        letter-spacing: -0.02em;
-        margin: 20px 0 14px;
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: clamp(34px, 6vw, 68px);
+        line-height: 1.04;
+        letter-spacing: -1.5px;
+        margin: 0 auto 22px;
+        max-width: 14ch;
       }
-      .hero h1 .g {
-        background: linear-gradient(90deg, var(--violet), var(--azure));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+      .hero h1 .glow {
+        color: var(--violet);
+        text-shadow: 0 0 26px rgba(167, 139, 250, 0.6);
       }
-      .hero p.sub {
-        max-width: 620px;
-        margin: 0 auto 28px;
+      .hero p.lead {
+        font-size: clamp(15px, 2vw, 18px);
         color: var(--dim);
-        font-size: 17px;
+        max-width: 56ch;
+        margin: 0 auto 34px;
       }
       .cta {
         display: flex;
@@ -198,79 +240,97 @@
         justify-content: center;
         flex-wrap: wrap;
       }
-      .hero .note {
-        margin-top: 16px;
-        color: var(--faint);
-        font-size: 13px;
-        font-family: var(--mono);
-      }
-
-      /* Terminal mock */
-      .term {
-        margin: 46px auto 0;
-        max-width: 760px;
-        border: 1px solid var(--line2);
-        border-radius: 12px;
-        background: linear-gradient(180deg, #0c0c15, #0a0a11);
-        box-shadow: 0 30px 80px #0009;
-        overflow: hidden;
-        text-align: left;
-      }
-      .term .bar {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        padding: 11px 14px;
-        border-bottom: 1px solid var(--line);
-        color: var(--faint);
+      .stackline {
+        margin-top: 26px;
         font-family: var(--mono);
         font-size: 12px;
+        color: var(--faint);
+        letter-spacing: 0.5px;
       }
-      .term .dots {
+      .stackline span {
+        color: var(--dim);
+      }
+
+      /* ===== Terminal demo ===== */
+      .term {
+        position: relative;
+        z-index: 1;
+        max-width: 760px;
+        margin: 40px auto 0;
+        border: 1px solid var(--line2);
+        border-radius: 12px;
+        background: linear-gradient(180deg, #0b0b13, #090910);
+        box-shadow:
+          0 40px 90px -40px rgba(124, 92, 255, 0.45),
+          0 0 0 1px #ffffff05 inset;
+        overflow: hidden;
+      }
+      .term-bar {
         display: flex;
-        gap: 7px;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--line);
+        background: #0a0a12;
       }
-      .term .dots i {
+      .term-bar i {
         width: 11px;
         height: 11px;
         border-radius: 50%;
+        background: #2a2a3a;
       }
-      .term .dots i:nth-child(1) {
+      .term-bar i:nth-child(1) {
         background: #ff5f57;
       }
-      .term .dots i:nth-child(2) {
+      .term-bar i:nth-child(2) {
         background: #febc2e;
       }
-      .term .dots i:nth-child(3) {
-        background: #5ac8fa;
+      .term-bar i:nth-child(3) {
+        background: #28c840;
       }
-      .term .body {
-        padding: 18px 18px 22px;
+      .term-bar span {
+        margin-left: 8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--faint);
+      }
+      .term-body {
         font-family: var(--mono);
         font-size: 13.5px;
-        line-height: 1.8;
+        line-height: 1.75;
+        padding: 20px 22px 24px;
+        min-height: 268px;
+        text-align: left;
+        white-space: pre-wrap;
       }
-      .term .pfx {
+      .term-body .l {
+        display: block;
+      }
+      .c-prompt {
         color: var(--violet);
       }
-      .term .ok {
+      .c-dim {
+        color: var(--faint);
+      }
+      .c-ok {
         color: var(--cyan);
       }
-      .term .warn {
+      .c-warn {
         color: var(--amber);
       }
-      .term .bad {
+      .c-bad {
         color: var(--pink);
       }
-      .term .dim {
-        color: var(--dim);
+      .c-info {
+        color: var(--azure);
       }
-      .caret {
+      .cursor {
         display: inline-block;
         width: 8px;
         height: 1.05em;
-        background: var(--violet);
         vertical-align: text-bottom;
+        background: var(--violet);
+        box-shadow: 0 0 8px var(--violet);
         animation: blink 1.05s steps(1) infinite;
       }
       @keyframes blink {
@@ -279,174 +339,289 @@
         }
       }
 
-      /* Sections */
+      /* ===== Seções ===== */
       section {
-        padding: 56px 0;
+        padding: 86px 0;
+        border-bottom: 1px solid var(--line);
       }
-      .eyebrow {
+      .kicker {
         font-family: var(--mono);
         font-size: 12px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
         color: var(--violet);
+        letter-spacing: 1px;
+        margin-bottom: 14px;
       }
-      h2.sec {
-        font-family: var(--mono);
-        font-size: clamp(24px, 4vw, 32px);
-        letter-spacing: -0.01em;
-        margin: 10px 0 8px;
+      h2 {
+        font-weight: 800;
+        font-size: clamp(26px, 4vw, 40px);
+        letter-spacing: -1px;
+        margin: 0 0 14px;
       }
-      p.lead {
+      .sub {
         color: var(--dim);
-        max-width: 640px;
-        margin: 0 0 30px;
+        max-width: 60ch;
+        margin: 0 0 42px;
       }
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 14px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
       }
       .card {
-        padding: 20px;
+        position: relative;
         border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--panel);
+        background: linear-gradient(180deg, var(--panel), var(--bg2));
+        border-radius: 14px;
+        padding: 24px 22px;
+        transition: all 0.2s;
+        overflow: hidden;
       }
-      .card .ic {
+      .card::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--violet), transparent);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .card:hover {
+        border-color: var(--line2);
+        transform: translateY(-3px);
+        box-shadow: 0 24px 50px -30px rgba(124, 92, 255, 0.5);
+      }
+      .card:hover::before {
+        opacity: 0.8;
+      }
+      .card .glyph {
         font-family: var(--mono);
+        font-size: 12px;
         color: var(--violet);
-        font-size: 13px;
+        margin-bottom: 14px;
       }
       .card h3 {
-        font-size: 16px;
-        margin: 10px 0 6px;
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 9px;
       }
-      .card.dl{text-decoration:none;transition:border-color .15s,transform .1s}.card.dl:hover{border-color:var(--line2);transform:translateY(-2px)}.card p {
-        margin: 0;
+      .card p {
         color: var(--dim);
-        font-size: 14px;
+        font-size: 14.5px;
+        margin: 0;
       }
+      .card p b {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      /* Como funciona */
       .steps {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 14px;
-        counter-reset: s;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        counter-reset: step;
       }
       .step {
-        padding: 20px;
         border: 1px solid var(--line);
-        border-radius: 12px;
+        border-radius: 14px;
+        padding: 26px 22px;
         background: var(--panel);
         position: relative;
       }
-      .step::before {
-        counter-increment: s;
-        content: '0' counter(s);
+      .step .n {
         font-family: var(--mono);
-        color: var(--faint);
         font-size: 13px;
+        color: var(--violet-deep);
+        margin-bottom: 12px;
       }
       .step h3 {
-        font-size: 15px;
-        margin: 8px 0 5px;
-        font-family: var(--mono);
+        margin: 0 0 8px;
+        font-size: 17px;
       }
       .step p {
         margin: 0;
         color: var(--dim);
-        font-size: 14px;
+        font-size: 14.5px;
       }
-      .pills {
+      .chips {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        margin-top: 8px;
+        margin-top: 26px;
       }
-      .pill {
+      .chip {
         font-family: var(--mono);
         font-size: 12px;
         color: var(--dim);
-        border: 1px solid var(--line2);
+        border: 1px solid var(--line);
         border-radius: 999px;
-        padding: 5px 12px;
-        background: #0d0d16;
+        padding: 6px 13px;
       }
-      .safe {
-        margin-top: 28px;
-        border: 1px solid #2a2342;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #150f24, #0b0b14);
-        padding: 22px;
-      }
-      .safe h3 {
-        font-family: var(--mono);
-        margin: 0 0 8px;
-        color: var(--violet);
-      }
-      .safe ul {
-        margin: 0;
-        padding-left: 18px;
-        color: var(--dim);
-      }
-      .safe li {
-        margin: 4px 0;
-      }
-      .cta-band {
-        text-align: center;
+
+      /* Segurança */
+      .panel-box {
         border: 1px solid var(--line2);
         border-radius: 16px;
-        background: radial-gradient(600px 220px at 50% 0, #a78bfa14, transparent 70%), var(--panel);
-        padding: 44px 24px;
+        padding: 32px;
+        background:
+          radial-gradient(600px 300px at 0 0, rgba(167, 139, 250, 0.08), transparent 70%),
+          var(--panel);
       }
-      .cta-band h2 {
+      .panel-box h3 {
         font-family: var(--mono);
-        font-size: clamp(22px, 4vw, 30px);
-        margin: 0 0 10px;
+        color: var(--violet);
+        margin: 0 0 20px;
+        font-size: 15px;
       }
-      .cta-band p {
+      .principles {
+        display: grid;
+        gap: 16px;
+      }
+      .principle {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .principle .mk {
+        font-family: var(--mono);
+        color: var(--cyan);
+        flex: none;
+        margin-top: 1px;
+      }
+      .principle p {
+        margin: 0;
         color: var(--dim);
-        margin: 0 0 22px;
+        font-size: 15px;
       }
+      .principle b {
+        color: var(--text);
+      }
+
+      /* Downloads */
+      .dl-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 24px 22px;
+        background: linear-gradient(180deg, var(--panel), var(--bg2));
+        transition: all 0.2s;
+      }
+      .dl-card:hover {
+        border-color: var(--violet);
+        transform: translateY(-3px);
+      }
+      .dl-card .os {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--violet);
+        margin-bottom: 12px;
+      }
+      .dl-card h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+      }
+      .dl-card p {
+        margin: 0 0 18px;
+        color: var(--dim);
+        font-size: 14px;
+      }
+      .dl-card a.get {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--text);
+        border: 1px solid var(--line2);
+        border-radius: 8px;
+        padding: 9px 15px;
+        transition: all 0.16s;
+      }
+      .dl-card a.get:hover {
+        border-color: var(--violet);
+        background: #ffffff06;
+      }
+      .note {
+        margin-top: 22px;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--faint);
+      }
+      .note a {
+        color: var(--violet);
+      }
+
+      /* CTA final */
+      .finale {
+        text-align: center;
+        border: 1px solid var(--line2);
+        border-radius: 18px;
+        padding: 56px 32px;
+        background:
+          radial-gradient(700px 300px at 50% 0, rgba(124, 92, 255, 0.14), transparent 70%),
+          var(--panel);
+      }
+      .finale h2 {
+        margin-bottom: 14px;
+      }
+      .finale p {
+        color: var(--dim);
+        margin: 0 0 28px;
+      }
+
       footer {
-        border-top: 1px solid var(--line);
         padding: 30px 0;
         color: var(--faint);
+      }
+      .foot {
+        display: flex;
+        align-items: center;
+        gap: 14px;
         font-family: var(--mono);
         font-size: 13px;
       }
-      footer .wrap {
-        display: flex;
-        gap: 14px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      footer .sp {
+      .foot .spacer {
         flex: 1;
       }
-      footer a {
-        color: var(--dim);
-        text-decoration: none;
+      .foot img {
+        width: 20px;
+        height: 20px;
+        opacity: 0.8;
       }
-      footer a:hover {
-        color: var(--text);
+
+      @media (max-width: 860px) {
+        .grid,
+        .steps {
+          grid-template-columns: 1fr;
+        }
+        .nav .links {
+          display: none;
+        }
+        section {
+          padding: 60px 0;
+        }
       }
       @media (prefers-reduced-motion: reduce) {
-        * {
-          animation: none !important;
-          scroll-behavior: auto;
+        #rain {
+          display: none;
+        }
+        .cursor,
+        .tag b {
+          animation: none;
         }
       }
     </style>
   </head>
   <body>
-    <header class="nav">
-      <div class="wrap">
-        <a class="brand" href="#top"><img class="mk" src="/logo.png" alt="" />qypher</a>
-        <span class="sp"></span>
-        <a class="lnk" href="#recursos">recursos</a>
-        <a class="lnk" href="#como">como funciona</a>
-        <a class="lnk" href="#downloads">downloads</a>
-        <a class="lnk" href="#seguranca">segurança</a>
+    <header>
+      <div class="wrap nav">
+        <a class="brand" href="#top"><img src="/logo.png" alt="Qypher" /> qypher</a>
+        <div class="spacer"></div>
+        <nav class="links">
+          <a href="#recursos">recursos</a>
+          <a href="#como">como funciona</a>
+          <a href="#downloads">downloads</a>
+          <a href="#seguranca">segurança</a>
+        </nav>
         <a class="btn" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
           >GitHub ↗</a
         >
@@ -454,198 +629,260 @@
     </header>
 
     <main id="top">
-      <section class="hero wrap">
-        <span class="tag">❯ análise local · sem telemetria · código aberto</span>
-        <h1>Encontre as <span class="g">fraquezas</span><br />de um site antes que outros encontrem.</h1>
-        <p class="sub">
-          Qypher é um aplicativo desktop que varre sites autorizados e código local em busca de
-          arquivos expostos, falhas de configuração e credenciais vazadas — e explica, em linguagem
-          clara, como corrigir.
-        </p>
-        <div class="cta">
-          <a class="btn primary" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
-            >Ver no GitHub</a
-          >
-          <a class="btn" href="#como">Como funciona</a>
-        </div>
-        <p class="note">Rust + Tauri + React · Windows, Linux e macOS · Apache-2.0</p>
-
-        <div class="term" role="img" aria-label="Exemplo de varredura no terminal do Qypher">
-          <div class="bar">
-            <span class="dots"><i></i><i></i><i></i></span>
-            qypher — ~/scan
+      <!-- HERO -->
+      <div class="hero">
+        <canvas id="rain"></canvas>
+        <div class="hero-inner wrap">
+          <div class="tag"><b></b> análise local · sem telemetria · código aberto</div>
+          <h1>Encontre as <span class="glow">fraquezas</span> antes que outros encontrem.</h1>
+          <p class="lead">
+            Qypher é um aplicativo desktop que varre sites autorizados e código local em busca de
+            arquivos expostos, falhas de configuração e credenciais vazadas — e explica, em
+            linguagem clara, como corrigir.
+          </p>
+          <div class="cta">
+            <a class="btn primary" href="#downloads">⤓ Baixar</a>
+            <a
+              class="btn"
+              href="https://github.com/PQueirozDev/qypher"
+              target="_blank"
+              rel="noopener"
+              >Ver no GitHub</a
+            >
           </div>
-          <div class="body">
-            <div><span class="pfx">❯</span> qypher scan --deep https://seuprojeto.com.br</div>
-            <div class="dim">resolvendo DNS e validando destino…</div>
-            <div><span class="ok">✓</span> HTTPS e certificado TLS válidos</div>
-            <div><span class="warn">!</span> CSP presente, mas permite scripts inline</div>
-            <div><span class="bad">✗</span> /.env acessível publicamente — credenciais expostas</div>
-            <div><span class="bad">✗</span> /.git/HEAD acessível — código-fonte reconstruível</div>
-            <div><span class="warn">!</span> CORS reflete qualquer origem</div>
-            <div class="dim">84 verificações · 73 requisições</div>
-            <div>
-              <span class="pfx">❯</span> nota de postura:
-              <span class="bad">F · 27/100</span><span class="caret"></span>
+          <div class="stackline">
+            <span>Rust</span> + <span>Tauri</span> + <span>React</span> · Windows, Linux e macOS ·
+            Apache-2.0
+          </div>
+        </div>
+
+        <!-- Terminal auto-digitando -->
+        <div class="term">
+          <div class="term-bar">
+            <i></i><i></i><i></i><span>qypher — ~/scan</span>
+          </div>
+          <div class="term-body" id="demo"></div>
+        </div>
+        <div style="height: 72px"></div>
+      </div>
+
+      <!-- RECURSOS -->
+      <section id="recursos">
+        <div class="wrap">
+          <div class="kicker">// RECURSOS</div>
+          <h2>O que o Qypher encontra</h2>
+          <p class="sub">
+            Verificações reais sobre a resposta do alvo — sem força bruta, sem exploração destrutiva
+            e sem simular resultados.
+          </p>
+          <div class="grid">
+            <div class="card">
+              <div class="glyph">[ exposição ]</div>
+              <h3>Arquivos e segredos expostos</h3>
+              <p>
+                <b>.env</b>, <b>.git</b>, backups, dumps de banco, credenciais e painéis de debug
+                acessíveis. Mostra uma prévia mascarada do que vazou, para você avisar o responsável.
+              </p>
+            </div>
+            <div class="card">
+              <div class="glyph">[ http / tls ]</div>
+              <h3>Configuração de transporte</h3>
+              <p>
+                HTTPS, validade e força do certificado, versões de TLS obsoletas, HSTS, e
+                redirecionamento inseguro da porta 80.
+              </p>
+            </div>
+            <div class="card">
+              <div class="glyph">[ cabeçalhos ]</div>
+              <h3>Cabeçalhos de segurança</h3>
+              <p>
+                Força da CSP e do HSTS, clickjacking, cookies sem atributos seguros, CORS permissivo
+                e divulgação de versões de software.
+              </p>
+            </div>
+            <div class="card">
+              <div class="glyph">[ página ]</div>
+              <h3>Conteúdo da página</h3>
+              <p>
+                Bibliotecas JavaScript vulneráveis, scripts de terceiros sem verificação de
+                integridade, conteúdo misto, formulários sem proteção CSRF e source maps públicos.
+              </p>
+            </div>
+            <div class="card">
+              <div class="glyph">[ ativo ]</div>
+              <h3>Testes ativos não destrutivos</h3>
+              <p>
+                Reflexão de origem no CORS, métodos HTTP de escrita anunciados, TRACE e páginas de
+                erro com rastro de pilha — sempre dentro do escopo autorizado.
+              </p>
+            </div>
+            <div class="card">
+              <div class="glyph">[ código ]</div>
+              <h3>Análise de código local</h3>
+              <p>
+                Triagem de padrões perigosos, possíveis segredos no repositório, infraestrutura como
+                código (Docker/K8s/Terraform) e inventário de dependências com consulta OSV opcional.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="recursos" class="wrap">
-        <span class="eyebrow">// recursos</span>
-        <h2 class="sec">O que o Qypher encontra</h2>
-        <p class="lead">
-          Verificações reais sobre a resposta do alvo — sem força bruta, sem exploração destrutiva e
-          sem simular resultados.
-        </p>
-        <div class="grid">
-          <div class="card">
-            <span class="ic">[ exposição ]</span>
-            <h3>Arquivos e segredos expostos</h3>
-            <p>
-              .env, .git, backups, dumps de banco, credenciais e painéis de debug acessíveis. Mostra
-              uma prévia <strong>mascarada</strong> do que vazou, para você avisar o responsável.
-            </p>
+      <!-- COMO FUNCIONA -->
+      <section id="como">
+        <div class="wrap">
+          <div class="kicker">// COMO FUNCIONA</div>
+          <h2>Cole o link e analise</h2>
+          <p class="sub">
+            Duas intensidades: <b>Quick Scan</b> (configurações públicas) e <b>varredura profunda</b>
+            (descoberta de arquivos expostos e testes ativos).
+          </p>
+          <div class="steps">
+            <div class="step">
+              <div class="n">01 /</div>
+              <h3>Autorize o alvo</h3>
+              <p>
+                Confirme que o site é seu ou que você tem permissão. O escopo fica preso à origem
+                informada.
+              </p>
+            </div>
+            <div class="step">
+              <div class="n">02 /</div>
+              <h3>O motor varre</h3>
+              <p>
+                Requisições limitadas e controladas sobre o alvo, com DNS validado a cada salto. Nada
+                do corpo é guardado em claro.
+              </p>
+            </div>
+            <div class="step">
+              <div class="n">03 /</div>
+              <h3>Leia e corrija</h3>
+              <p>
+                Cada achado traz evidência, impacto e correção. Gere um prompt pronto para colar no
+                seu assistente de IA.
+              </p>
+            </div>
           </div>
-          <div class="card">
-            <span class="ic">[ http / tls ]</span>
-            <h3>Configuração de transporte</h3>
-            <p>
-              HTTPS, validade e força do certificado, versões de TLS obsoletas, HSTS, e
-              redirecionamento inseguro da porta 80.
-            </p>
-          </div>
-          <div class="card">
-            <span class="ic">[ cabeçalhos ]</span>
-            <h3>Cabeçalhos de segurança</h3>
-            <p>
-              Força da CSP e do HSTS, clickjacking, cookies sem atributos seguros, CORS permissivo e
-              divulgação de versões de software.
-            </p>
-          </div>
-          <div class="card">
-            <span class="ic">[ página ]</span>
-            <h3>Conteúdo da página</h3>
-            <p>
-              Bibliotecas JavaScript vulneráveis, scripts de terceiros sem verificação de
-              integridade, conteúdo misto, formulários sem proteção CSRF e source maps públicos.
-            </p>
-          </div>
-          <div class="card">
-            <span class="ic">[ ativo ]</span>
-            <h3>Testes ativos não destrutivos</h3>
-            <p>
-              Reflexão de origem no CORS, métodos HTTP de escrita anunciados, TRACE e páginas de erro
-              com rastro de pilha — sempre dentro do escopo autorizado.
-            </p>
-          </div>
-          <div class="card">
-            <span class="ic">[ código ]</span>
-            <h3>Análise de código local</h3>
-            <p>
-              Triagem de padrões perigosos, possíveis segredos no repositório e inventário de
-              dependências com consulta OSV opcional. Sem executar o código do alvo.
-            </p>
+          <div class="chips">
+            <span class="chip">quick scan + cadeado</span>
+            <span class="chip">varredura profunda + órbita</span>
+            <span class="chip">modo terminal (REPL)</span>
+            <span class="chip">prompt para IA</span>
+            <span class="chip">exportar PDF / HTML / JSON</span>
+            <span class="chip">histórico local</span>
           </div>
         </div>
       </section>
 
-      <section id="como" class="wrap">
-        <span class="eyebrow">// como funciona</span>
-        <h2 class="sec">Cole o link e analise</h2>
-        <p class="lead">
-          Duas intensidades: <strong>Quick Scan</strong> (configurações públicas) e
-          <strong>varredura profunda</strong> (descoberta de arquivos expostos e testes ativos).
-        </p>
-        <div class="steps">
-          <div class="step">
-            <h3>Autorize o alvo</h3>
-            <p>Confirme que o site é seu ou que você tem permissão. O escopo fica preso à origem informada.</p>
+      <!-- SEGURANÇA -->
+      <section id="seguranca">
+        <div class="wrap">
+          <div class="kicker">// SEGURANÇA E PRIVACIDADE</div>
+          <h2>Feito para uso responsável</h2>
+          <p class="sub"></p>
+          <div class="panel-box">
+            <h3>&gt; princípios</h3>
+            <div class="principles">
+              <div class="principle">
+                <span class="mk">✓</span>
+                <p>
+                  <b>Local-first:</b> a análise roda no seu computador. Sem conta, sem servidor
+                  obrigatório, sem telemetria.
+                </p>
+              </div>
+              <div class="principle">
+                <span class="mk">✓</span>
+                <p>
+                  <b>Somente com autorização:</b> cada execução exige a confirmação de que você pode
+                  testar o alvo.
+                </p>
+              </div>
+              <div class="principle">
+                <span class="mk">✓</span>
+                <p>
+                  <b>Sem exploração destrutiva:</b> apenas leitura e testes não destrutivos; nada de
+                  força bruta ou payloads de ataque.
+                </p>
+              </div>
+              <div class="principle">
+                <span class="mk">✓</span>
+                <p>
+                  <b>Segredos protegidos:</b> o conteúdo exposto é exibido mascarado e redigido nas
+                  exportações; o valor inteiro nunca é guardado.
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="step">
-            <h3>O motor varre</h3>
-            <p>Requisições limitadas e controladas sobre o alvo, com DNS validado a cada salto. Nada do corpo é guardado em claro.</p>
-          </div>
-          <div class="step">
-            <h3>Leia e corrija</h3>
-            <p>Cada achado traz evidência, impacto e correção. Gere um prompt pronto para colar no seu assistente de IA.</p>
-          </div>
-        </div>
-        <div class="pills">
-          <span class="pill">quick scan → cadeado</span>
-          <span class="pill">varredura profunda → órbita</span>
-          <span class="pill">prompt para IA</span>
-          <span class="pill">exportar PDF / HTML / JSON</span>
-          <span class="pill">histórico local</span>
         </div>
       </section>
 
-      <section id="seguranca" class="wrap">
-        <span class="eyebrow">// segurança e privacidade</span>
-        <h2 class="sec">Feito para uso responsável</h2>
-        <div class="safe">
-          <h3>Princípios</h3>
-          <ul>
-            <li><strong>Local-first:</strong> a análise roda no seu computador. Sem conta, sem servidor obrigatório, sem telemetria.</li>
-            <li><strong>Somente com autorização:</strong> cada execução exige a confirmação de que você pode testar o alvo.</li>
-            <li><strong>Sem exploração destrutiva:</strong> apenas leitura e testes não destrutivos; nada de força bruta ou payloads de ataque.</li>
-            <li><strong>Segredos protegidos:</strong> o conteúdo exposto é exibido mascarado e redigido nas exportações; o valor inteiro nunca é guardado.</li>
-          </ul>
+      <!-- DOWNLOADS -->
+      <section id="downloads">
+        <div class="wrap">
+          <div class="kicker">// DOWNLOADS</div>
+          <h2>Baixe e instale</h2>
+          <p class="sub">
+            Instaladores para Windows, Linux e macOS são publicados nas releases do GitHub. O
+            aplicativo se atualiza sozinho quando uma nova versão sai.
+          </p>
+          <div class="grid">
+            <div class="dl-card">
+              <div class="os">[ windows ]</div>
+              <h3>Windows 10/11</h3>
+              <p>Instalador .exe (NSIS), por usuário, sem privilégio de administrador.</p>
+              <a
+                class="get"
+                href="https://github.com/PQueirozDev/qypher/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >⤓ releases ↗</a
+              >
+            </div>
+            <div class="dl-card">
+              <div class="os">[ linux ]</div>
+              <h3>Linux</h3>
+              <p>AppImage e pacote .deb para distribuições baseadas em Debian.</p>
+              <a
+                class="get"
+                href="https://github.com/PQueirozDev/qypher/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >⤓ releases ↗</a
+              >
+            </div>
+            <div class="dl-card">
+              <div class="os">[ macos ]</div>
+              <h3>macOS</h3>
+              <p>Imagem .dmg assinada ao compilar na plataforma Apple.</p>
+              <a
+                class="get"
+                href="https://github.com/PQueirozDev/qypher/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >⤓ releases ↗</a
+              >
+            </div>
+          </div>
+          <p class="note">
+            Ainda sem release publicada? Clone o repositório e compile do código — veja o
+            <a href="https://github.com/PQueirozDev/qypher#readme" target="_blank" rel="noopener"
+              >README</a
+            >.
+          </p>
         </div>
       </section>
 
-      <section id="downloads" class="wrap">
-        <span class="eyebrow">// downloads</span>
-        <h2 class="sec">Baixe e instale</h2>
-        <p class="lead">
-          Instaladores para Windows, Linux e macOS são publicados nas releases do GitHub. O
-          aplicativo se atualiza sozinho quando uma nova versão sai.
-        </p>
-        <div class="grid">
-          <a
-            class="card dl"
-            href="https://github.com/PQueirozDev/qypher/releases/latest"
-            target="_blank"
-            rel="noopener"
-          >
-            <span class="ic">[ windows ]</span>
-            <h3>Windows 10/11</h3>
-            <p>Instalador .exe (NSIS), por usuário, sem privilégio de administrador.</p>
-          </a>
-          <a
-            class="card dl"
-            href="https://github.com/PQueirozDev/qypher/releases/latest"
-            target="_blank"
-            rel="noopener"
-          >
-            <span class="ic">[ linux ]</span>
-            <h3>Linux</h3>
-            <p>AppImage e pacote .deb.</p>
-          </a>
-          <a
-            class="card dl"
-            href="https://github.com/PQueirozDev/qypher/releases/latest"
-            target="_blank"
-            rel="noopener"
-          >
-            <span class="ic">[ macos ]</span>
-            <h3>macOS</h3>
-            <p>Imagem .dmg.</p>
-          </a>
-        </div>
-        <p class="note" style="margin-top: 14px; color: var(--faint); font-family: var(--mono); font-size: 13px">
-          Ainda sem release validada? Clone o repositório e compile do código — veja o
-          <a href="https://github.com/PQueirozDev/qypher#começar-no-windows" style="color: var(--violet)">README</a>.
-        </p>
-      </section>
-
-      <section class="wrap">
-        <div class="cta-band">
-          <h2>Código aberto. Rode você mesmo.</h2>
-          <p>Clone o repositório, compile e audite suas próprias aplicações.</p>
-          <div class="cta" style="justify-content: center">
-            <a class="btn primary" href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener"
+      <!-- FINALE -->
+      <section style="border-bottom: 0">
+        <div class="wrap">
+          <div class="finale">
+            <h2>Código aberto. Rode você mesmo.</h2>
+            <p>Clone o repositório, compile e audite suas próprias aplicações.</p>
+            <a
+              class="btn primary"
+              href="https://github.com/PQueirozDev/qypher"
+              target="_blank"
+              rel="noopener"
               >github.com/PQueirozDev/qypher</a
             >
           </div>
@@ -654,12 +891,118 @@
     </main>
 
     <footer>
-      <div class="wrap">
-        <a class="brand" href="#top"><img class="mk" src="/logo.png" alt="" />qypher</a>
-        <span class="sp"></span>
-        <span>Análise de segurança local · Apache-2.0</span>
+      <div class="wrap foot">
+        <img src="/logo.png" alt="" /> <span>qypher</span>
+        <div class="spacer"></div>
+        <span class="c-dim">Análise de segurança local · Apache-2.0</span>
         <a href="https://github.com/PQueirozDev/qypher" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </footer>
+
+    <script>
+      // ===== Chuva de código no hero (canvas) =====
+      (function () {
+        const c = document.getElementById('rain');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        const glyphs = '01<>[]{}/|=+*#$%&xX01ʂ'.replace(/[^\x20-\x7e]/g, '');
+        const colors = ['#a78bfa', '#6ea8ff', '#4fd1e0'];
+        let cols,
+          drops,
+          fs = 15,
+          w,
+          h;
+        function size() {
+          const hero = c.parentElement;
+          w = c.width = hero.offsetWidth;
+          h = c.height = hero.offsetHeight;
+          cols = Math.floor(w / fs);
+          drops = new Array(cols).fill(0).map(() => Math.random() * -40);
+        }
+        size();
+        window.addEventListener('resize', size);
+        function frame() {
+          ctx.fillStyle = 'rgba(6,6,10,0.09)';
+          ctx.fillRect(0, 0, w, h);
+          ctx.font = fs + 'px JetBrains Mono, monospace';
+          for (let i = 0; i < cols; i++) {
+            const g = glyphs[(Math.random() * glyphs.length) | 0];
+            const x = i * fs;
+            const y = drops[i] * fs;
+            // cabeça mais clara
+            ctx.fillStyle = Math.random() > 0.97 ? '#e9e9f2' : colors[i % colors.length];
+            ctx.globalAlpha = 0.85;
+            ctx.fillText(g, x, y);
+            ctx.globalAlpha = 1;
+            if (y > h && Math.random() > 0.975) drops[i] = Math.random() * -20;
+            drops[i] += 0.5;
+          }
+          requestAnimationFrame(frame);
+        }
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) frame();
+      })();
+
+      // ===== Terminal auto-digitando =====
+      (function () {
+        const el = document.getElementById('demo');
+        if (!el) return;
+        const lines = [
+          { t: '❯ qypher scan --deep https://seuprojeto.com.br', c: 'c-prompt' },
+          { t: 'resolvendo DNS e validando destino…', c: 'c-dim' },
+          { t: '✓ HTTPS e certificado TLS válidos', c: 'c-ok' },
+          { t: '! CSP presente, mas permite scripts inline', c: 'c-warn' },
+          { t: '✗ /.env acessível publicamente — credenciais expostas', c: 'c-bad' },
+          { t: '✗ /.git/HEAD acessível — código-fonte reconstruível', c: 'c-bad' },
+          { t: '! CORS reflete qualquer origem', c: 'c-warn' },
+          { t: 'ⓘ 3 bibliotecas desatualizadas no front-end', c: 'c-info' },
+          { t: '84 verificações · 73 requisições', c: 'c-dim' },
+          { t: '❯ nota de postura: F · 27/100', c: 'c-prompt' },
+        ];
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let li = 0,
+          ci = 0;
+        const done = [];
+        function render(active) {
+          el.innerHTML =
+            done.map((d) => `<span class="l ${d.c}">${esc(d.t)}</span>`).join('') +
+            (active !== null
+              ? `<span class="l ${lines[li].c}">${esc(active)}<span class="cursor"></span></span>`
+              : '');
+        }
+        function esc(s) {
+          return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        function tick() {
+          if (li >= lines.length) {
+            setTimeout(() => {
+              done.length = 0;
+              li = 0;
+              ci = 0;
+              tick();
+            }, 4200);
+            return;
+          }
+          const full = lines[li].t;
+          if (reduce) {
+            done.push(lines[li]);
+            li++;
+            render(null);
+            if (li < lines.length) setTimeout(tick, 1);
+            return;
+          }
+          ci++;
+          render(full.slice(0, ci));
+          if (ci >= full.length) {
+            done.push(lines[li]);
+            li++;
+            ci = 0;
+            setTimeout(tick, 360);
+          } else {
+            setTimeout(tick, 16 + Math.random() * 34);
+          }
+        }
+        tick();
+      })();
+    </script>
   </body>
 </html>
