@@ -13,3 +13,5 @@ tmp/
 !.env.example
 *.log
 
+*.key
+*.pem
