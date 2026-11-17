@@ -1394,6 +1394,155 @@ body {
   text-shadow: 0 0 2px rgba(231, 231, 240, 0.2);
 }
 
+/* ===== Finding Inspector 2.0 (lista + detalhe) ===== */
+.finding-inspector {
+  display: grid;
+  grid-template-columns: minmax(230px, 310px) 1fr;
+  gap: 14px;
+  align-items: start;
+  margin-top: 12px;
+}
+.fi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 72vh;
+  overflow-y: auto;
+  border: 1px solid var(--t-line);
+  border-radius: 10px;
+  background: var(--t-panel);
+}
+.fi-list > li {
+  border-bottom: 1px solid var(--t-line);
+}
+.fi-list > li:last-child {
+  border-bottom: 0;
+}
+.fi-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: 0;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  color: var(--t-text);
+  font: inherit;
+  text-align: left;
+}
+.fi-row:hover {
+  background: #ffffff06;
+}
+.fi-row.active {
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.12), transparent 80%);
+  border-left-color: var(--t-violet);
+}
+.fi-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fi-row-text strong {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fi-row-text code {
+  font-size: 10.5px;
+  color: var(--t-faint);
+}
+.fi-detail {
+  border: 1px solid var(--t-line);
+  border-radius: 10px;
+  background: var(--t-panel);
+  padding: 18px 20px;
+  animation: fi-in 260ms ease;
+}
+@keyframes fi-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fi-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.fi-head h2 {
+  margin: 0 0 3px;
+  font-size: 18px;
+}
+.fi-head code {
+  color: var(--t-faint);
+  font-size: 11px;
+}
+.fi-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.fi-tag,
+.fi-loc {
+  font-size: 11px;
+  padding: 3px 9px;
+  border: 1px solid var(--t-line-2);
+  border-radius: 999px;
+  color: var(--t-dim);
+}
+.fi-loc {
+  color: var(--t-cyan);
+}
+.fi-detail h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--t-violet);
+  margin: 16px 0 6px;
+}
+.fi-detail > p {
+  margin: 0 0 4px;
+  line-height: 1.55;
+}
+.fi-detail pre {
+  background: var(--t-bg-2);
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.fi-detail .reference {
+  font-size: 12px;
+  color: var(--t-info);
+}
+.fi-detail small {
+  display: block;
+  margin-top: 10px;
+  color: var(--t-faint);
+}
+@media (max-width: 860px) {
+  .finding-inspector {
+    grid-template-columns: 1fr;
+  }
+  .fi-list {
+    max-height: 220px;
+  }
+}
+
 /* ===== Status bar global do workspace (Workspace 2.0) ===== */
 .statusbar {
   flex: none;

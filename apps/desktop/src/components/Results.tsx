@@ -84,6 +84,92 @@ export function FindingList({ findings }: { findings: Finding[] }) {
     </div>
   );
 }
+// Finding Inspector 2.0: lista selecionável à esquerda, detalhe completo à direita.
+export function FindingInspector({ findings }: { findings: Finding[] }) {
+  const [sel, setSel] = useState(0);
+  if (!findings.length)
+    return (
+      <Empty
+        icon={Shield}
+        title="Nenhum achado nesta seleção"
+        description="Confira a cobertura da execução. Ausência de achados não comprova ausência de vulnerabilidades."
+      />
+    );
+  const clean = sanitizeTechnicalText;
+  const index = Math.min(sel, findings.length - 1);
+  const finding = findings[index];
+  return (
+    <div className="finding-inspector">
+      <ul className="fi-list" role="listbox" aria-label="Lista de achados">
+        {findings.map((item, i) => (
+          <li key={item.id}>
+            <button
+              role="option"
+              aria-selected={i === index}
+              className={`fi-row ${i === index ? 'active' : ''}`}
+              onClick={() => setSel(i)}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown') {
+                  event.preventDefault();
+                  setSel(Math.min(i + 1, findings.length - 1));
+                } else if (event.key === 'ArrowUp') {
+                  event.preventDefault();
+                  setSel(Math.max(i - 1, 0));
+                }
+              }}
+            >
+              <SeverityBadge value={item.severity} />
+              <span className="fi-row-text">
+                <strong>{clean(item.title)}</strong>
+                <code>{item.detectorId}</code>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="fi-detail" key={finding.id}>
+        <div className="fi-head">
+          <SeverityBadge value={finding.severity} />
+          <div>
+            <h2>{clean(finding.title)}</h2>
+            <code>
+              {finding.detectorId} · v{finding.detectorVersion}
+            </code>
+          </div>
+        </div>
+        <div className="fi-tags">
+          <span className="fi-tag">{kindLabel[findingKind(finding)]}</span>
+          <span className="fi-tag">Confiança: {confidenceLabel(finding.confidence)}</span>
+          {finding.category && <span className="fi-tag">{clean(finding.category)}</span>}
+          <code className="fi-loc">{clean(safeLocation(finding.location))}</code>
+        </div>
+        <h3>O que está errado?</h3>
+        <p>{clean(finding.description || finding.title)}</p>
+        <h3>Evidência técnica</h3>
+        <pre>{clean(finding.evidence)}</pre>
+        <h3>Por que isso importa?</h3>
+        <p>{clean(finding.impact)}</p>
+        <h3>Como corrigir?</h3>
+        <p className="recommendation">{clean(finding.recommendation)}</p>
+        <h3>Como verificar a correção?</h3>
+        <p>
+          {clean(
+            finding.verification ||
+              'Repita a mesma verificação no escopo autorizado após a alteração e compare evidências e cobertura. Verificações não executadas ou incompletas são inconclusivas.',
+          )}
+        </p>
+        <h3>Referências</h3>
+        {finding.references.map((reference) => (
+          <p className="reference" key={reference}>
+            {clean(reference)}
+          </p>
+        ))}
+        <small>ID: {clean(finding.id)}</small>
+        <AiFixStudio context={finding.location} issues={fixIssues([finding])} />
+      </div>
+    </div>
+  );
+}
 export function Results({
   workspace: w,
   selectedId,
@@ -297,7 +383,7 @@ export function Results({
                   <span className="muted-text">{findings.length} resultados</span>
                 </div>
                 {!!all.length && <AiFixStudio context={scan.config.url} issues={fixIssues(all)} />}
-                <FindingList findings={findings} />
+                <FindingInspector findings={findings} />
               </>
             )}
             {tab === 'terminal' && (
