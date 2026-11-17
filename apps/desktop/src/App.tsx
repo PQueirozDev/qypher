@@ -70,6 +70,7 @@ export default function App() {
   const [menu, setMenu] = useState(false);
   const [palette, setPalette] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [revealing, setRevealing] = useState(false);
   const main = useRef<HTMLElement>(null);
   const navigate = useCallback(
     (id: string) => {
@@ -90,6 +91,9 @@ export default function App() {
     setLocked(false);
     setPage((p) => (p === 'terminal' ? 'home' : p));
     setError('');
+    // Animação de "power-on" (CRT ligando) ao revelar o workspace.
+    setRevealing(true);
+    window.setTimeout(() => setRevealing(false), 650);
   }, [setError]);
   const lock = useCallback(() => {
     setLocked(true);
@@ -320,10 +324,16 @@ export default function App() {
             </div>
           </div>
         )}
-        <div className={isTerminal ? 'tui-host' : isHome ? '' : 'q-page t-inner'} key={page}>
+        <div
+          className={`${isTerminal ? 'tui-host' : isHome ? '' : 'q-page t-inner'}${
+            revealing && !isTerminal ? ' q-unlock-reveal' : ''
+          }`}
+          key={page}
+        >
           {content}
         </div>
       </main>
+      {revealing && !isTerminal && <div className="q-unlock-sweep" aria-hidden="true" />}
       {!isTerminal && (
         <TerminalMode
           workspace={w}
