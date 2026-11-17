@@ -4,9 +4,12 @@ import { sanitizeTechnicalText } from '../aiPrompt';
 import { usableScore } from '../assessment';
 import { severityLabel, type ScanConfig, type Severity } from '../types';
 import type { Workspace } from '../useWorkspace';
+import { APP_VERSION } from '../startup';
+import { COMMANDS, resolveCommand, parseScanArgs, completions } from '../terminalCommands';
 import { normalizeTarget } from './Home';
 
 type Line = { text: string; cls?: string; pre?: boolean };
+const PROMPT = 'qypher@local:~$';
 const privateHost = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|\[::1\])/;
 const SPIN = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 const severityClass: Record<Severity, string> = {
@@ -16,6 +19,7 @@ const severityClass: Record<Severity, string> = {
   info: 't-info',
   unrated: 't-muted',
 };
+const order: Severity[] = ['high', 'medium', 'low', 'info', 'unrated'];
 
 const BANNER = String.raw`
   ██████  ██    ██ ██████  ██   ██ ███████ ██████
@@ -25,22 +29,23 @@ const BANNER = String.raw`
   ██████     ██    ██      ██   ██ ███████ ██   ██
     ▀▀`;
 
-const HELP: Line[] = [
-  { text: 'comandos disponíveis:', cls: 't-muted' },
-  { text: '  analisar <url> [--rapido]   varre um site autorizado (profundo por padrão)' },
-  { text: '  cancelar                    interrompe a análise em andamento' },
-  { text: '  historico                   lista as últimas análises' },
-  { text: '  limpar                      limpa a tela' },
-  { text: '  gui                         abre o modo gráfico' },
-  { text: '  ajuda                       mostra esta lista' },
-];
+const reduceMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exit: () => void }) {
-  const [lines, setLines] = useState<Line[]>([
-    { text: BANNER, cls: 't-accent', pre: true },
-    { text: 'análise de segurança local · digite "ajuda" para começar', cls: 't-muted' },
-    { text: '' },
-  ]);
+export function TerminalMode({
+  workspace: w,
+  locked,
+  navigate,
+  unlock,
+  lock,
+}: {
+  workspace: Workspace;
+  locked: boolean;
+  navigate: (id: string) => void;
+  unlock: () => void;
+  lock: () => void;
+}) {
+  const [lines, setLines] = useState<Line[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);
   const [histIndex, setHistIndex] = useState(-1);
@@ -48,19 +53,60 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
   const [scanId, setScanId] = useState('');
   const [spin, setSpin] = useState(0);
   const seenLogs = useRef(0);
+  const didBoot = useRef(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scan = scanId ? w.scans.find((s) => s.id === scanId) : undefined;
 
   function push(...entries: Line[]) {
-    setLines((old) => [...old.slice(-400), ...entries]);
+    setLines((old) => [...old.slice(-500), ...entries]);
   }
+
+  // Sequência de inicialização (apresentação da interface, não verificações do motor).
+  useEffect(() => {
+    if (didBoot.current) return;
+    didBoot.current = true;
+    const seq: Line[] = [
+      { text: BANNER, cls: 't-accent', pre: true },
+      { text: 'QYPHER SECURITY WORKSPACE', cls: 't-accent' },
+      { text: '━'.repeat(42), cls: 't-muted' },
+      { text: '[BOOT] inicializando ambiente…', cls: 't-muted' },
+      { text: '[ OK ] interface de terminal', cls: 't-ok' },
+      { text: '[ OK ] preparando workspace', cls: 't-ok' },
+      { text: '[ OK ] configuração local', cls: 't-ok' },
+      { text: '[ OK ] pronto', cls: 't-ok' },
+      { text: '' },
+      { text: `QYPHER v${APP_VERSION} · local-first · sem telemetria`, cls: 't-accent' },
+      { text: 'De VibeCoders para VibeCoders.', cls: 't-dim' },
+      { text: '' },
+      {
+        text: "digite 'ajuda' para ver os comandos · 'unlock' para abrir o workspace",
+        cls: 't-muted',
+      },
+      { text: '' },
+    ];
+    if (reduceMotion()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLines(seq);
+      return;
+    }
+    let i = 0;
+    const id = setInterval(() => {
+      const item = seq[i];
+      if (!item) {
+        clearInterval(id);
+        return;
+      }
+      setLines((old) => [...old, item]);
+      i++;
+    }, 85);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
   }, [lines]);
 
-  // Spinner animado enquanto a varredura roda.
   const running = scan?.status === 'running';
   useEffect(() => {
     if (!running) return;
@@ -74,16 +120,11 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
     setScanId('');
     const score = usableScore(scan);
     const findings = [...scan.findings].sort(
-      (a, b) =>
-        ['high', 'medium', 'low', 'info', 'unrated'].indexOf(a.severity) -
-        ['high', 'medium', 'low', 'info', 'unrated'].indexOf(b.severity),
+      (a, b) => order.indexOf(a.severity) - order.indexOf(b.severity),
     );
     push({ text: '' });
     if (scan.error) push({ text: `  ! ${sanitizeTechnicalText(scan.error)}`, cls: 't-warn' });
-    push({
-      text: `  ┌─ resultado ${id.slice(0, 8)} ${'─'.repeat(28)}`,
-      cls: 't-muted',
-    });
+    push({ text: `  ┌─ resultado ${id.slice(0, 8)} ${'─'.repeat(26)}`, cls: 't-muted' });
     push({
       text: `  │ nota de postura: ${score ?? '—'}/100`,
       cls: score !== null && score < 60 ? 't-bad' : 't-ok',
@@ -99,8 +140,11 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
         });
       });
     }
-    push({ text: `  └${'─'.repeat(41)}`, cls: 't-muted' });
-    push({ text: '  abra o modo gráfico ("gui") para evidências e correções.', cls: 't-muted' });
+    push({ text: `  └${'─'.repeat(39)}`, cls: 't-muted' });
+    push({
+      text: "  'findings' abre os achados no workspace para evidências e correções.",
+      cls: 't-muted',
+    });
     push({ text: '' });
   }
 
@@ -152,22 +196,43 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
     };
     seenLogs.current = 0;
     push({
-      text: `  iniciando varredura ${deep ? 'profunda' : 'rápida'} de ${origin}…`,
+      text: `  [+] varredura ${deep ? 'profunda' : 'rápida'} de ${origin}…`,
       cls: 't-accent',
     });
     setScanId(await api.startScan(config));
   }
 
+  function openGui(page: string) {
+    if (locked) {
+      push({ text: '  [+] abrindo workspace…', cls: 't-ok' });
+      unlock();
+      setTimeout(() => navigate(page), reduceMotion() ? 0 : 80);
+    } else {
+      navigate(page);
+    }
+  }
+
+  function doUnlock() {
+    if (!locked) {
+      push({ text: '  workspace já está aberto.', cls: 't-muted' });
+      navigate('home');
+      return;
+    }
+    push({ text: '  [+] preparando workspace…', cls: 't-ok' });
+    push({ text: '  [+] restaurando navegação…', cls: 't-ok' });
+    push({ text: '  ACCESS GRANTED', cls: 't-accent' });
+    setTimeout(() => unlock(), reduceMotion() ? 0 : 600);
+  }
+
   async function handle(raw: string) {
     const line = raw.trim();
-    push({ text: `qypher ❯ ${raw}`, cls: 't-prompt-echo' });
+    push({ text: `${PROMPT} ${raw}`, cls: 't-prompt-echo' });
     if (!line) return;
 
     // Confirmação de autorização pendente.
     if (pending) {
       const yes = /^(s|sim|y|yes)$/i.test(line);
-      const target = pending.target;
-      const deep = pending.deep;
+      const { target, deep } = pending;
       setPending(null);
       if (!yes) {
         push({ text: '  análise cancelada.', cls: 't-muted' });
@@ -181,74 +246,134 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
       return;
     }
 
-    const [cmd, ...rest] = line.split(/\s+/);
-    switch (cmd.toLowerCase()) {
-      case 'ajuda':
+    const [rawCmd, ...rest] = line.split(/\s+/);
+    const cmd = resolveCommand(rawCmd);
+
+    switch (cmd) {
       case 'help':
-        push(...HELP, { text: '' });
+        push({ text: 'comandos disponíveis:', cls: 't-muted' });
+        COMMANDS.forEach((c) =>
+          push({ text: `  ${(c.name + ' ' + (c.args ?? '')).padEnd(26)} ${c.hint}` }),
+        );
+        push({ text: '' });
         break;
-      case 'limpar':
       case 'clear':
         setLines([]);
         break;
-      case 'gui':
-      case 'sair':
-        exit();
+      case 'version':
+        push({ text: `  QYPHER v${APP_VERSION}`, cls: 't-accent' }, { text: '' });
         break;
-      case 'historico':
+      case 'about':
+        push(
+          { text: '  QYPHER — análise de segurança local', cls: 't-accent' },
+          { text: '  Encontra arquivos expostos, falhas de HTTP/TLS e segredos vazados' },
+          { text: '  em sites autorizados e em código local. Rust + Tauri + React.' },
+          { text: '  De VibeCoders para VibeCoders.', cls: 't-dim' },
+          { text: '  github.com/PQueirozDev/qypher', cls: 't-info' },
+          { text: '' },
+        );
+        break;
+      case 'status':
+        push(
+          { text: '  QYPHER / STATUS', cls: 't-accent' },
+          {
+            text: `  motor      ${native && w.ready ? 'conectado' : 'desconectado — abra o app desktop'}`,
+            cls: native && w.ready ? 't-ok' : 't-warn',
+          },
+          { text: `  análise    ${running ? 'em execução' : 'ociosa'}` },
+          { text: `  interface  ${locked ? 'terminal (bloqueada)' : 'workspace (desbloqueada)'}` },
+          { text: `  análises   ${w.scans.length} no histórico local` },
+          { text: `  versão     ${APP_VERSION} · local-first · sem telemetria`, cls: 't-dim' },
+          { text: '' },
+        );
+        break;
+      case 'unlock':
+        doUnlock();
+        break;
+      case 'lock':
+        if (locked) push({ text: '  já está no modo terminal.', cls: 't-muted' });
+        else {
+          push({ text: '  [+] recolhendo interface…', cls: 't-ok' });
+          setTimeout(() => lock(), reduceMotion() ? 0 : 300);
+        }
+        break;
+      case 'findings':
+        openGui('findings');
+        break;
+      case 'code':
+        openGui('source');
+        break;
+      case 'report':
+        openGui('reports');
+        break;
+      case 'lab':
+        openGui('lab');
+        break;
       case 'history': {
         if (!w.scans.length) {
           push({ text: '  nenhuma análise no histórico.', cls: 't-muted' });
         } else {
-          w.scans.slice(0, 10).forEach((s) => {
+          push({ text: '  ID        STATUS      ALVO', cls: 't-muted' });
+          w.scans.slice(0, 12).forEach((s) => {
             const name = w.projects.find((p) => p.id === s.config.projectId)?.name ?? s.config.url;
             push({
               text: `  ${s.id.slice(0, 8)}  ${s.status.padEnd(10)} ${sanitizeTechnicalText(name)}`,
             });
           });
+          push({ text: "  'unlock' abre o histórico completo no workspace.", cls: 't-muted' });
         }
         push({ text: '' });
         break;
       }
-      case 'cancelar':
       case 'cancel':
-        if (scan && scan.status === 'running') {
+        if (running && scan) {
           await api.cancelScan(scan.id).catch(() => {});
           push({ text: '  cancelamento solicitado.', cls: 't-warn' });
         } else {
           push({ text: '  nenhuma análise ativa.', cls: 't-muted' });
         }
         break;
-      case 'analisar':
       case 'scan': {
         if (!native || !w.ready) {
-          push({ text: '  motor desconectado. abra o aplicativo desktop.', cls: 't-bad' });
+          push({
+            text: '  motor desconectado. abra o aplicativo desktop para executar varreduras.',
+            cls: 't-bad',
+          });
           break;
         }
-        if (scan && scan.status === 'running') {
+        if (running) {
           push({ text: '  já existe uma análise em andamento.', cls: 't-warn' });
           break;
         }
-        const deep = !rest.includes('--rapido') && !rest.includes('--quick');
-        const urlArg = rest.find((a) => !a.startsWith('--'));
+        // Parsing do modo: --mode quick|deep, --deep/--profundo, --quick/--rapido.
+        const { url: urlArg, deep } = parseScanArgs(rest);
         if (!urlArg) {
-          push({ text: '  uso: analisar <url> [--rapido]', cls: 't-muted' });
+          push({ text: '  uso: scan <url> [--mode quick|deep]', cls: 't-muted' });
           break;
         }
         try {
           const target = normalizeTarget(urlArg);
           setPending({ target, deep });
-          push({
-            text: `  confirme: você tem autorização para testar ${target.origin}? [s/n]`,
-            cls: 't-warn',
-          });
+          push(
+            { text: '  QYPHER / AUTORIZAÇÃO DO ALVO', cls: 't-accent' },
+            { text: `  alvo:  ${target.origin}` },
+            { text: `  modo:  ${deep ? 'varredura profunda' : 'quick scan'}` },
+            {
+              text: '  Analise apenas sistemas seus ou que você tem autorização explícita para testar.',
+              cls: 't-dim',
+            },
+            { text: '  confirmar autorização? [s/N]', cls: 't-warn' },
+          );
         } catch (e) {
           push({ text: `  ${String(e).replace(/^(TypeError|Error): /, '')}`, cls: 't-bad' });
         }
         break;
       }
       default:
-        push({ text: `  comando desconhecido: ${cmd}. digite "ajuda".`, cls: 't-muted' });
+        push(
+          { text: `  comando não encontrado: ${rawCmd}`, cls: 't-bad' },
+          { text: "  digite 'ajuda' para a lista de comandos.", cls: 't-muted' },
+        );
     }
   }
 
@@ -257,7 +382,7 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
     const value = input;
     setInput('');
     if (value.trim()) {
-      setHistory((h) => [...h.slice(-50), value]);
+      setHistory((h) => [...h.slice(-80), value]);
       setHistIndex(-1);
     }
     void handle(value);
@@ -282,6 +407,17 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
         setHistIndex(next);
         setInput(history[next]);
       }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const cur = input.trimStart();
+      if (!cur || cur.includes(' ')) return;
+      const matches = completions(cur);
+      if (matches.length === 1) {
+        setInput(matches[0] + ' ');
+      } else if (matches.length > 1) {
+        push({ text: `${PROMPT} ${cur}`, cls: 't-prompt-echo' });
+        push({ text: '  ' + matches.join('   '), cls: 't-muted' });
+      }
     }
   }
 
@@ -294,7 +430,7 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
           </div>
         ))}
         <form className="tui-input" onSubmit={submit}>
-          <span className="tui-ps">qypher ❯</span>
+          <span className="tui-ps">{PROMPT}</span>
           <input
             ref={inputRef}
             value={input}
@@ -312,9 +448,11 @@ export function TerminalMode({ workspace: w, exit }: { workspace: Workspace; exi
         <span>
           {running
             ? `${SPIN[spin % SPIN.length]} analisando… ${scan?.requestCount}/${scan?.config.maxRequests}`
-            : 'pronto'}
+            : locked
+              ? 'terminal · bloqueado'
+              : 'pronto'}
         </span>
-        <span>ajuda · analisar · historico · gui</span>
+        <span>help · scan · findings · unlock</span>
       </div>
     </div>
   );

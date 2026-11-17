@@ -1,6 +1,36 @@
+import { useState } from 'react';
 import { Accessibility, Check, Code2, Database, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { PageTitle, Panel } from './ui';
 import { MotionControls } from './MotionControls';
+import { startInTerminal, setStartInTerminal } from '../startup';
+
+function StartupControl() {
+  const [on, setOn] = useState(() => startInTerminal());
+  return (
+    <div className="padded">
+      <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
+        <input
+          type="checkbox"
+          checked={on}
+          onChange={(e) => {
+            setOn(e.target.checked);
+            setStartInTerminal(e.target.checked);
+          }}
+          style={{ marginTop: 3 }}
+        />
+        <span>
+          <b>Iniciar no modo terminal</b>
+          <br />
+          <span className="muted-text">
+            Ao abrir, o Qypher mostra apenas o terminal em tela cheia. Use o comando{' '}
+            <code>unlock</code> para revelar a interface gráfica. A mudança vale na próxima
+            inicialização.
+          </span>
+        </span>
+      </label>
+    </div>
+  );
+}
 export function AccessibilityPage() {
   return (
     <>
@@ -80,6 +110,9 @@ export function Settings() {
           </Panel>
         ))}
       </div>
+      <Panel title="Inicialização">
+        <StartupControl />
+      </Panel>
       <Panel title="Aparência e movimento">
         <div className="padded">
           <MotionControls />

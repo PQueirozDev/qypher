@@ -19,6 +19,7 @@ import { CommandPalette } from './components/CommandPalette';
 import { commandCatalog, parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
+import { startInTerminal } from './startup';
 
 const navPrimary = [
   { id: 'terminal', label: 'terminal', accessible: 'Modo terminal' },
@@ -57,7 +58,8 @@ const paths: Record<string, string> = {
 export default function App() {
   const w = useWorkspace();
   const { setError } = w;
-  const [page, setPage] = useState('terminal');
+  const [locked, setLocked] = useState(() => startInTerminal());
+  const [page, setPage] = useState(() => (startInTerminal() ? 'terminal' : 'home'));
   const [scanDraft, setScanDraft] = useState({
     url: '',
     mode: 'quick' as 'quick' | 'deep',
@@ -87,6 +89,15 @@ export default function App() {
     },
     [navigate],
   );
+  const unlock = useCallback(() => {
+    setLocked(false);
+    setPage((p) => (p === 'terminal' ? 'home' : p));
+    setError('');
+  }, [setError]);
+  const lock = useCallback(() => {
+    setLocked(true);
+    setPage('terminal');
+  }, []);
   useEffect(() => {
     main.current?.scrollTo(0, 0);
   }, [page]);
@@ -157,7 +168,10 @@ export default function App() {
   }
 
   let content;
-  if (page === 'terminal') content = <TerminalMode workspace={w} exit={() => navigate('home')} />;
+  if (locked || page === 'terminal')
+    content = (
+      <TerminalMode workspace={w} locked={locked} navigate={navigate} unlock={unlock} lock={lock} />
+    );
   else if (page === 'home')
     content = (
       <Home
@@ -210,8 +224,8 @@ export default function App() {
   else if (page === 'settings') content = <Settings />;
   else content = <About />;
 
-  const isHome = page === 'home';
-  const isTerminal = page === 'terminal';
+  const isHome = page === 'home' && !locked;
+  const isTerminal = page === 'terminal' || locked;
   return (
     <div className="t-shell">
       <a className="skip-link" href="#main">
@@ -226,53 +240,66 @@ export default function App() {
         <button className="t-brand" onClick={() => navigate('home')}>
           <b>❯_</b> qypher
         </button>
-        <span className="t-path">{paths[page] ?? '~'}</span>
-        <nav className="t-nav" aria-label="Navegação principal">
-          {navPrimary.map((item) => (
-            <button
-              key={item.id}
-              aria-label={item.accessible}
-              className={page === item.id ? 'active' : ''}
-              aria-current={page === item.id ? 'page' : undefined}
-              onClick={() => navigate(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-          <div className="t-more">
-            <button
-              className={navMore.some((m) => m.id === page) ? 'active' : ''}
-              aria-expanded={menu}
-              onClick={() => setMenu((value) => !value)}
-            >
-              mais <ChevronDown size={12} />
-            </button>
-            {menu && (
-              <div className="t-menu">
-                {navMore.map((item) => (
-                  <button
-                    key={item.id}
-                    aria-label={item.accessible ?? item.label}
-                    onClick={() => navigate(item.id)}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+        <span className="t-path">{locked ? '~' : (paths[page] ?? '~')}</span>
+        {!locked && (
+          <>
+            <nav className="t-nav" aria-label="Navegação principal">
+              {navPrimary.map((item) => (
+                <button
+                  key={item.id}
+                  aria-label={item.accessible}
+                  className={page === item.id ? 'active' : ''}
+                  aria-current={page === item.id ? 'page' : undefined}
+                  onClick={() => navigate(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+              <div className="t-more">
+                <button
+                  className={navMore.some((m) => m.id === page) ? 'active' : ''}
+                  aria-expanded={menu}
+                  onClick={() => setMenu((value) => !value)}
+                >
+                  mais <ChevronDown size={12} />
+                </button>
+                {menu && (
+                  <div className="t-menu">
+                    {navMore.map((item) => (
+                      <button
+                        key={item.id}
+                        aria-label={item.accessible ?? item.label}
+                        onClick={() => navigate(item.id)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </nav>
-        <button className="t-command" aria-label="Abrir comandos" onClick={() => setPalette(true)}>
-          Ctrl+K
-        </button>
-        <button
-          className="t-command"
-          aria-label="Alternar terminal"
-          aria-expanded={!collapsed}
-          onClick={() => setCollapsed((value) => !value)}
-        >
-          terminal
-        </button>
+            </nav>
+            <button
+              className="t-command"
+              aria-label="Abrir comandos"
+              onClick={() => setPalette(true)}
+            >
+              Ctrl+K
+            </button>
+            <button
+              className="t-command"
+              aria-label="Alternar terminal"
+              aria-expanded={!collapsed}
+              onClick={() => setCollapsed((value) => !value)}
+            >
+              terminal
+            </button>
+          </>
+        )}
+        {locked && (
+          <button className="t-command" aria-label="Abrir workspace" onClick={unlock}>
+            unlock
+          </button>
+        )}
         <div className="t-spacer" data-tauri-drag-region />
         <span className="t-status">
           <span className={`t-led ${native && w.ready ? 'on' : ''}`} />
