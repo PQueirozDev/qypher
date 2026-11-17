@@ -436,7 +436,7 @@ pub async fn exposures(
 ) -> Result<(), String> {
     scan.log(
         "discovery.start",
-        "Busca por arquivos e painéis expostos iniciada (lista fixa, um pedido por vez).",
+        "Busca por arquivos e painéis expostos iniciada (lista fixa, poucos pedidos simultâneos, gentil com o alvo).",
         LogLevel::Info,
     );
     progress(scan);

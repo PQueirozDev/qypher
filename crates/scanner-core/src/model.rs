@@ -155,24 +155,42 @@ fn mask_value(value: &str) -> String {
     format!("{shown}{bullets} ({n} caracteres)")
 }
 
+/// Verifica se o lado esquerdo de um par parece um nome de campo (e não conteúdo),
+/// para preservar a estrutura `chave: valor` sem revelar o valor.
+fn is_key_name(key: &str) -> bool {
+    let k = key.trim();
+    !k.is_empty()
+        && k.chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.' | '"' | ' ' | '[' | ']'))
+}
+
 /// Mascara uma linha de conteúdo exposto: preserva a estrutura (chave, `=`/`:`) e oculta o valor.
 fn mask_line(line: &str) -> String {
-    // Blocos PEM e afins: nunca mostrar o corpo.
     let trimmed = line.trim();
-    if trimmed.contains("PRIVATE KEY") || trimmed.starts_with("-----") {
+    // Delimitadores PEM (`-----BEGIN ... -----`) são apenas cabeçalhos informativos,
+    // não segredos — mantêm-se visíveis para indicar O QUE vazou.
+    if trimmed.starts_with("-----") {
         return line.to_string();
+    }
+    // Qualquer outra linha com material de chave privada nunca é devolvida crua:
+    // oculta o valor (preservando o nome do campo quando houver).
+    if trimmed.contains("PRIVATE KEY") {
+        if let Some(pos) = line.find(['=', ':']) {
+            let key = &line[..pos];
+            let is_key = is_key_name(key);
+            if is_key {
+                let sep = line[pos..].chars().next().unwrap_or('=');
+                return format!("{key}{sep} •••••• (material de chave ocultado)");
+            }
+        }
+        return "•••••• (material de chave ocultado)".to_string();
     }
     for sep in ['=', ':'] {
         if let Some(pos) = line.find(sep) {
             let (key, rest) = line.split_at(pos);
             let value = rest[1..].trim();
-            let is_key = !key.trim().is_empty()
-                && key
-                    .trim()
-                    .chars()
-                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.' | '"' | ' ' | '[' | ']'));
             // Só mascara quando há um valor que parece conteúdo (evita mexer em `[core]`).
-            if is_key && value.len() >= 3 {
+            if is_key_name(key) && value.len() >= 3 {
                 return format!("{key}{sep} {}", mask_value(value.trim_matches(['"', '\'', ',', ';'])));
             }
         }
@@ -248,6 +266,21 @@ mod leak_tests {
         // Binário (assinatura de zip) não vira prévia legível.
         assert_eq!(leak_sample(&[0x50, 0x4b, 0x03, 0x04, 0, 1, 2, 3, 4, 5]), None);
         assert_eq!(leak_sample(b""), None);
+    }
+
+    #[test]
+    fn inline_private_key_material_is_never_shown_whole() {
+        // Chave privada inline numa linha de valor: o corpo jamais pode vazar.
+        let exposed = b"RSA_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----MIIEpAIBAAKCAQEA1234567890abcdef-----END RSA PRIVATE KEY-----\n";
+        let preview = leak_sample(exposed).unwrap();
+        assert!(
+            !preview.contains("MIIEpAIBAAKCAQEA1234567890abcdef"),
+            "o material da chave nunca pode aparecer"
+        );
+        assert!(preview.contains("material de chave ocultado"));
+        // Delimitador PEM isolado continua visível (informativo, não é segredo).
+        let header = leak_sample(b"-----BEGIN PRIVATE KEY-----\n").unwrap();
+        assert!(header.contains("-----BEGIN PRIVATE KEY-----"));
     }
 
     #[test]

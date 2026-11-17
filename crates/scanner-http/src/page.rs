@@ -183,7 +183,119 @@ pub fn secrets(body: &str) -> Vec<(&'static str, String, Severity)> {
             Severity::High,
         ));
     }
+    if let Some(scheme) = connection_credential(body) {
+        found.push((
+            "credencial em string de conexão",
+            format!("{scheme}://…:•••••@… (senha embutida)"),
+            Severity::High,
+        ));
+    }
     found
+}
+
+/// Esquemas de bancos/serviços cuja string de conexão com senha embutida é
+/// um vazamento de alto sinal (não inclui http/https para evitar exemplos de basic-auth).
+const DB_SCHEMES: [&str; 14] = [
+    "postgresql",
+    "postgres",
+    "mysql",
+    "mariadb",
+    "mongodb+srv",
+    "mongodb",
+    "rediss",
+    "redis",
+    "amqps",
+    "amqp",
+    "mssql",
+    "sqlserver",
+    "clickhouse",
+    "cockroachdb",
+];
+
+/// Detecta `scheme://usuário:senha@host` com uma senha plausível (não placeholder,
+/// não variável de template). Retorna o esquema detectado; NUNCA retorna a senha.
+fn connection_credential(body: &str) -> Option<&'static str> {
+    let bytes = body.as_bytes();
+    let mut from = 0;
+    while let Some(rel) = body[from..].find("://") {
+        let sep = from + rel;
+        from = sep + 3;
+        // Captura o esquema imediatamente antes de "://".
+        let mut s = sep;
+        while s > 0 {
+            let c = bytes[s - 1];
+            if c.is_ascii_alphanumeric() || matches!(c, b'+' | b'-' | b'.') {
+                s -= 1;
+            } else {
+                break;
+            }
+        }
+        let scheme = body[s..sep].to_ascii_lowercase();
+        let Some(matched) = DB_SCHEMES.iter().copied().find(|&db| db == scheme) else {
+            continue;
+        };
+        // Lê a userinfo até '@', parando em delimitadores de autoridade/atributo.
+        let rest = &body[from..];
+        let mut end: Option<usize> = None;
+        for (i, &b) in rest.as_bytes().iter().enumerate() {
+            if b == b'@' {
+                end = Some(i);
+                break;
+            }
+            if matches!(
+                b,
+                b'/' | b'?' | b'#' | b' ' | b'"' | b'\'' | b'\\' | b'\n' | b'\r' | b'\t' | b'<'
+                    | b'>' | b'`' | b')'
+            ) {
+                break;
+            }
+        }
+        let Some(end) = end else { continue };
+        let userinfo = &rest[..end];
+        let Some(colon) = userinfo.find(':') else {
+            continue;
+        };
+        if is_plausible_password(&userinfo[colon + 1..]) {
+            return Some(matched);
+        }
+    }
+    None
+}
+
+/// Uma senha só conta como vazamento quando parece um literal real: descarta
+/// placeholders comuns e variáveis de template (`${VAR}`, `{{var}}`, `%ENV%`, `<senha>`).
+fn is_plausible_password(pass: &str) -> bool {
+    let p = pass.trim();
+    if p.len() < 3 || p.len() > 200 {
+        return false;
+    }
+    if matches!(p.as_bytes()[0], b'$' | b'{' | b'<' | b'%' | b'#') {
+        return false;
+    }
+    if p.contains("${") || p.contains("{{") || p.contains("%(") {
+        return false;
+    }
+    if p.chars().all(|c| matches!(c, '*' | '.' | 'x' | 'X' | '•')) {
+        return false;
+    }
+    let lower = p.to_ascii_lowercase();
+    const PLACEHOLDERS: [&str; 14] = [
+        "password",
+        "pass",
+        "passwd",
+        "senha",
+        "secret",
+        "changeme",
+        "example",
+        "user",
+        "username",
+        "yourpassword",
+        "your_password",
+        "placeholder",
+        "redacted",
+        "token",
+    ];
+    !PLACEHOLDERS.iter().any(|&ph| lower == ph)
 }
 
 /// Scripts servidos pela própria origem (no máximo 3), para verificar source maps.
@@ -563,6 +675,38 @@ mod tests {
         assert!(!analyze(&html, &page())
             .iter()
             .any(|f| f.detector_id == "page.inline-secret"));
+    }
+
+    #[test]
+    fn connection_string_with_password_is_detected_without_the_password() {
+        let html = r#"<script>const db="postgres://admin:S3cr3tP%40ss@db.internal:5432/app";</script>"#;
+        let found = secrets(html);
+        let hit = found
+            .iter()
+            .find(|(label, _, _)| *label == "credencial em string de conexão")
+            .expect("deveria detectar a credencial");
+        assert_eq!(hit.2, Severity::High);
+        assert!(!hit.1.contains("S3cr3tP"), "a senha não pode aparecer na evidência");
+        let f = analyze(html, &page());
+        let inline = f
+            .iter()
+            .find(|f| f.detector_id == "page.inline-secret")
+            .expect("deveria virar achado");
+        assert_eq!(inline.severity, Severity::High);
+        assert!(!inline.evidence.contains("S3cr3tP"));
+    }
+
+    #[test]
+    fn connection_strings_with_placeholders_or_without_password_are_ignored() {
+        // variável de template
+        assert!(connection_credential("mysql://user:${DB_PASS}@host/db").is_none());
+        // placeholder literal
+        assert!(connection_credential("mongodb://user:password@host").is_none());
+        // sem senha embutida
+        assert!(connection_credential("postgres://localhost:5432/db").is_none());
+        assert!(connection_credential("postgresql://appuser@db/app").is_none());
+        // esquema fora do conjunto (evita exemplos de basic-auth em http)
+        assert!(connection_credential("https://user:pass@example.com").is_none());
     }
 
     #[test]
