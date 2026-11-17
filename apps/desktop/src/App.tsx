@@ -14,9 +14,8 @@ import { SourceLab } from './components/SourceLab';
 import { TerminalMode } from './components/TerminalMode';
 import { Dashboard } from './components/Dashboard';
 import { LabMode } from './components/LabMode';
-import { ConsoleDock, type ConsoleMessage } from './components/ConsoleDock';
 import { CommandPalette } from './components/CommandPalette';
-import { commandCatalog, parseCommand } from './commands';
+import { parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
 import { startInTerminal } from './startup';
@@ -69,10 +68,7 @@ export default function App() {
   const [scanId, setScanId] = useState('');
   const [menu, setMenu] = useState(false);
   const [palette, setPalette] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [messages, setMessages] = useState<ConsoleMessage[]>([]);
-  const [clearedAt, setClearedAt] = useState<string | null>(null);
-  const messageId = useRef(0);
+  const [collapsed, setCollapsed] = useState(true);
   const main = useRef<HTMLElement>(null);
   const navigate = useCallback(
     (id: string) => {
@@ -110,7 +106,11 @@ export default function App() {
         event.preventDefault();
         setPalette((value) => !value);
       }
-      if ((event.ctrlKey || event.metaKey) && event.key === '`') {
+      // Ctrl+J (ou Ctrl+`) abre/fecha o terminal global retrátil.
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        (event.key.toLowerCase() === 'j' || event.key === '`')
+      ) {
         event.preventDefault();
         setCollapsed((value) => !value);
       }
@@ -118,14 +118,6 @@ export default function App() {
     window.addEventListener('keydown', shortcut);
     return () => window.removeEventListener('keydown', shortcut);
   }, []);
-  function clear() {
-    setMessages([]);
-    setClearedAt(new Date().toISOString());
-  }
-  function logCommand(level: ConsoleMessage['level'], event: string, message: string) {
-    const entry = { id: ++messageId.current, at: new Date().toISOString(), level, event, message };
-    setMessages((old) => [...old, entry].slice(-80));
-  }
   async function execute(input: string) {
     try {
       const command = parseCommand(input);
@@ -137,26 +129,14 @@ export default function App() {
           revision: old.revision + 1,
         }));
         navigate('home');
-        logCommand(
-          'info',
-          'command.configure',
-          'Escopo preenchido. Confirme a autorização na interface para executar.',
-        );
       } else if (command.type === 'open') openScan(command.id);
-      else if (command.type === 'clear') clear();
-      else if (command.type === 'help')
-        logCommand(
-          'info',
-          'command.help',
-          commandCatalog.map((item) => `${item.command}: ${item.label}`).join(' · '),
-        );
       else if (command.type === 'cancel') {
         const active = w.activeLab ?? w.activeSource ?? w.active;
         if (active) await api.cancelScan(active.id);
-        else logCommand('warn', 'command.cancel', 'Nenhuma análise está em execução.');
       }
+      // 'clear' e 'help' são tratados pela paleta e pelo terminal.
     } catch (error) {
-      logCommand('error', 'command.error', String(error));
+      setError(String(error));
     }
   }
   async function windowAction(action: 'minimize' | 'maximize' | 'close') {
@@ -344,14 +324,15 @@ export default function App() {
         </div>
       </main>
       {!isTerminal && (
-        <ConsoleDock
+        <TerminalMode
           workspace={w}
-          messages={messages}
-          execute={(command) => void execute(command)}
+          locked={false}
+          navigate={navigate}
+          unlock={unlock}
+          lock={lock}
+          variant="dock"
           collapsed={collapsed}
-          toggle={() => setCollapsed((value) => !value)}
-          clear={clear}
-          clearedAt={clearedAt}
+          onToggle={() => setCollapsed((value) => !value)}
         />
       )}
       {palette && (

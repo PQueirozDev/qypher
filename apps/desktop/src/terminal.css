@@ -1294,3 +1294,102 @@ body {
     display: none;
   }
 }
+
+/* ===== Terminal global retrátil (dock, Ctrl+J) — mesmo motor, moldura compacta ===== */
+.term-dock {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--t-line);
+  background:
+    linear-gradient(#ffffff04 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff04 1px, transparent 1px),
+    var(--t-bg);
+  background-size: 100% 30px, 30px 100%, auto;
+  font-family: var(--t-mono);
+  box-shadow:
+    0 -1px 0 rgba(167, 139, 250, 0.22),
+    0 -14px 34px -24px var(--t-violet);
+  isolation: isolate;
+}
+.term-dock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.14) 3px
+  );
+  opacity: 0.4;
+}
+.term-dock-bar {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px 6px 16px;
+  border-bottom: 1px solid var(--t-line);
+  background: linear-gradient(180deg, #0c0c16, #08080e);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t-faint);
+  user-select: none;
+  white-space: nowrap;
+}
+.term-dock.collapsed .term-dock-bar {
+  border-bottom: 0;
+}
+.term-dock-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--t-dim);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.term-dock-tab b {
+  color: var(--t-violet);
+  font-weight: 700;
+  text-shadow: 0 0 9px rgba(167, 139, 250, 0.5);
+}
+.term-dock-tab .term-dock-state {
+  color: var(--t-faint);
+}
+.term-dock-host {
+  color: var(--t-cyan);
+}
+.term-dock-run {
+  color: var(--t-violet);
+  font-variant-numeric: tabular-nums;
+}
+.term-dock-spacer {
+  flex: 1;
+}
+.term-dock-clock {
+  color: var(--t-dim);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+}
+.term-dock .tui-body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 140px;
+  max-height: 34vh;
+  padding: 12px 16px 8px;
+  font-size: 12.5px;
+  text-shadow: 0 0 2px rgba(231, 231, 240, 0.2);
+}

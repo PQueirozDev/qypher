@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ChevronDown, ChevronUp, Terminal, Trash2 } from 'lucide-react';
 import { api, native } from '../api';
 import { sanitizeTechnicalText } from '../aiPrompt';
 import { usableScore } from '../assessment';
@@ -38,13 +39,20 @@ export function TerminalMode({
   navigate,
   unlock,
   lock,
+  variant = 'full',
+  collapsed = false,
+  onToggle,
 }: {
   workspace: Workspace;
   locked: boolean;
   navigate: (id: string) => void;
   unlock: () => void;
   lock: () => void;
+  variant?: 'full' | 'dock';
+  collapsed?: boolean;
+  onToggle?: () => void;
 }) {
+  const isDock = variant === 'dock';
   const [lines, setLines] = useState<Line[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);
@@ -67,27 +75,33 @@ export function TerminalMode({
   useEffect(() => {
     if (didBoot.current) return;
     didBoot.current = true;
-    const seq: Line[] = [
-      { text: BANNER, cls: 't-accent', pre: true },
-      { text: 'QYPHER SECURITY WORKSPACE', cls: 't-accent' },
-      { text: '━'.repeat(42), cls: 't-muted' },
-      { text: '[BOOT] inicializando ambiente…', cls: 't-muted' },
-      { text: '[ OK ] interface de terminal', cls: 't-ok' },
-      { text: '[ OK ] registro de comandos', cls: 't-ok' },
-      { text: '[ OK ] motor de ascii', cls: 't-ok' },
-      { text: '[ OK ] preparando workspace', cls: 't-ok' },
-      { text: '[ OK ] configuração local', cls: 't-ok' },
-      { text: '[ OK ] pronto', cls: 't-ok' },
-      { text: '' },
-      { text: `QYPHER v${APP_VERSION} · local-first · sem telemetria`, cls: 't-accent' },
-      { text: 'De VibeCoders para VibeCoders.', cls: 't-dim' },
-      { text: '' },
-      {
-        text: "digite 'ajuda' para ver os comandos · 'unlock' para abrir o workspace",
-        cls: 't-muted',
-      },
-      { text: '' },
-    ];
+    const seq: Line[] = isDock
+      ? [
+          { text: `qypher terminal · v${APP_VERSION} · sessão local`, cls: 't-accent' },
+          { text: "mesmo motor da tela cheia · digite 'ajuda' · 'lock' abre em tela cheia", cls: 't-muted' },
+          { text: '' },
+        ]
+      : [
+          { text: BANNER, cls: 't-accent', pre: true },
+          { text: 'QYPHER SECURITY WORKSPACE', cls: 't-accent' },
+          { text: '━'.repeat(42), cls: 't-muted' },
+          { text: '[BOOT] inicializando ambiente…', cls: 't-muted' },
+          { text: '[ OK ] interface de terminal', cls: 't-ok' },
+          { text: '[ OK ] registro de comandos', cls: 't-ok' },
+          { text: '[ OK ] motor de ascii', cls: 't-ok' },
+          { text: '[ OK ] preparando workspace', cls: 't-ok' },
+          { text: '[ OK ] configuração local', cls: 't-ok' },
+          { text: '[ OK ] pronto', cls: 't-ok' },
+          { text: '' },
+          { text: `QYPHER v${APP_VERSION} · local-first · sem telemetria`, cls: 't-accent' },
+          { text: 'De VibeCoders para VibeCoders.', cls: 't-dim' },
+          { text: '' },
+          {
+            text: "digite 'ajuda' para ver os comandos · 'unlock' para abrir o workspace",
+            cls: 't-muted',
+          },
+          { text: '' },
+        ];
     if (reduceMotion()) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLines(seq);
@@ -104,7 +118,7 @@ export function TerminalMode({
       i++;
     }, 85);
     return () => clearInterval(id);
-  }, []);
+  }, [isDock]);
 
   useEffect(() => {
     bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
@@ -117,6 +131,11 @@ export function TerminalMode({
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
+
+  // No dock, foca o input ao expandir (sem roubar foco ao montar recolhido).
+  useEffect(() => {
+    if (isDock && !collapsed) inputRef.current?.focus();
+  }, [isDock, collapsed]);
 
   const running = scan?.status === 'running';
   useEffect(() => {
@@ -433,6 +452,80 @@ export function TerminalMode({
   }
 
   const engineOn = native && w.ready;
+  const body = (
+    <div className="tui-body" ref={bodyRef}>
+      {lines.map((l, i) => (
+        <div key={i} className={`tui-line ${l.cls ?? ''}`}>
+          {l.pre ? <pre>{l.text}</pre> : l.text}
+        </div>
+      ))}
+      <form className="tui-input" onSubmit={submit}>
+        <span className="tui-ps">
+          <span className="ps-user">qypher</span>
+          <span className="ps-at">@local</span>
+          <span className="ps-path">:~$</span>
+        </span>
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={onKey}
+          spellCheck={false}
+          autoComplete="off"
+          autoFocus={!isDock}
+          placeholder={running ? '' : "digite 'ajuda' e pressione enter"}
+          aria-label="Terminal do Qypher"
+        />
+      </form>
+    </div>
+  );
+
+  // Variante encaixada (terminal global retrátil, Ctrl+J) — mesmo motor, outra moldura.
+  if (isDock) {
+    return (
+      <section
+        className={`term-dock ${collapsed ? 'collapsed' : ''}`}
+        aria-label="Terminal Qypher"
+        onClick={() => !collapsed && inputRef.current?.focus()}
+      >
+        <div className="term-dock-bar">
+          <button className="term-dock-tab" onClick={onToggle} aria-expanded={!collapsed}>
+            <Terminal size={13} />
+            <b>terminal</b>
+            <span className={`hud-dot ${engineOn ? 'on' : ''}`} />
+            <span className="term-dock-state">{engineOn ? 'local' : 'sem ipc'}</span>
+          </button>
+          <span className="term-dock-host">qypher@local</span>
+          {running && (
+            <span className="term-dock-run">
+              {SPIN[spin % SPIN.length]} {scan?.requestCount}/{scan?.config.maxRequests}
+            </span>
+          )}
+          <span className="term-dock-spacer" />
+          <span className="term-dock-clock">{clock}</span>
+          <button
+            className="icon-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLines([]);
+            }}
+            aria-label="Limpar terminal"
+          >
+            <Trash2 size={14} />
+          </button>
+          <button
+            className="icon-button"
+            onClick={onToggle}
+            aria-label={collapsed ? 'Expandir terminal' : 'Recolher terminal'}
+          >
+            {collapsed ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+          </button>
+        </div>
+        {!collapsed && body}
+      </section>
+    );
+  }
+
   return (
     <div className="tui" onClick={() => inputRef.current?.focus()}>
       <div className="tui-scan" aria-hidden="true" />
@@ -452,31 +545,7 @@ export function TerminalMode({
         </span>
         <span className="hud-clock">{clock}</span>
       </div>
-      <div className="tui-body" ref={bodyRef}>
-        {lines.map((l, i) => (
-          <div key={i} className={`tui-line ${l.cls ?? ''}`}>
-            {l.pre ? <pre>{l.text}</pre> : l.text}
-          </div>
-        ))}
-        <form className="tui-input" onSubmit={submit}>
-          <span className="tui-ps">
-            <span className="ps-user">qypher</span>
-            <span className="ps-at">@local</span>
-            <span className="ps-path">:~$</span>
-          </span>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKey}
-            spellCheck={false}
-            autoComplete="off"
-            autoFocus
-            placeholder={running ? '' : "digite 'ajuda' e pressione enter"}
-            aria-label="Terminal do Qypher"
-          />
-        </form>
-      </div>
+      {body}
       <div className="tui-status">
         <span>{engineOn ? '● motor conectado' : '○ motor desconectado'}</span>
         <span>
