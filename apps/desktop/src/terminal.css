@@ -1393,3 +1393,87 @@ body {
   font-size: 12.5px;
   text-shadow: 0 0 2px rgba(231, 231, 240, 0.2);
 }
+
+/* ===== Status bar global do workspace (Workspace 2.0) ===== */
+.statusbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 8px;
+  border-top: 1px solid var(--t-line);
+  background: linear-gradient(180deg, #0b0b13, #07070b);
+  color: var(--t-faint);
+  font-family: var(--t-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+.statusbar .sb-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  padding: 0 12px;
+  border-right: 1px solid #ffffff0a;
+  white-space: nowrap;
+}
+.statusbar .sb-engine {
+  color: var(--t-dim);
+}
+.statusbar .sb-path {
+  color: var(--t-violet);
+}
+.statusbar .sb-scan {
+  color: var(--t-cyan);
+  font-variant-numeric: tabular-nums;
+}
+.statusbar .sb-count {
+  color: var(--t-faint);
+}
+.statusbar .sb-ver {
+  color: var(--t-faint);
+  border-right: 0;
+  border-left: 1px solid #ffffff0a;
+}
+.statusbar .sb-spacer {
+  flex: 1;
+}
+.statusbar .sb-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--t-faint);
+  flex: none;
+}
+.statusbar .sb-led.on {
+  background: var(--t-cyan);
+  box-shadow: 0 0 8px var(--t-cyan);
+  animation: t-ledpulse 2.2s ease-in-out infinite;
+}
+.statusbar .sb-led.busy {
+  background: var(--t-violet);
+  box-shadow: 0 0 8px var(--t-violet);
+  animation: t-ledpulse 1s ease-in-out infinite;
+}
+.statusbar .sb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 12px;
+  background: none;
+  border: 0;
+  border-right: 1px solid #ffffff0a;
+  color: var(--t-dim);
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.statusbar .sb-btn:hover {
+  color: var(--t-text);
+  background: #ffffff08;
+}
+.statusbar .sb-btn.active {
+  color: var(--t-cyan);
+}

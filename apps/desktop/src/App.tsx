@@ -15,6 +15,7 @@ import { TerminalMode } from './components/TerminalMode';
 import { Dashboard } from './components/Dashboard';
 import { LabMode } from './components/LabMode';
 import { CommandPalette } from './components/CommandPalette';
+import { StatusBar } from './components/StatusBar';
 import { parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
@@ -333,6 +334,15 @@ export default function App() {
           variant="dock"
           collapsed={collapsed}
           onToggle={() => setCollapsed((value) => !value)}
+        />
+      )}
+      {!isTerminal && (
+        <StatusBar
+          workspace={w}
+          path={paths[page] ?? '~'}
+          onPalette={() => setPalette(true)}
+          onToggleTerminal={() => setCollapsed((value) => !value)}
+          terminalOpen={!collapsed}
         />
       )}
       {palette && (
