@@ -1,24 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
 import { Command, CornerDownLeft, Search, X } from 'lucide-react';
-import { commandCatalog } from '../commands';
+
+export type PaletteAction = {
+  id: string;
+  label: string;
+  hint?: string;
+  keywords?: string;
+  run: () => void;
+};
+
 export function CommandPalette({
   close,
-  execute,
+  actions,
+  dynamic,
 }: {
   close: () => void;
-  execute: (command: string) => void;
+  actions: PaletteAction[];
+  dynamic?: (query: string) => PaletteAction[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
-  const items = commandCatalog.filter((c) =>
-    `${c.command} ${c.label}`.toLowerCase().includes(query.toLowerCase()),
+  const needle = query.trim().toLowerCase();
+  const base = actions.filter((a) =>
+    `${a.label} ${a.keywords ?? ''}`.toLowerCase().includes(needle),
   );
+  const items = [...(dynamic ? dynamic(query) : []), ...base];
+  const active = Math.min(selected, Math.max(0, items.length - 1));
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
-  function run(command: string) {
-    execute(command);
+  function run(action: PaletteAction) {
+    action.run();
     close();
   }
   return (
@@ -57,28 +70,27 @@ export function CommandPalette({
               e.preventDefault();
               setSelected((i) => Math.max(0, i - 1));
             }
-            if (e.key === 'Enter' && items[selected]) {
+            if (e.key === 'Enter' && items[active]) {
               e.preventDefault();
-              run(items[selected].command);
+              run(items[active]);
             }
           }}
-          placeholder="Digite uma operação…"
+          placeholder="Navegar, analisar, abrir terminal…"
         />
       </div>
       <div className="palette-list">
-        {items.map((c, i) => (
+        {items.map((action, i) => (
           <button
-            key={c.command}
-            className={selected === i ? 'selected' : ''}
+            key={action.id}
+            className={active === i ? 'selected' : ''}
             onMouseEnter={() => setSelected(i)}
-            onClick={() => run(c.command)}
+            onClick={() => run(action)}
           >
-            <code>{c.command}</code>
-            <span>{c.label}</span>
-            <kbd>{c.shortcut}</kbd>
+            <span>{action.label}</span>
+            {action.hint && <kbd>{action.hint}</kbd>}
           </button>
         ))}
-        {!items.length && <p>Nenhum comando interno corresponde à busca.</p>}
+        {!items.length && <p>Nenhuma ação corresponde à busca.</p>}
       </div>
       <div className="palette-footer">
         <span>↑ ↓ navegar</span>

@@ -14,7 +14,7 @@ import { SourceLab } from './components/SourceLab';
 import { TerminalMode } from './components/TerminalMode';
 import { Dashboard } from './components/Dashboard';
 import { LabMode } from './components/LabMode';
-import { CommandPalette } from './components/CommandPalette';
+import { CommandPalette, type PaletteAction } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
 import { UnlockTransition } from './components/UnlockTransition';
 import { Sidebar } from './components/Sidebar';
@@ -150,6 +150,57 @@ export default function App() {
       setError(String(error));
     }
   }
+  // Paleta de comandos unificada: navegação + ações do workspace/terminal.
+  const paletteActions: PaletteAction[] = [
+    ...[...navPrimary, ...navMore].map((item) => ({
+      id: `nav:${item.id}`,
+      label: `Ir para ${item.label}`,
+      keywords: `${item.id} ${item.accessible ?? ''} navegar abrir`,
+      run: () => navigate(item.id),
+    })),
+    {
+      id: 'act:terminal',
+      label: collapsed ? 'Abrir terminal global' : 'Fechar terminal global',
+      hint: 'Ctrl+J',
+      keywords: 'terminal console shell',
+      run: () => setCollapsed((value) => !value),
+    },
+    {
+      id: 'act:lock',
+      label: 'Voltar ao terminal em tela cheia',
+      hint: 'lock',
+      keywords: 'lock bloquear travar sair',
+      run: () => lock(),
+    },
+    {
+      id: 'act:scan',
+      label: 'Nova análise',
+      hint: 'analisar',
+      keywords: 'scan analisar auditar novo alvo',
+      run: () => navigate('home'),
+    },
+  ];
+  // Ação dinâmica: digitar "scan <url>" (ou "analisar <url>") configura a análise.
+  const paletteDynamic = (query: string): PaletteAction[] => {
+    const raw = query.trim().replace(/^analisar\b/i, 'scan');
+    if (!/^(scan|quick|deep)\s+\S+$/i.test(raw)) return [];
+    try {
+      const command = parseCommand(raw);
+      if (command.type === 'configure') {
+        return [
+          {
+            id: 'dyn:scan',
+            label: `Analisar ${command.url}`,
+            hint: command.mode,
+            run: () => void execute(raw),
+          },
+        ];
+      }
+    } catch {
+      // Query ainda incompleta ou inválida: sem ação dinâmica.
+    }
+    return [];
+  };
   async function windowAction(action: 'minimize' | 'maximize' | 'close') {
     try {
       await api.windowAction(action);
@@ -324,7 +375,8 @@ export default function App() {
       {palette && (
         <CommandPalette
           close={() => setPalette(false)}
-          execute={(command) => void execute(command)}
+          actions={paletteActions}
+          dynamic={paletteDynamic}
         />
       )}
     </div>
