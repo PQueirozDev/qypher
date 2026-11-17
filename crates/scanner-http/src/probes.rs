@@ -104,9 +104,20 @@ pub fn listing_signature(body: &str) -> bool {
 /// Reconhece um source map (JSON com `version`, `sources` e `mappings`).
 pub fn source_map_signature(body: &[u8]) -> bool {
     let t = text(body);
-    !t.trim_start().starts_with('<')
-        && t.contains("\"version\"")
-        && (t.contains("\"sources\"") || t.contains("\"mappings\""))
+    // Um source map utilizável tem sempre `version` e o campo `mappings` (VLQ).
+    // `sources` sozinho não comprova um mapa; exigir `mappings` reduz falso-positivo.
+    !t.trim_start().starts_with('<') && t.contains("\"version\"") && t.contains("\"mappings\"")
+}
+
+/// Procura segredos embutidos no código-fonte original (`sourcesContent`) de um
+/// source map JÁ baixado. Zero requisições novas; nunca devolve o valor do segredo.
+/// Usa o texto cru (sem lowercase) para preservar prefixos sensíveis a maiúsculas (AWS).
+pub fn source_map_secrets(body: &[u8]) -> Vec<(&'static str, String, Severity)> {
+    let raw = String::from_utf8_lossy(body);
+    if !raw.contains("\"sourcesContent\"") {
+        return vec![];
+    }
+    crate::page::secrets(&raw)
 }
 
 /// Pede um caminho inexistente e procura páginas de depuração ou rastros de pilha.
@@ -357,7 +368,8 @@ pub async fn source_maps(
         else {
             continue;
         };
-        let exposed = status == 200 && source_map_signature(&body.bytes);
+        // Mapa truncado sem leitura completa não confirma exposição.
+        let exposed = status == 200 && body.complete && source_map_signature(&body.bytes);
         if exposed {
             let mut f = Finding::at(
                 id,
@@ -380,6 +392,38 @@ pub async fn source_maps(
                 "Source map reconhecido.",
                 Some(f),
             ));
+            // Segredos embutidos no código-fonte original (sourcesContent): achado separado.
+            let leaked = source_map_secrets(&body.bytes);
+            if leaked.iter().any(|(_, _, s)| *s == Severity::High) {
+                let secret_id = "exposure.source-map-secret";
+                let evidence = leaked
+                    .iter()
+                    .map(|(label, hint, _)| format!("{label} [{hint}]"))
+                    .collect::<Vec<_>>()
+                    .join("; ");
+                let mut sf = Finding::at(
+                    secret_id,
+                    target.as_str(),
+                    "Possível segredo embutido em source map exposto",
+                    Severity::High,
+                    &format!("O source map {} inclui o código-fonte original com possível credencial: {evidence}.", target.path()),
+                    "O source map publicado embute o código-fonte (sourcesContent), que pode conter chaves, tokens ou strings de conexão. A validade não foi testada: exemplos e credenciais revogadas são falsos positivos.",
+                    "Remova arquivos .map de produção e rotacione qualquer segredo que estava no bundle. Mantenha segredos apenas no servidor ou em um cofre.",
+                    A05_REF,
+                );
+                sf.category = "Exposição".into();
+                sf.confidence = "heuristic".into();
+                sf.classification = "potential".into();
+                sf.detector_version = "1.0.0".into();
+                scan.findings.push(sf.clone());
+                scan.checks.push(check(
+                    secret_id,
+                    &target,
+                    CheckStatus::Finding,
+                    "Possível segredo observado no sourcesContent.",
+                    Some(sf),
+                ));
+            }
         } else {
             scan.checks.push(check(
                 id,
@@ -477,6 +521,27 @@ mod tests {
             b"<!doctype html><html>\"version\" \"sources\"</html>"
         ));
         assert!(!source_map_signature(b"{\"error\":\"not found\"}"));
+        // `sources` sem `mappings` não é um mapa utilizável comprovado.
+        assert!(!source_map_signature(br#"{"version":3,"sources":["a.ts"]}"#));
+    }
+
+    #[test]
+    fn source_map_secrets_in_sources_content_are_detected_without_values() {
+        let key = ["glpat-", &"a".repeat(20)].concat();
+        let map = format!(
+            r#"{{"version":3,"sources":["a.ts"],"mappings":"AAAA","sourcesContent":["const t='{key}';"]}}"#
+        );
+        let found = source_map_secrets(map.as_bytes());
+        assert!(
+            found.iter().any(|(_, _, s)| *s == Severity::High),
+            "deveria achar o token embutido"
+        );
+        assert!(
+            found.iter().all(|(_, hint, _)| !hint.contains(&key)),
+            "o valor completo nunca pode aparecer"
+        );
+        // Sem sourcesContent (só mappings) não há código-fonte embutido para varrer.
+        assert!(source_map_secrets(br#"{"version":3,"mappings":"AAAA"}"#).is_empty());
     }
 
     #[tokio::test]

@@ -46,6 +46,7 @@ pub fn taxonomy(detector_id: &str) -> Option<Taxonomy> {
         "exposure.error-page" => t("CWE-209", A05),
         "exposure.directory-listing" => t("CWE-548", A05),
         "exposure.source-map" => t("CWE-540", A05),
+        "exposure.source-map-secret" => t("CWE-798", A07),
         "exposure.crossdomain" => t("CWE-942", A05),
         "exposure.swagger" | "exposure.openapi" => t("CWE-200", A05),
         id if id.starts_with("exposure.git") || id == "exposure.svn" => t("CWE-527", A05),
