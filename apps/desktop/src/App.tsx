@@ -16,6 +16,7 @@ import { Dashboard } from './components/Dashboard';
 import { LabMode } from './components/LabMode';
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
+import { UnlockTransition } from './components/UnlockTransition';
 import { parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
@@ -93,7 +94,7 @@ export default function App() {
     setError('');
     // Animação de "power-on" (CRT ligando) ao revelar o workspace.
     setRevealing(true);
-    window.setTimeout(() => setRevealing(false), 650);
+    window.setTimeout(() => setRevealing(false), 1500);
   }, [setError]);
   const lock = useCallback(() => {
     setLocked(true);
@@ -333,6 +334,7 @@ export default function App() {
           {content}
         </div>
       </main>
+      {revealing && !isTerminal && <UnlockTransition />}
       {revealing && !isTerminal && <div className="q-unlock-sweep" aria-hidden="true" />}
       {!isTerminal && (
         <TerminalMode
