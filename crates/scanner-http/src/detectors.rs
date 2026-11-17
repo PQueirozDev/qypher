@@ -18,6 +18,23 @@ const HEADERS_REF: &str =
     "OWASP Secure Headers Project — https://owasp.org/www-project-secure-headers/";
 const ASVS_REF: &str = "OWASP ASVS 5.0.0, V3/V12 — https://github.com/OWASP/ASVS/tree/v5.0.0";
 
+/// Heurística de cookie de sessão/autenticação pelo nome. Conservadora para evitar
+/// classificar cookies de preferência ou CSRF (lidos por JS de propósito) como sessão.
+fn is_session_cookie(name: &str) -> bool {
+    let n = name.to_ascii_lowercase();
+    n.contains("session")
+        || n.contains("sessid")
+        || matches!(
+            n.as_str(),
+            "sid" | "auth"
+                | "connect.sid"
+                | "phpsessid"
+                | "jsessionid"
+                | "asp.net_sessionid"
+                | "laravel_session"
+        )
+}
+
 pub struct NativeDetector {
     pub id: &'static str,
     pub run: fn(&HttpObservation) -> Option<Finding>,
@@ -126,14 +143,34 @@ pub fn registry() -> Vec<Box<dyn Detector>> {
                     .iter()
                     .filter(|c| !c.secure || !c.http_only || !c.same_site)
                     .map(|c| {
+                        let tag = if is_session_cookie(&c.name) {
+                            " ⚠ provável cookie de sessão"
+                        } else {
+                            ""
+                        };
                         format!(
-                            "{} [Secure={}, HttpOnly={}, SameSite válido={}]",
+                            "{} [Secure={}, HttpOnly={}, SameSite válido={}]{tag}",
                             c.name, c.secure, c.http_only, c.same_site
                         )
                     })
                     .collect();
-                (!insecure.is_empty()).then(|| Finding::new("cookies.attributes",o,"Revisar atributos dos cookies",Severity::Low,
-            &insecure.join("; "),"Cookies podem ter proteção insuficiente. Cookies usados por JavaScript podem intencionalmente não ter HttpOnly; a finalidade não foi inferida.",
+                // Sessão sem HttpOnly (roubo via XSS) ou sem Secure (vaza em HTTP) pesa mais.
+                let session_at_risk = o
+                    .cookies
+                    .iter()
+                    .any(|c| is_session_cookie(&c.name) && (!c.http_only || !c.secure));
+                let severity = if session_at_risk {
+                    Severity::Medium
+                } else {
+                    Severity::Low
+                };
+                let impact = if session_at_risk {
+                    "Um provável cookie de sessão sem HttpOnly pode ser lido por JavaScript (roubo de sessão via XSS); sem Secure pode vazar em texto claro por HTTP. Cookies lidos por JavaScript podem intencionalmente não ter HttpOnly; a finalidade não foi confirmada."
+                } else {
+                    "Cookies podem ter proteção insuficiente. Cookies usados por JavaScript podem intencionalmente não ter HttpOnly; a finalidade não foi inferida."
+                };
+                (!insecure.is_empty()).then(|| Finding::new("cookies.attributes",o,"Revisar atributos dos cookies",severity,
+            &insecure.join("; "),impact,
             "Para cookies de sessão use Secure, HttpOnly e SameSite=Lax/Strict. SameSite=None exige Secure. Revise cada cookie segundo sua finalidade.",ASVS_REF))
             },
         }),

@@ -529,10 +529,14 @@ mod tests {
         task.abort();
         assert_eq!(s.status, ScanStatus::Completed);
         assert_eq!(s.request_count, 1);
-        assert!(s
+        let cookie = s
             .findings
             .iter()
-            .any(|f| f.detector_id == "cookies.attributes"));
+            .find(|f| f.detector_id == "cookies.attributes")
+            .expect("deveria avaliar os atributos do cookie");
+        // 'session' sem HttpOnly/Secure é tratado como provável cookie de sessão (peso maior).
+        assert_eq!(cookie.severity, Severity::Medium);
+        assert!(cookie.evidence.contains("provável cookie de sessão"));
         assert!(!format!("{s:?}").contains("secret-value"));
         assert!(s
             .checks
