@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronDown, Maximize2, Minus, ShieldAlert, X } from 'lucide-react';
+import { Maximize2, Minus, ShieldAlert, X } from 'lucide-react';
 import { api, native } from './api';
 import { useWorkspace } from './useWorkspace';
 import { Home } from './components/Home';
@@ -17,6 +17,7 @@ import { LabMode } from './components/LabMode';
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
 import { UnlockTransition } from './components/UnlockTransition';
+import { Sidebar } from './components/Sidebar';
 import { parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
@@ -68,7 +69,6 @@ export default function App() {
   });
   const [projectId, setProjectId] = useState('');
   const [scanId, setScanId] = useState('');
-  const [menu, setMenu] = useState(false);
   const [palette, setPalette] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [revealing, setRevealing] = useState(false);
@@ -76,7 +76,6 @@ export default function App() {
   const navigate = useCallback(
     (id: string) => {
       setPage(id);
-      setMenu(false);
       setError('');
     },
     [setError],
@@ -227,60 +226,6 @@ export default function App() {
           <b>❯_</b> qypher
         </button>
         <span className="t-path">{locked ? '~' : (paths[page] ?? '~')}</span>
-        {!locked && (
-          <>
-            <nav className="t-nav" aria-label="Navegação principal">
-              {navPrimary.map((item) => (
-                <button
-                  key={item.id}
-                  aria-label={item.accessible}
-                  className={page === item.id ? 'active' : ''}
-                  aria-current={page === item.id ? 'page' : undefined}
-                  onClick={() => navigate(item.id)}
-                >
-                  {item.label}
-                </button>
-              ))}
-              <div className="t-more">
-                <button
-                  className={navMore.some((m) => m.id === page) ? 'active' : ''}
-                  aria-expanded={menu}
-                  onClick={() => setMenu((value) => !value)}
-                >
-                  mais <ChevronDown size={12} />
-                </button>
-                {menu && (
-                  <div className="t-menu">
-                    {navMore.map((item) => (
-                      <button
-                        key={item.id}
-                        aria-label={item.accessible ?? item.label}
-                        onClick={() => navigate(item.id)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </nav>
-            <button
-              className="t-command"
-              aria-label="Abrir comandos"
-              onClick={() => setPalette(true)}
-            >
-              Ctrl+K
-            </button>
-            <button
-              className="t-command"
-              aria-label="Alternar terminal"
-              aria-expanded={!collapsed}
-              onClick={() => setCollapsed((value) => !value)}
-            >
-              terminal
-            </button>
-          </>
-        )}
         {locked && (
           <button className="t-command" aria-label="Abrir workspace" onClick={unlock}>
             unlock
@@ -313,7 +258,19 @@ export default function App() {
         )}
       </header>
       <PreviewNotice workspace={w} navigate={navigate} />
-      <main ref={main} id="main" className="t-main" tabIndex={-1}>
+      <div className="t-body">
+        {!isTerminal && (
+          <Sidebar
+            primary={navPrimary}
+            more={navMore}
+            page={page}
+            navigate={navigate}
+            onPalette={() => setPalette(true)}
+            onToggleTerminal={() => setCollapsed((value) => !value)}
+            terminalOpen={!collapsed}
+          />
+        )}
+        <main ref={main} id="main" className="t-main" tabIndex={-1}>
         {w.error && (
           <div className="t-wrap">
             <div className="t-error" role="alert">
@@ -333,7 +290,8 @@ export default function App() {
         >
           {content}
         </div>
-      </main>
+        </main>
+      </div>
       {revealing && !isTerminal && <UnlockTransition />}
       {revealing && !isTerminal && <div className="q-unlock-sweep" aria-hidden="true" />}
       {!isTerminal && (
