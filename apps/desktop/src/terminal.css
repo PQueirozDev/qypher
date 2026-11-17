@@ -1499,6 +1499,64 @@ body {
   }
 }
 
+/* ===== Resumo de severidades (chips clicáveis) ===== */
+.sev-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+.sev-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border: 1px solid var(--t-line-2);
+  border-radius: 999px;
+  background: var(--t-panel);
+  color: var(--t-dim);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.sev-chip b {
+  color: var(--t-text);
+  font-variant-numeric: tabular-nums;
+}
+.sev-chip::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--t-faint);
+}
+.sev-chip.sev-high::before {
+  background: var(--t-high);
+  box-shadow: 0 0 8px var(--t-high);
+}
+.sev-chip.sev-medium::before {
+  background: var(--t-medium);
+  box-shadow: 0 0 8px var(--t-medium);
+}
+.sev-chip.sev-low::before {
+  background: var(--t-low);
+}
+.sev-chip.sev-info::before {
+  background: var(--t-info);
+}
+.sev-chip:first-child::before {
+  display: none;
+}
+.sev-chip:hover {
+  border-color: var(--t-violet);
+  color: var(--t-text);
+}
+.sev-chip.active {
+  border-color: var(--t-violet);
+  color: var(--t-text);
+  box-shadow: 0 0 0 1px var(--t-violet) inset;
+}
+
 /* ===== Finding Inspector 2.0 (lista + detalhe) ===== */
 .finding-inspector {
   display: grid;

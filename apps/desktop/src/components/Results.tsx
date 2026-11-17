@@ -170,6 +170,42 @@ export function FindingInspector({ findings }: { findings: Finding[] }) {
     </div>
   );
 }
+// Resumo de severidades clicável (filtra ao clicar) acima do inspetor.
+function SeveritySummary({
+  findings,
+  active,
+  onPick,
+}: {
+  findings: Finding[];
+  active: string;
+  onPick: (value: string) => void;
+}) {
+  if (!findings.length) return null;
+  const order: Severity[] = ['high', 'medium', 'low', 'info', 'unrated'];
+  const counts = order
+    .map((value) => ({ value, n: findings.filter((f) => f.severity === value).length }))
+    .filter((item) => item.n > 0);
+  return (
+    <div className="sev-summary" role="group" aria-label="Resumo por severidade">
+      <button
+        className={`sev-chip ${active === 'all' ? 'active' : ''}`}
+        onClick={() => onPick('all')}
+      >
+        Todas <b>{findings.length}</b>
+      </button>
+      {counts.map(({ value, n }) => (
+        <button
+          key={value}
+          className={`sev-chip sev-${value} ${active === value ? 'active' : ''}`}
+          aria-pressed={active === value}
+          onClick={() => onPick(value)}
+        >
+          {severityLabel[value]} <b>{n}</b>
+        </button>
+      ))}
+    </div>
+  );
+}
 export function Results({
   workspace: w,
   selectedId,
@@ -382,6 +418,7 @@ export function Results({
                   </select>
                   <span className="muted-text">{findings.length} resultados</span>
                 </div>
+                <SeveritySummary findings={all} active={severity} onPick={setSeverity} />
                 {!!all.length && <AiFixStudio context={scan.config.url} issues={fixIssues(all)} />}
                 <FindingInspector findings={findings} />
               </>
