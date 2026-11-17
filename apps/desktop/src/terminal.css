@@ -1117,3 +1117,180 @@ body {
 .tui-line.t-accent {
   text-shadow: 0 0 9px rgba(167, 139, 250, 0.5);
 }
+
+/* ===== Terminal: tratamento CRT / phosphor "hacker" ===== */
+.tui {
+  position: relative;
+  isolation: isolate;
+}
+/* leve brilho fosforescente em todo o texto da saída */
+.tui-body {
+  text-shadow: 0 0 2px rgba(231, 231, 240, 0.22);
+}
+/* scanlines fixas sobre toda a tela */
+.tui::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.16) 3px
+  );
+  opacity: 0.55;
+}
+/* vinheta + flicker sutil de CRT */
+.tui::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(130% 120% at 50% 38%, transparent 58%, rgba(0, 0, 0, 0.5) 100%);
+  animation: tui-flicker 4.5s infinite steps(1);
+}
+@keyframes tui-flicker {
+  0%, 47%, 51%, 91%, 100% { opacity: 1; }
+  49% { opacity: 0.92; }
+  93% { opacity: 0.96; }
+}
+/* feixe de varredura descendo lentamente */
+.tui-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 130px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(167, 139, 250, 0.06) 46%,
+    rgba(79, 209, 224, 0.09) 50%,
+    rgba(167, 139, 250, 0.06) 54%,
+    transparent
+  );
+  will-change: transform;
+  animation: tui-beam 6.5s linear infinite;
+}
+@keyframes tui-beam {
+  from { transform: translateY(-150px); }
+  to { transform: translateY(105vh); }
+}
+
+/* HUD superior estilo painel de invasão */
+.tui-hud {
+  flex: none;
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 26px;
+  border-bottom: 1px solid var(--t-line);
+  background: linear-gradient(180deg, #0c0c16, #08080e);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t-faint);
+  user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tui-hud .hud-tag {
+  color: var(--t-violet);
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(167, 139, 250, 0.6);
+}
+.tui-hud .hud-sep {
+  color: var(--t-line-2);
+}
+.tui-hud .hud-host {
+  color: var(--t-cyan);
+}
+.tui-hud .hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border: 1px solid var(--t-line-2);
+  border-radius: 999px;
+  color: var(--t-dim);
+}
+.tui-hud .hud-pill b {
+  color: var(--t-cyan);
+  font-weight: 600;
+}
+.tui-hud .hud-spacer {
+  flex: 1;
+}
+.tui-hud .hud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--t-faint);
+  flex: none;
+}
+.tui-hud .hud-dot.on {
+  background: var(--t-cyan);
+  box-shadow: 0 0 10px var(--t-cyan), 0 0 3px var(--t-cyan);
+  animation: t-ledpulse 2.2s ease-in-out infinite;
+}
+.tui-hud .hud-clock {
+  color: var(--t-dim);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+/* o corpo e o rodapé do terminal ficam acima das scanlines onde importa a leitura */
+.tui-body,
+.tui-status {
+  position: relative;
+  z-index: 1;
+}
+/* prompt colorido estilo shell + cursor em bloco */
+.tui-ps .ps-user {
+  color: var(--t-violet);
+}
+.tui-ps .ps-at {
+  color: var(--t-faint);
+}
+.tui-ps .ps-path {
+  color: var(--t-cyan);
+}
+.tui-input input {
+  caret-color: var(--t-cyan);
+  caret-shape: block;
+}
+.tui-input input::placeholder {
+  color: var(--t-faint);
+}
+/* rodapé: bloco piscante de "pronto" */
+.tui-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 11px;
+  margin-left: 2px;
+  background: var(--t-cyan);
+  box-shadow: 0 0 8px var(--t-cyan);
+  vertical-align: -1px;
+  animation: tui-blink 1.1s steps(1) infinite;
+}
+@keyframes tui-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tui::after,
+  .tui-scan,
+  .tui-cursor,
+  .tui-hud .hud-dot.on {
+    animation: none;
+  }
+  .tui-scan {
+    display: none;
+  }
+}

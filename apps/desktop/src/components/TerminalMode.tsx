@@ -52,6 +52,7 @@ export function TerminalMode({
   const [pending, setPending] = useState<{ target: URL; deep: boolean } | null>(null);
   const [scanId, setScanId] = useState('');
   const [spin, setSpin] = useState(0);
+  const [clock, setClock] = useState('');
   const seenLogs = useRef(0);
   const didBoot = useRef(false);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -72,6 +73,8 @@ export function TerminalMode({
       { text: '━'.repeat(42), cls: 't-muted' },
       { text: '[BOOT] inicializando ambiente…', cls: 't-muted' },
       { text: '[ OK ] interface de terminal', cls: 't-ok' },
+      { text: '[ OK ] registro de comandos', cls: 't-ok' },
+      { text: '[ OK ] motor de ascii', cls: 't-ok' },
       { text: '[ OK ] preparando workspace', cls: 't-ok' },
       { text: '[ OK ] configuração local', cls: 't-ok' },
       { text: '[ OK ] pronto', cls: 't-ok' },
@@ -106,6 +109,14 @@ export function TerminalMode({
   useEffect(() => {
     bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
   }, [lines]);
+
+  // Relógio ao vivo do HUD (informação, não animação decorativa).
+  useEffect(() => {
+    const tick = () => setClock(new Date().toLocaleTimeString('pt-BR'));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const running = scan?.status === 'running';
   useEffect(() => {
@@ -421,8 +432,26 @@ export function TerminalMode({
     }
   }
 
+  const engineOn = native && w.ready;
   return (
     <div className="tui" onClick={() => inputRef.current?.focus()}>
+      <div className="tui-scan" aria-hidden="true" />
+      <div className="tui-hud" aria-hidden="true">
+        <b className="hud-tag">QYPHER</b>
+        <span className="hud-sep">//</span>
+        <span className="hud-host">qypher@local</span>
+        <span className="hud-pill">
+          node <b>v{APP_VERSION}</b>
+        </span>
+        <span className="hud-pill">local-first</span>
+        <span className="hud-pill">sem telemetria</span>
+        <span className="hud-spacer" />
+        <span className="hud-pill">
+          <span className={`hud-dot ${engineOn ? 'on' : ''}`} />
+          {engineOn ? 'motor online' : 'motor offline'}
+        </span>
+        <span className="hud-clock">{clock}</span>
+      </div>
       <div className="tui-body" ref={bodyRef}>
         {lines.map((l, i) => (
           <div key={i} className={`tui-line ${l.cls ?? ''}`}>
@@ -430,7 +459,11 @@ export function TerminalMode({
           </div>
         ))}
         <form className="tui-input" onSubmit={submit}>
-          <span className="tui-ps">{PROMPT}</span>
+          <span className="tui-ps">
+            <span className="ps-user">qypher</span>
+            <span className="ps-at">@local</span>
+            <span className="ps-path">:~$</span>
+          </span>
           <input
             ref={inputRef}
             value={input}
@@ -439,18 +472,20 @@ export function TerminalMode({
             spellCheck={false}
             autoComplete="off"
             autoFocus
+            placeholder={running ? '' : "digite 'ajuda' e pressione enter"}
             aria-label="Terminal do Qypher"
           />
         </form>
       </div>
       <div className="tui-status">
-        <span>{native && w.ready ? '● motor conectado' : '○ motor desconectado'}</span>
+        <span>{engineOn ? '● motor conectado' : '○ motor desconectado'}</span>
         <span>
           {running
             ? `${SPIN[spin % SPIN.length]} analisando… ${scan?.requestCount}/${scan?.config.maxRequests}`
             : locked
               ? 'terminal · bloqueado'
               : 'pronto'}
+          {!running && <span className="tui-cursor" aria-hidden="true" />}
         </span>
         <span>help · scan · findings · unlock</span>
       </div>
