@@ -138,7 +138,7 @@ pub fn secrets(body: &str) -> Vec<(&'static str, String, Severity)> {
     let alnum: fn(u8) -> bool = |b| b.is_ascii_alphanumeric();
     let upper: fn(u8) -> bool = |b| b.is_ascii_uppercase() || b.is_ascii_digit();
     let token: fn(u8) -> bool = |b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-';
-    let rules: [SecretRule; 6] = [
+    let rules: [SecretRule; 11] = [
         ("AKIA", "chave de acesso AWS", 16, upper, Severity::High),
         ("ASIA", "chave temporária AWS", 16, upper, Severity::High),
         (
@@ -149,6 +149,8 @@ pub fn secrets(body: &str) -> Vec<(&'static str, String, Severity)> {
             Severity::High,
         ),
         ("ghp_", "token pessoal do GitHub", 36, alnum, Severity::High),
+        ("gho_", "token OAuth do GitHub", 36, alnum, Severity::High),
+        ("ghs_", "token de servidor do GitHub", 36, alnum, Severity::High),
         (
             "github_pat_",
             "token granular do GitHub",
@@ -156,7 +158,10 @@ pub fn secrets(body: &str) -> Vec<(&'static str, String, Severity)> {
             token,
             Severity::High,
         ),
+        ("glpat-", "token de acesso GitLab", 20, token, Severity::High),
         ("xoxb-", "token de bot do Slack", 20, token, Severity::High),
+        ("xoxp-", "token de usuário do Slack", 20, token, Severity::High),
+        ("npm_", "token de automação npm", 36, token, Severity::High),
     ];
     let mut found = vec![];
     for (prefix, label, min, ok, severity) in rules {
@@ -694,6 +699,21 @@ mod tests {
             .expect("deveria virar achado");
         assert_eq!(inline.severity, Severity::High);
         assert!(!inline.evidence.contains("S3cr3tP"));
+    }
+
+    #[test]
+    fn additional_high_signal_token_prefixes_are_detected_without_values() {
+        let gitlab = ["glpat-", &"a".repeat(20)].concat();
+        let npm = ["npm_", &"b".repeat(36)].concat();
+        for raw in [gitlab, npm] {
+            let html = format!("<script>const t='{raw}';</script>");
+            let found = secrets(&html);
+            assert!(!found.is_empty(), "deveria detectar {raw}");
+            assert!(
+                found.iter().all(|(_, hint, _)| !hint.contains(&raw)),
+                "o valor completo nunca pode aparecer"
+            );
+        }
     }
 
     #[test]
