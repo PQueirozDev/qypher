@@ -304,7 +304,7 @@ pub fn registry() -> Vec<Box<dyn Detector>> {
                     problems.push("Access-Control-Allow-Origin: null (alcançável a partir de iframes sandbox e arquivos locais)");
                 }
                 if acao == "wildcard" && creds {
-                    problems.push("origem universal combinada com Allow-Credentials: true");
+                    problems.push("origem universal combinada com Allow-Credentials: true (o navegador rejeita a combinação, mas indica configuração incorreta)");
                 }
                 if acao == "specific origin (redacted)" && !vary_origin {
                     problems.push("origem específica sem Vary: Origin (risco de cache servir a política de outra origem)");
@@ -312,7 +312,9 @@ pub fn registry() -> Vec<Box<dyn Detector>> {
                 if problems.is_empty() {
                     return None;
                 }
-                let severity = if creds && acao != "specific origin (redacted)" {
+                // `null` com credenciais é explorável a partir de iframes sandbox (origem null);
+                // `*` com credenciais é bloqueado pelo navegador, então é apenas configuração incorreta.
+                let severity = if acao == "null" && creds {
                     Severity::Medium
                 } else {
                     Severity::Low
