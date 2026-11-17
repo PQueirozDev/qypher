@@ -72,6 +72,7 @@ export default function App() {
   const [palette, setPalette] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [revealing, setRevealing] = useState(false);
+  const [locking, setLocking] = useState(false);
   const main = useRef<HTMLElement>(null);
   const navigate = useCallback(
     (id: string) => {
@@ -96,8 +97,13 @@ export default function App() {
     window.setTimeout(() => setRevealing(false), 1500);
   }, [setError]);
   const lock = useCallback(() => {
-    setLocked(true);
-    setPage('terminal');
+    // Animação de "power-off" (CRT desligando) antes de voltar ao terminal.
+    setLocking(true);
+    window.setTimeout(() => {
+      setLocked(true);
+      setPage('terminal');
+      setLocking(false);
+    }, 440);
   }, []);
   useEffect(() => {
     main.current?.scrollTo(0, 0);
@@ -285,7 +291,7 @@ export default function App() {
         <div
           className={`${isTerminal ? 'tui-host' : isHome ? '' : 'q-page t-inner'}${
             revealing && !isTerminal ? ' q-unlock-reveal' : ''
-          }`}
+          }${locking && !isTerminal ? ' q-lock-collapse' : ''}`}
           key={page}
         >
           {content}

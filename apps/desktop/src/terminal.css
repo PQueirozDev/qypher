@@ -1867,6 +1867,30 @@ body {
   }
 }
 
+/* power-off (CRT desligando) ao travar, espelho do reveal */
+.q-lock-collapse {
+  animation: q-collapse 420ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  transform-origin: center;
+}
+@keyframes q-collapse {
+  0% {
+    opacity: 1;
+    filter: none;
+    clip-path: inset(0 0 0 0);
+  }
+  65% {
+    opacity: 1;
+    filter: brightness(1.7) saturate(0.6);
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 0.15;
+    filter: brightness(2.8) saturate(0.2);
+    transform: translateY(6px);
+    clip-path: inset(49.5% 0 49.5% 0);
+  }
+}
+
 /* linha de varredura que desce uma vez ao desbloquear */
 .q-unlock-sweep {
   position: fixed;
