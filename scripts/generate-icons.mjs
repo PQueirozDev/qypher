@@ -21,7 +21,8 @@ for (const size of sizes) {
       <img src="${dataUri}" style="width:${size}px;height:${size}px;display:block"/>
     </body></html>`,
   );
-  assets.set(size, await page.locator('img').screenshot());
+  // omitBackground garante PNG RGBA (com canal alfa); o Tauri exige RGBA nos ícones.
+  assets.set(size, await page.locator('img').screenshot({ omitBackground: true }));
   await page.close();
 }
 await browser.close();
