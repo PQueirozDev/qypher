@@ -89,7 +89,7 @@
             >GitHub <span aria-hidden="true">↗</span></a
           >
         </nav>
-        <a class="btn nav-cta" href="#downloads"
+        <a class="btn nav-cta" href="#downloads" data-download
           ><span>Baixar<span class="nav-product-name"> Qypher</span></span>
           <span aria-hidden="true">↗</span></a
         >
@@ -110,8 +110,9 @@
               o risco. Saiba como corrigir.
             </p>
             <div class="cta">
-              <a class="btn primary magnetic" href="#downloads"
-                ><span aria-hidden="true">↓</span> Baixar Qypher
+              <a class="btn primary magnetic" href="#downloads" data-download data-download-hero
+                ><span aria-hidden="true">↓</span>
+                <span data-download-label>Baixar Qypher</span>
                 <span aria-hidden="true">↗</span></a
               ><a
                 class="btn secondary magnetic"
@@ -125,6 +126,7 @@
                 >Ver no GitHub</a
               >
             </div>
+            <p class="dl-hint" data-download-hint hidden></p>
             <div class="hero-platforms">
               <span>DESKTOP, POR PRINCÍPIO.</span><span>Windows / Linux / macOS</span>
             </div>
@@ -617,14 +619,14 @@
           <div class="kicker" data-scramble>05 / COMECE PELO SEU SISTEMA</div>
           <h2>Baixe e instale</h2>
           <p class="sub">
-            Instaladores para Windows, Linux e macOS são publicados nas releases do GitHub. O
-            aplicativo se atualiza sozinho quando uma nova versão sai.
+            O botão baixa direto o instalador da versão mais recente para o seu sistema. O aplicativo
+            se atualiza sozinho quando uma nova versão sai.
           </p>
           <div class="grid">
-            <div class="dl-card">
+            <div class="dl-card" data-platform="windows">
               <div class="os">[ windows ]</div>
               <h3>Windows 10/11</h3>
-              <p>Instalador .exe (NSIS), por usuário, sem privilégio de administrador.</p>
+              <p>Instalador .exe por usuário, sem privilégio de administrador, com atalhos e desinstalador.</p>
               <a
                 class="get"
                 href="https://github.com/PQueirozDev/qypher/releases/latest"
@@ -633,10 +635,10 @@
                 >⤓ releases ↗</a
               >
             </div>
-            <div class="dl-card">
+            <div class="dl-card" data-platform="linux">
               <div class="os">[ linux ]</div>
               <h3>Linux</h3>
-              <p>AppImage e pacote .deb para distribuições baseadas em Debian.</p>
+              <p>AppImage portátil, além de pacotes .deb (Debian/Ubuntu) e .rpm (Fedora).</p>
               <a
                 class="get"
                 href="https://github.com/PQueirozDev/qypher/releases/latest"
@@ -645,10 +647,10 @@
                 >⤓ releases ↗</a
               >
             </div>
-            <div class="dl-card">
+            <div class="dl-card" data-platform="macos">
               <div class="os">[ macos ]</div>
               <h3>macOS</h3>
-              <p>Imagem .dmg assinada ao compilar na plataforma Apple.</p>
+              <p>Imagem .dmg universal (Apple Silicon e Intel), macOS 10.15 ou superior.</p>
               <a
                 class="get"
                 href="https://github.com/PQueirozDev/qypher/releases/latest"
@@ -659,7 +661,10 @@
             </div>
           </div>
           <p class="note">
-            Ainda sem release publicada? Clone o repositório e compile do código — veja o
+            Outras versões e arquivos em
+            <a href="https://github.com/PQueirozDev/qypher/releases/latest" target="_blank" rel="noopener"
+              >releases do GitHub</a
+            >. Prefere compilar do código? Veja o
             <a href="https://github.com/PQueirozDev/qypher#readme" target="_blank" rel="noopener"
               >README</a
             >.

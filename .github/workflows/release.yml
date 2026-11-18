@@ -18,8 +18,12 @@ jobs:
       matrix:
         include:
           - os: windows-latest
+            args: ''
           - os: ubuntu-22.04
+            args: ''
+          # Um único .dmg universal (Apple Silicon + Intel).
           - os: macos-latest
+            args: '--target universal-apple-darwin'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +31,8 @@ jobs:
         with:
           node-version: 24
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Pré-requisitos do Linux
         if: runner.os == 'Linux'
         run: |
@@ -49,3 +55,4 @@ jobs:
           releaseName: 'Qypher ${{ github.ref_name }}'
           releaseDraft: true
           prerelease: false
+          args: ${{ matrix.args }}

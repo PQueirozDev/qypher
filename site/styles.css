@@ -393,6 +393,23 @@ h1 .glow {
   gap: 12px;
   flex-wrap: wrap;
 }
+.dl-hint {
+  margin: 14px 0 0;
+  font: 9px/1.8 var(--mono);
+  color: var(--dim);
+  overflow-wrap: anywhere;
+}
+.dl-hint[hidden] {
+  display: none;
+}
+.dl-hint a {
+  color: var(--violet);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dl-hint a:hover {
+  color: var(--text);
+}
 .hero-platforms {
   display: flex;
   gap: 14px;

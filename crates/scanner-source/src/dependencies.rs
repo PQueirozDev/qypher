@@ -322,7 +322,14 @@ pub fn inventory(path: &str, text: &str) -> Result<Vec<Dependency>, String> {
                 };
                 // Linhas "<versão>/go.mod" repetem o pacote; a dedup cuida do resto.
                 let version = version.strip_suffix("/go.mod").unwrap_or(version);
-                add(&mut out, "Go", name, version.trim_start_matches('v'), path, "lockfile");
+                add(
+                    &mut out,
+                    "Go",
+                    name,
+                    version.trim_start_matches('v'),
+                    path,
+                    "lockfile",
+                );
             }
         }
         "composer.lock" => {
@@ -335,7 +342,14 @@ pub fn inventory(path: &str, text: &str) -> Result<Vec<Dependency>, String> {
                             pkg.get("name").and_then(|v| v.as_str()),
                             pkg.get("version").and_then(|v| v.as_str()),
                         ) {
-                            add(&mut out, "Packagist", name, version.trim_start_matches('v'), path, "lockfile");
+                            add(
+                                &mut out,
+                                "Packagist",
+                                name,
+                                version.trim_start_matches('v'),
+                                path,
+                                "lockfile",
+                            );
                         }
                     }
                 }
@@ -359,7 +373,14 @@ pub fn inventory(path: &str, text: &str) -> Result<Vec<Dependency>, String> {
                     let entry = line.trim();
                     if let Some((name, rest)) = entry.split_once(" (") {
                         if let Some(version) = rest.strip_suffix(')') {
-                            add(&mut out, "RubyGems", name.trim(), version.trim(), path, "lockfile");
+                            add(
+                                &mut out,
+                                "RubyGems",
+                                name.trim(),
+                                version.trim(),
+                                path,
+                                "lockfile",
+                            );
                         }
                     }
                 }
@@ -569,20 +590,36 @@ mod tests {
     fn go_composer_and_gemfile_lockfiles_are_inventoried() {
         let go = "github.com/pkg/errors v0.9.1 h1:abc\ngithub.com/pkg/errors v0.9.1/go.mod h1:def\ngolang.org/x/net v0.17.0 h1:ghi\n";
         let packages = inventory("go.sum", go).unwrap();
-        assert!(packages.iter().any(|d| d.ecosystem == "Go" && d.name == "github.com/pkg/errors" && d.version == "0.9.1"));
-        assert!(packages.iter().any(|d| d.name == "golang.org/x/net" && d.version == "0.17.0"));
+        assert!(packages.iter().any(|d| d.ecosystem == "Go"
+            && d.name == "github.com/pkg/errors"
+            && d.version == "0.9.1"));
+        assert!(packages
+            .iter()
+            .any(|d| d.name == "golang.org/x/net" && d.version == "0.17.0"));
         // A versão e a linha /go.mod são o mesmo pacote: sem duplicata.
-        assert_eq!(packages.iter().filter(|d| d.name == "github.com/pkg/errors").count(), 1);
+        assert_eq!(
+            packages
+                .iter()
+                .filter(|d| d.name == "github.com/pkg/errors")
+                .count(),
+            1
+        );
 
         let composer = r#"{"packages":[{"name":"monolog/monolog","version":"2.9.1"}],"packages-dev":[{"name":"phpunit/phpunit","version":"9.6.0"}]}"#;
         let packages = inventory("composer.lock", composer).unwrap();
-        assert!(packages.iter().any(|d| d.ecosystem == "Packagist" && d.name == "monolog/monolog" && d.version == "2.9.1"));
+        assert!(packages.iter().any(|d| d.ecosystem == "Packagist"
+            && d.name == "monolog/monolog"
+            && d.version == "2.9.1"));
         assert!(packages.iter().any(|d| d.name == "phpunit/phpunit"));
 
         let gemfile = "GEM\n  remote: https://rubygems.org/\n  specs:\n    rails (7.1.0)\n    rack (3.0.8)\n      other-dep (= 1.0)\n\nPLATFORMS\n  ruby\n";
         let packages = inventory("Gemfile.lock", gemfile).unwrap();
-        assert!(packages.iter().any(|d| d.ecosystem == "RubyGems" && d.name == "rails" && d.version == "7.1.0"));
-        assert!(packages.iter().any(|d| d.name == "rack" && d.version == "3.0.8"));
+        assert!(packages
+            .iter()
+            .any(|d| d.ecosystem == "RubyGems" && d.name == "rails" && d.version == "7.1.0"));
+        assert!(packages
+            .iter()
+            .any(|d| d.name == "rack" && d.version == "3.0.8"));
         // A dependência transitiva indentada com 6 espaços não entra.
         assert!(!packages.iter().any(|d| d.name == "other-dep"));
     }

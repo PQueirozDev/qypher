@@ -26,7 +26,8 @@ fn is_session_cookie(name: &str) -> bool {
         || n.contains("sessid")
         || matches!(
             n.as_str(),
-            "sid" | "auth"
+            "sid"
+                | "auth"
                 | "connect.sid"
                 | "phpsessid"
                 | "jsessionid"

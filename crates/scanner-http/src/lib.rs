@@ -643,9 +643,14 @@ mod tests {
             .unwrap();
         // Uma prévia mascarada do conteúdo exposto é anexada para o responsável conferir,
         // sem jamais mostrar o valor inteiro.
-        assert!(git.sample.is_some(), "A prévia do conteúdo exposto deveria ser capturada.");
         assert!(
-            !serde_json::to_string(&s).unwrap().contains("refs/heads/main"),
+            git.sample.is_some(),
+            "A prévia do conteúdo exposto deveria ser capturada."
+        );
+        assert!(
+            !serde_json::to_string(&s)
+                .unwrap()
+                .contains("refs/heads/main"),
             "O valor inteiro nunca deve atravessar o modelo (apenas a prévia mascarada)."
         );
         let cors = s
@@ -692,12 +697,27 @@ mod tests {
     fn canonical_redirect_recognizes_same_site_only() {
         let u = |s: &str| Url::parse(s).unwrap();
         // http→https e apex↔www são o mesmo site.
-        assert!(canonical_redirect(&u("http://exemplo.com/"), &u("https://exemplo.com/")));
-        assert!(canonical_redirect(&u("https://exemplo.com/"), &u("https://www.exemplo.com/")));
-        assert!(canonical_redirect(&u("https://www.exemplo.com/"), &u("https://exemplo.com/a")));
+        assert!(canonical_redirect(
+            &u("http://exemplo.com/"),
+            &u("https://exemplo.com/")
+        ));
+        assert!(canonical_redirect(
+            &u("https://exemplo.com/"),
+            &u("https://www.exemplo.com/")
+        ));
+        assert!(canonical_redirect(
+            &u("https://www.exemplo.com/"),
+            &u("https://exemplo.com/a")
+        ));
         // Outro domínio ou subdomínio de serviço NÃO é canônico.
-        assert!(!canonical_redirect(&u("https://exemplo.com/"), &u("https://app.exemplo.com/")));
-        assert!(!canonical_redirect(&u("https://meusite.com.br/"), &u("https://meusite.vercel.app/")));
+        assert!(!canonical_redirect(
+            &u("https://exemplo.com/"),
+            &u("https://app.exemplo.com/")
+        ));
+        assert!(!canonical_redirect(
+            &u("https://meusite.com.br/"),
+            &u("https://meusite.vercel.app/")
+        ));
     }
     #[tokio::test]
     async fn redirect_out_of_scope_is_never_requested() {

@@ -31,18 +31,23 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDA1NkNEOEFDQUIzMTY4MUUKUldRZWFER3JyTmhzQlRxT1dZdU0vVTFXL2VORlp1OVQ5bzZDZ0ZFV0tPTEsxSkdiNUw5RE1hUG4K",
-      "endpoints": [
-        "https://github.com/PQueirozDev/qypher/releases/latest/download/latest.json"
-      ]
+      "endpoints": ["https://github.com/PQueirozDev/qypher/releases/latest/download/latest.json"]
     }
   },
   "bundle": {
     "active": true,
     "createUpdaterArtifacts": true,
     "targets": ["nsis"],
+    "publisher": "PQueirozDev",
+    "copyright": "Copyright © 2026 PQueirozDev. Apache-2.0.",
+    "homepage": "https://github.com/PQueirozDev/qypher",
     "shortDescription": "Local-first security audits for the web",
+    "longDescription": "Qypher audita, localmente, sites autorizados e código-fonte em busca de arquivos expostos, falhas de configuração e credenciais vazadas, explicando o risco e como corrigir.",
     "category": "DeveloperTool",
-    "resources": { "../../../licenses/": "licenses/" },
+    "licenseFile": "../../../LICENSE",
+    "resources": {
+      "../../../licenses/": "licenses/"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -51,10 +56,44 @@
       "icons/icon.ico"
     ],
     "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
       "nsis": {
         "installMode": "currentUser",
         "languages": ["PortugueseBR", "English"],
-        "displayLanguageSelector": true
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "icons/installer/header.bmp",
+        "sidebarImage": "icons/installer/sidebar.bmp",
+        "startMenuFolder": "Qypher",
+        "compression": "lzma"
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "dmg": {
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        }
+      }
+    },
+    "linux": {
+      "deb": {
+        "section": "devel"
+      },
+      "rpm": {
+        "release": "1"
       }
     }
   }

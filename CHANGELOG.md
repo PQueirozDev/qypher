@@ -2,6 +2,9 @@
 
 ## 0.1.0 — em desenvolvimento
 
+- Instalador: Linux (.deb, .rpm, AppImage) e macOS (.dmg universal) voltam a ser gerados no release; NSIS com página de licença, imagens próprias, pasta no menu Iniciar, metadados de publisher/copyright e compressão LZMA.
+- Website: botão de download direto que detecta o sistema e baixa o instalador do último release, com links diretos por plataforma e fallback para a página de releases.
+
 - Evolução integrada sobre o aplicativo existente: identidade para vibe coders, terminal real com filtros/cópia/limpeza visual, dashboard e AI Fix Studio local para Codex, Claude Code e outros assistentes.
 - Quick por padrão e Deep com autorização própria; rede privada e sondagens ativas explícitas, sem ampliação automática de origem ou prefixo.
 - Lab GET para contas e recursos fictícios: acesso anônimo, isolamento entre usuários, privilégio insuficiente e token previamente revogado, com baseline/marcador, cancelamento e histórico sanitizado.

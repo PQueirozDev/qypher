@@ -160,8 +160,9 @@ fn mask_value(value: &str) -> String {
 fn is_key_name(key: &str) -> bool {
     let k = key.trim();
     !k.is_empty()
-        && k.chars()
-            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.' | '"' | ' ' | '[' | ']'))
+        && k.chars().all(|c| {
+            c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.' | '"' | ' ' | '[' | ']')
+        })
 }
 
 /// Mascara uma linha de conteúdo exposto: preserva a estrutura (chave, `=`/`:`) e oculta o valor.
@@ -191,7 +192,10 @@ fn mask_line(line: &str) -> String {
             let value = rest[1..].trim();
             // Só mascara quando há um valor que parece conteúdo (evita mexer em `[core]`).
             if is_key_name(key) && value.len() >= 3 {
-                return format!("{key}{sep} {}", mask_value(value.trim_matches(['"', '\'', ',', ';'])));
+                return format!(
+                    "{key}{sep} {}",
+                    mask_value(value.trim_matches(['"', '\'', ',', ';']))
+                );
             }
         }
     }
@@ -200,9 +204,9 @@ fn mask_line(line: &str) -> String {
     for word in line.split_inclusive(char::is_whitespace) {
         let core = word.trim();
         let secretish = core.len() >= 16
-            && core
-                .chars()
-                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '/' | '=' | '_' | '-' | '.'));
+            && core.chars().all(|c| {
+                c.is_ascii_alphanumeric() || matches!(c, '+' | '/' | '=' | '_' | '-' | '.')
+            });
         if secretish {
             out.push_str(&mask_value(core));
             out.push_str(&word[core.len()..]);
@@ -229,7 +233,10 @@ pub fn leak_sample(bytes: &[u8]) -> Option<String> {
     }
     let mut out = String::new();
     for line in text.lines().take(60) {
-        let clean: String = line.chars().filter(|c| !c.is_control() || *c == '\t').collect();
+        let clean: String = line
+            .chars()
+            .filter(|c| !c.is_control() || *c == '\t')
+            .collect();
         out.push_str(&mask_line(&clean));
         out.push('\n');
         if out.chars().count() >= 1800 {
@@ -259,12 +266,27 @@ mod leak_tests {
         let exposed = b"CHAVE_EXEMPLO=abcdefghijklmnop\n[core]\nREGIAO=sa-east-1\n";
         let preview = leak_sample(exposed).unwrap();
         assert!(preview.contains("CHAVE_EXEMPLO="), "a chave deve aparecer");
-        assert!(preview.contains("ab•"), "deve mostrar só o prefixo do valor");
-        assert!(preview.contains("(16 caracteres)"), "deve indicar o tamanho");
-        assert!(!preview.contains("abcdefghijklmnop"), "nunca mostra o valor inteiro");
-        assert!(preview.contains("[core]"), "estrutura sem valor é preservada");
+        assert!(
+            preview.contains("ab•"),
+            "deve mostrar só o prefixo do valor"
+        );
+        assert!(
+            preview.contains("(16 caracteres)"),
+            "deve indicar o tamanho"
+        );
+        assert!(
+            !preview.contains("abcdefghijklmnop"),
+            "nunca mostra o valor inteiro"
+        );
+        assert!(
+            preview.contains("[core]"),
+            "estrutura sem valor é preservada"
+        );
         // Binário (assinatura de zip) não vira prévia legível.
-        assert_eq!(leak_sample(&[0x50, 0x4b, 0x03, 0x04, 0, 1, 2, 3, 4, 5]), None);
+        assert_eq!(
+            leak_sample(&[0x50, 0x4b, 0x03, 0x04, 0, 1, 2, 3, 4, 5]),
+            None
+        );
         assert_eq!(leak_sample(b""), None);
     }
 
@@ -302,7 +324,10 @@ mod leak_tests {
             Some("CHAVE=ab•••••••• (18 caracteres)")
         );
         let restored: super::Finding = serde_json::from_value(value).unwrap();
-        assert_eq!(restored.sample.as_deref(), Some("CHAVE=ab•••••••• (18 caracteres)"));
+        assert_eq!(
+            restored.sample.as_deref(),
+            Some("CHAVE=ab•••••••• (18 caracteres)")
+        );
     }
 }
 

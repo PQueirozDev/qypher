@@ -1,4 +1,11 @@
 import { createExperience } from './experience/index.ts';
+import {
+  LATEST_API,
+  PLATFORM_LABEL,
+  detectPlatform,
+  formatSize,
+  pickInstaller,
+} from './experience/download.ts';
 
 // The public website is deliberately independent of the desktop runtime.
 const root = document.documentElement;
@@ -449,5 +456,57 @@ listen(window, 'pagehide', (event) => {
   visibilityObserver.disconnect();
   animations.forEach((animation) => animation.cancel());
 });
+// Download direto: troca os links de release pelo instalador do último release público.
+// Sem rede, sem release publicada ou sem instalador para o sistema, os links originais ficam.
+async function wireDownloads() {
+  let release;
+  try {
+    const response = await fetch(LATEST_API, {
+      headers: { Accept: 'application/vnd.github+json' },
+      signal,
+    });
+    if (!response.ok) return;
+    release = await response.json();
+  } catch {
+    return;
+  }
+  const assets = Array.isArray(release?.assets) ? release.assets : [];
+  const version = typeof release?.tag_name === 'string' ? release.tag_name : '';
+  for (const card of document.querySelectorAll('.dl-card[data-platform]')) {
+    const installer = pickInstaller(assets, card.dataset.platform);
+    const link = card.querySelector('.get');
+    if (!installer || !link) continue;
+    const extension = installer.name.split('.').pop();
+    link.href = installer.url;
+    link.removeAttribute('target');
+    link.setAttribute('download', '');
+    link.title = installer.name;
+    link.textContent = `⤓ baixar .${extension} ${formatSize(installer.size)}`.trim();
+  }
+  const platform = detectPlatform(navigator.userAgent, navigator.userAgentData?.platform);
+  const installer = platform && pickInstaller(assets, platform);
+  if (!installer) return;
+  for (const button of document.querySelectorAll('[data-download]')) {
+    button.href = installer.url;
+    button.setAttribute('download', '');
+    button.title = installer.name;
+    button.setAttribute('aria-label', `Baixar Qypher ${version} para ${PLATFORM_LABEL[platform]}`);
+  }
+  const label = select('[data-download-label]');
+  if (label) label.textContent = `Baixar para ${PLATFORM_LABEL[platform]}`;
+  const hint = select('[data-download-hint]');
+  if (hint) {
+    hint.textContent = [version, installer.name, formatSize(installer.size)]
+      .filter(Boolean)
+      .join(' · ');
+    const others = document.createElement('a');
+    others.href = '#downloads';
+    others.textContent = 'outros sistemas';
+    hint.append(' · ', others);
+    hint.hidden = false;
+  }
+}
+
 resize();
 refreshMotion();
+wireDownloads();

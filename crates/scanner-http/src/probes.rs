@@ -522,7 +522,9 @@ mod tests {
         ));
         assert!(!source_map_signature(b"{\"error\":\"not found\"}"));
         // `sources` sem `mappings` não é um mapa utilizável comprovado.
-        assert!(!source_map_signature(br#"{"version":3,"sources":["a.ts"]}"#));
+        assert!(!source_map_signature(
+            br#"{"version":3,"sources":["a.ts"]}"#
+        ));
     }
 
     #[test]

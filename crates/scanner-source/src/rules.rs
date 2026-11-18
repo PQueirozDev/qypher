@@ -375,11 +375,32 @@ mod tests {
     use super::*;
     #[test]
     fn iac_rules_flag_insecure_infrastructure() {
-        let k8s = analyze_text("deploy.yaml", "yaml", "    securityContext:\n      privileged: true\n", true, false, false);
+        let k8s = analyze_text(
+            "deploy.yaml",
+            "yaml",
+            "    securityContext:\n      privileged: true\n",
+            true,
+            false,
+            false,
+        );
         assert!(k8s.iter().any(|f| f.rule_id == "k8s.privileged"));
-        let tf = analyze_text("main.tf", "tf", "  cidr_blocks = [\"0.0.0.0/0\"]\n", true, false, false);
+        let tf = analyze_text(
+            "main.tf",
+            "tf",
+            "  cidr_blocks = [\"0.0.0.0/0\"]\n",
+            true,
+            false,
+            false,
+        );
         assert!(tf.iter().any(|f| f.rule_id == "terraform.open-ingress"));
-        let docker = analyze_text("Dockerfile", "dockerfile", "ADD https://x/y.sh /tmp/y.sh\n", true, false, false);
+        let docker = analyze_text(
+            "Dockerfile",
+            "dockerfile",
+            "ADD https://x/y.sh /tmp/y.sh\n",
+            true,
+            false,
+            false,
+        );
         assert!(docker.iter().any(|f| f.rule_id == "docker.add-url"));
     }
     #[test]

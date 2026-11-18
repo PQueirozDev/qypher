@@ -423,7 +423,10 @@ async fn fetch_concurrent(
             }
         }
     }
-    Ok(out.into_iter().map(|o| o.unwrap_or(Fetched::Error)).collect())
+    Ok(out
+        .into_iter()
+        .map(|o| o.unwrap_or(Fetched::Error))
+        .collect())
 }
 
 pub async fn exposures(
@@ -457,7 +460,13 @@ pub async fn exposures(
         if planned.len() < available {
             planned.push((i, target));
         } else {
-            scan.checks.push(check(&id, &target, CheckStatus::NotRun, "Orçamento de requisições esgotado.", None));
+            scan.checks.push(check(
+                &id,
+                &target,
+                CheckStatus::NotRun,
+                "Orçamento de requisições esgotado.",
+                None,
+            ));
         }
     }
     // Busca os caminhos planejados com concorrência limitada (gentil com o alvo).
@@ -471,9 +480,19 @@ pub async fn exposures(
                 let exposed = status == 200 && (e.matches)(&body.bytes);
                 if exposed {
                     let finding = exposure_finding(&id, target, e).with_sample(&body.bytes);
-                    scan.log("discovery.exposed", &format!("Exposto: {} ({})", e.path, e.title), LogLevel::Warn);
+                    scan.log(
+                        "discovery.exposed",
+                        &format!("Exposto: {} ({})", e.path, e.title),
+                        LogLevel::Warn,
+                    );
                     scan.findings.push(finding.clone());
-                    scan.checks.push(check(&id, target, CheckStatus::Finding, "Assinatura de conteúdo confirmada.", Some(finding)));
+                    scan.checks.push(check(
+                        &id,
+                        target,
+                        CheckStatus::Finding,
+                        "Assinatura de conteúdo confirmada.",
+                        Some(finding),
+                    ));
                 } else {
                     scan.checks.push(check(&id, target,
                         if body.complete && matches!(status, 200 | 401 | 403 | 404 | 410) { CheckStatus::Passed } else { CheckStatus::Error },
@@ -482,7 +501,13 @@ pub async fn exposures(
                 }
             }
             Fetched::Error => {
-                scan.checks.push(check(&id, target, CheckStatus::Error, "Falha de rede ou timeout; resultado inconclusivo.", None));
+                scan.checks.push(check(
+                    &id,
+                    target,
+                    CheckStatus::Error,
+                    "Falha de rede ou timeout; resultado inconclusivo.",
+                    None,
+                ));
             }
         }
     }
@@ -650,7 +675,10 @@ async fn sitemap(
     } else {
         scan.log(
             "discovery.routes",
-            &format!("{} rota(s) pública(s) descoberta(s) no sitemap.", paths.len()),
+            &format!(
+                "{} rota(s) pública(s) descoberta(s) no sitemap.",
+                paths.len()
+            ),
             LogLevel::Info,
         );
         let shown: Vec<_> = paths.iter().take(20).cloned().collect();
@@ -661,7 +689,13 @@ async fn sitemap(
             WSTG_REF);
         f.category = "Exposição".into();
         scan.findings.push(f.clone());
-        scan.checks.push(check(id, &target, CheckStatus::Finding, "Rotas públicas enumeradas.", Some(f)));
+        scan.checks.push(check(
+            id,
+            &target,
+            CheckStatus::Finding,
+            "Rotas públicas enumeradas.",
+            Some(f),
+        ));
     }
     Ok(())
 }

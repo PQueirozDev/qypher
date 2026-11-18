@@ -32,6 +32,25 @@ async function axe(page) {
 
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1100 } });
+  // Release simulada: o download direto não depende da rede nem do release real.
+  const releaseApi = 'https://api.github.com/repos/PQueirozDev/qypher/releases/latest';
+  const download = (name) =>
+    `https://github.com/PQueirozDev/qypher/releases/download/v9.9.9/${name}`;
+  await context.route(releaseApi, (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        tag_name: 'v9.9.9',
+        assets: [
+          'latest.json',
+          'Qypher_9.9.9_x64-setup.exe.sig',
+          'Qypher_9.9.9_x64-setup.exe',
+          'Qypher_9.9.9_universal.dmg',
+          'Qypher_9.9.9_amd64.AppImage',
+        ].map((name) => ({ name, size: 5172615, browser_download_url: download(name) })),
+      }),
+    }),
+  );
   const page = await context.newPage();
   page.on('pageerror', (error) => errors.push(error.message));
   const requests = [];
@@ -158,6 +177,20 @@ try {
     assert(links.includes(target), target);
   summary.links = 'anchors, GitHub, three release links and portfolio preserved';
 
+  const hero = page.locator('[data-download-hero]');
+  assert.equal(await hero.getAttribute('href'), download('Qypher_9.9.9_x64-setup.exe'));
+  assert.equal(await page.locator('[data-download-label]').textContent(), 'Baixar para Windows');
+  assert.equal(await page.locator('[data-download-hint]').isVisible(), true);
+  assert.deepEqual(
+    await page.locator('.dl-card .get').evaluateAll((links) => links.map((link) => link.href)),
+    [
+      download('Qypher_9.9.9_x64-setup.exe'),
+      download('Qypher_9.9.9_amd64.AppImage'),
+      download('Qypher_9.9.9_universal.dmg'),
+    ],
+  );
+  summary.directDownload = 'hero, header and cards point straight at the matching installer';
+
   summary.layouts = [];
   for (const width of [320, 360, 390, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -254,7 +287,10 @@ try {
   summary.withoutJavaScript =
     'essential content and guided example visible; interactive commands hidden';
   summary.unexpectedRequests = [...new Set(requests)].filter(
-    (url) => !url.startsWith(baseURL.replace(/\/$/, '')) && !url.startsWith('https://fonts.'),
+    (url) =>
+      !url.startsWith(baseURL.replace(/\/$/, '')) &&
+      !url.startsWith('https://fonts.') &&
+      url !== releaseApi,
   );
   summary.errors = errors;
   await fs.writeFile(new URL('results.json', artifactDirectory), JSON.stringify(summary, null, 2));

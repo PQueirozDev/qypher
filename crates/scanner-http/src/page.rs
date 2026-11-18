@@ -150,7 +150,13 @@ pub fn secrets(body: &str) -> Vec<(&'static str, String, Severity)> {
         ),
         ("ghp_", "token pessoal do GitHub", 36, alnum, Severity::High),
         ("gho_", "token OAuth do GitHub", 36, alnum, Severity::High),
-        ("ghs_", "token de servidor do GitHub", 36, alnum, Severity::High),
+        (
+            "ghs_",
+            "token de servidor do GitHub",
+            36,
+            alnum,
+            Severity::High,
+        ),
         (
             "github_pat_",
             "token granular do GitHub",
@@ -158,9 +164,21 @@ pub fn secrets(body: &str) -> Vec<(&'static str, String, Severity)> {
             token,
             Severity::High,
         ),
-        ("glpat-", "token de acesso GitLab", 20, token, Severity::High),
+        (
+            "glpat-",
+            "token de acesso GitLab",
+            20,
+            token,
+            Severity::High,
+        ),
         ("xoxb-", "token de bot do Slack", 20, token, Severity::High),
-        ("xoxp-", "token de usuário do Slack", 20, token, Severity::High),
+        (
+            "xoxp-",
+            "token de usuário do Slack",
+            20,
+            token,
+            Severity::High,
+        ),
         ("npm_", "token de automação npm", 36, token, Severity::High),
     ];
     let mut found = vec![];
@@ -249,8 +267,19 @@ fn connection_credential(body: &str) -> Option<&'static str> {
             }
             if matches!(
                 b,
-                b'/' | b'?' | b'#' | b' ' | b'"' | b'\'' | b'\\' | b'\n' | b'\r' | b'\t' | b'<'
-                    | b'>' | b'`' | b')'
+                b'/' | b'?'
+                    | b'#'
+                    | b' '
+                    | b'"'
+                    | b'\''
+                    | b'\\'
+                    | b'\n'
+                    | b'\r'
+                    | b'\t'
+                    | b'<'
+                    | b'>'
+                    | b'`'
+                    | b')'
             ) {
                 break;
             }
@@ -684,14 +713,18 @@ mod tests {
 
     #[test]
     fn connection_string_with_password_is_detected_without_the_password() {
-        let html = r#"<script>const db="postgres://admin:S3cr3tP%40ss@db.internal:5432/app";</script>"#;
+        let html =
+            r#"<script>const db="postgres://admin:S3cr3tP%40ss@db.internal:5432/app";</script>"#;
         let found = secrets(html);
         let hit = found
             .iter()
             .find(|(label, _, _)| *label == "credencial em string de conexão")
             .expect("deveria detectar a credencial");
         assert_eq!(hit.2, Severity::High);
-        assert!(!hit.1.contains("S3cr3tP"), "a senha não pode aparecer na evidência");
+        assert!(
+            !hit.1.contains("S3cr3tP"),
+            "a senha não pode aparecer na evidência"
+        );
         let f = analyze(html, &page());
         let inline = f
             .iter()
