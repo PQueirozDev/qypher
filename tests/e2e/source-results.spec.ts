@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, navigate, test, type Page } from './fixtures';
 import { createRequire } from 'node:module';
 import { defaultSourceConfig, type SourceScan } from '../../apps/desktop/src/sourceTypes';
 
@@ -103,10 +103,7 @@ async function sourceWorkspace(page: Page, status: SourceScan['status'] = 'compl
     });
   }, scan);
   await page.goto('/');
-  await page
-    .getByRole('navigation')
-    .getByRole('button', { name: 'Análise de código', exact: true })
-    .click();
+  await navigate(page, 'Análise de código');
   await expect(page.getByRole('heading', { name: 'authorized-fixture' })).toBeVisible();
 }
 

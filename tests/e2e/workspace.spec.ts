@@ -1,22 +1,19 @@
-import { expect, test } from '@playwright/test';
+import { expect, navigate, test } from './fixtures';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 test('web preview is honest and has no fake scan results', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'mais', exact: true }).click();
-  await page.getByRole('button', { name: 'Painel', exact: true }).click();
-  await expect(page.getByText('motor desconectado', { exact: true })).toBeVisible();
+  await navigate(page, 'Painel');
+  await expect(
+    page.getByRole('banner').getByText('motor desconectado', { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText('Nenhum alvo configurado.', { exact: true })).toBeVisible();
   await page.screenshot({
     path: 'test-results/dashboard.png',
     fullPage: true,
     animations: 'disabled',
   });
-  await page.getByRole('button', { name: 'mais', exact: true }).click();
-  await page
-    .getByRole('navigation')
-    .getByRole('button', { name: 'Auditoria HTTP', exact: true })
-    .click();
+  await navigate(page, 'Auditoria HTTP');
   await expect(page.getByRole('button', { name: 'Iniciar auditoria' })).toBeDisabled();
   await page.screenshot({
     path: 'test-results/new-scan.png',
@@ -26,8 +23,7 @@ test('web preview is honest and has no fake scan results', async ({ page }) => {
 });
 test('local hashing is usable without a native runtime', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'mais', exact: true }).click();
-  await page.getByRole('button', { name: 'Ferramentas locais', exact: true }).click();
+  await navigate(page, 'Ferramentas locais');
   await page.getByRole('button', { name: 'Hash & integridade', exact: false }).click();
   await page.getByLabel('Texto UTF-8').fill('abc');
   await page.getByRole('button', { name: 'Analisar localmente' }).click();
@@ -39,8 +35,7 @@ test('local hashing is usable without a native runtime', async ({ page }) => {
 });
 test('dashboard has no automatically detectable WCAG A/AA violations', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'mais', exact: true }).click();
-  await page.getByRole('button', { name: 'Painel', exact: true }).click();
+  await navigate(page, 'Painel');
   await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
   const result = await page.evaluate(async () =>
     (

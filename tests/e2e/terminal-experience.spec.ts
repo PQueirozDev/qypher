@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, navigate, test } from './fixtures';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
@@ -30,44 +30,53 @@ test('browser preview explains native actions and links to real local tools', as
   ).toBeVisible();
 });
 
-test('terminal prepares URL scopes, recalls commands and completes local operations without scanning', async ({
+test('palette prepares URL scopes and the global terminal recalls commands without scanning', async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const command = page.getByRole('textbox', { name: 'Comando interno do Qypher' });
-  await command.fill('deep https://example.invalid/App');
-  await command.press('Enter');
+  await page.keyboard.press('Control+k');
+  const search = page.getByLabel('Pesquisar comando');
+  await search.fill('deep https://example.invalid/App');
+  await search.press('Enter');
   await expect(page.getByLabel('Link do site')).toHaveValue('https://example.invalid/App');
   await expect(page.getByLabel('Modo de análise')).toHaveValue('deep');
   await expect(
     page.getByRole('checkbox', { name: 'O site é meu', exact: false }),
   ).not.toBeChecked();
   await expect(page.getByRole('button', { name: 'Analisar', exact: true })).toBeDisabled();
-  await command.press('ArrowUp');
-  await expect(command).toHaveValue('deep https://example.invalid/App');
-  await command.press('ArrowDown');
-  await expect(command).toHaveValue('');
-  await command.fill('he');
-  await command.press('Tab');
-  await expect(command).toHaveValue('help');
-  await command.press('Enter');
-  await expect(page.getByText('command.help', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'scope.json', exact: true }).click();
   await expect(page.getByRole('tabpanel', { name: 'scope.json' })).toContainText(
     'https://example.invalid/App',
   );
   await page.getByRole('tab', { name: 'runtime', exact: true }).click();
   await expect(page.getByRole('tabpanel', { name: 'runtime' })).toContainText('unavailable');
+
+  await page.keyboard.press('Control+j');
+  const dock = page.getByRole('region', { name: 'Terminal Qypher', exact: true });
+  const command = dock.getByRole('textbox', { name: 'Terminal do Qypher' });
+  await command.fill('scan https://example.invalid/App');
+  await command.press('Enter');
+  await expect(
+    dock.getByText('motor desconectado. abra o aplicativo desktop', { exact: false }),
+  ).toBeVisible();
+  await command.press('ArrowUp');
+  await expect(command).toHaveValue('scan https://example.invalid/App');
+  await command.press('ArrowDown');
+  await expect(command).toHaveValue('');
+  await command.fill('he');
+  await command.press('Tab');
+  await expect(command).toHaveValue('help ');
+  await command.press('Enter');
+  await expect(dock.getByText('comandos disponíveis:', { exact: true })).toBeVisible();
 });
 
 test('motion preferences work and terminal appearance remains accessible', async ({ page }) => {
   await page.goto('/');
-  const navigation = page.getByRole('navigation', { name: 'Navegação principal' });
-  await navigation.getByRole('button', { name: 'mais', exact: true }).click();
-  await navigation.getByRole('button', { name: 'Configuração', exact: true }).click();
+  await navigate(page, 'Configuração');
   await page.getByLabel('Animações da interface', { exact: false }).selectOption('off');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
-  await navigation.getByRole('button', { name: 'Analisar site', exact: true }).click();
+  await navigate(page, 'Analisar site');
   const animation = await page
     .locator('.atmosphere-cursor')
     .evaluate((node) => getComputedStyle(node).animationName);
@@ -100,11 +109,10 @@ test('ASCII scenes animate locally, pause and respect reduced motion', async ({ 
   const paused = await frame.textContent();
   await page.waitForTimeout(300);
   expect(await frame.textContent()).toBe(paused);
-  await art.getByRole('button', { name: '02 órbita', exact: true }).click();
-  await expect(art.getByRole('button', { name: '02 órbita', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  const gallery = art.getByRole('button', { name: 'Próxima arte ASCII', exact: true });
+  await expect(gallery).toContainText('cadeado');
+  await gallery.click();
+  await expect(gallery).toContainText('órbita');
   expect(await frame.textContent()).not.toBe(paused);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await art.getByRole('button', { name: 'Retomar arte ASCII' }).click();
@@ -152,7 +160,9 @@ test('reconnect reinstalls native event subscriptions after a connection failure
   await expect(reconnect).toBeEnabled();
   await page.evaluate(() => sessionStorage.setItem('allow-test-connection', 'yes'));
   await reconnect.click();
-  await expect(page.getByText('motor conectado', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('banner').getByText('motor conectado', { exact: true }),
+  ).toBeVisible();
   const subscriptions = await page.evaluate(
     () => JSON.parse(sessionStorage.getItem('test-native-events') || '[]') as string[],
   );

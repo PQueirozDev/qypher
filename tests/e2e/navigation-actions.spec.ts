@@ -1,15 +1,7 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, navigate, test, type Page } from './fixtures';
 import type { Scan } from '../../apps/desktop/src/types';
 import type { LabRun } from '../../apps/desktop/src/labTypes';
 import { defaultSourceConfig, type SourceScan } from '../../apps/desktop/src/sourceTypes';
-
-async function navigate(page: Page, label: string) {
-  const navigation = page.getByRole('navigation', { name: 'Navegação principal', exact: true });
-  const destination = navigation.getByRole('button', { name: label, exact: true });
-  if (!(await destination.isVisible()))
-    await navigation.getByRole('button', { name: /mais/i }).click();
-  await destination.click();
-}
 
 function savedScan(id: string, startedAt: string): Scan {
   return {

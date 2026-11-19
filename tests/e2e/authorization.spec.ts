@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, navigate, test } from './fixtures';
 // Test double for the IPC boundary only; this does not run or validate the Rust engine.
 test('scan form requires fresh consent and sends bounded configuration to IPC', async ({
   page,
@@ -33,11 +33,7 @@ test('scan form requires fresh consent and sends bounded configuration to IPC', 
     Object.defineProperty(window, '__TAURI__', { value: bridge });
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'mais', exact: true }).click();
-  await page
-    .getByRole('navigation')
-    .getByRole('button', { name: 'Auditoria HTTP', exact: true })
-    .click();
+  await navigate(page, 'Auditoria HTTP');
   const start = page.getByRole('button', { name: 'Iniciar auditoria' });
   await expect(start).toBeDisabled();
   await page.getByLabel('Confirmo minha autorização', { exact: false }).check();

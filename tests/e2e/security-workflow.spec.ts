@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, navigate, test, type Page } from './fixtures';
 import type { Scan } from '../../apps/desktop/src/types';
 
 function fixture(): Scan {
@@ -128,10 +128,7 @@ test('quick and deep scans keep consent, network permission and path scope expli
   page,
 }) => {
   await workspace(page);
-  await page
-    .getByRole('navigation', { name: 'Navegação principal' })
-    .getByRole('button', { name: 'Analisar site', exact: true })
-    .click();
+  await navigate(page, 'Analisar site');
   await expect(page.getByLabel('Modo de análise')).toHaveValue('quick');
   const input = page.getByLabel('Link do site');
   const consent = page.getByRole('checkbox', { name: 'O site é meu', exact: false });
@@ -225,38 +222,29 @@ test('redirect failures never start a new origin, raw samples stay hidden and ex
   expect(copied).not.toContain('LEGACY_RAW_CREDENTIAL_MUST_NOT_APPEAR');
 });
 
-test('terminal searches, filters, sanitizes and copies real events while clear only affects the view', async ({
+test('execution logs keep every real event sanitized while clearing the terminal only affects its view', async ({
   page,
 }) => {
   await workspace(page, fixture());
-  const terminal = page.getByRole('region', { name: 'Console Qypher', exact: true });
-  const output = terminal.getByRole('log', { name: 'Saída do motor' });
-  await expect(output.getByText('Iniciando análise da fixture.', { exact: true })).toBeVisible();
-  await terminal.getByLabel('Pesquisar eventos do terminal').fill('CSP');
-  await expect(output.getByText('CSP permissiva observada.', { exact: true })).toBeVisible();
-  await expect(output.getByText('Iniciando análise da fixture.', { exact: true })).toHaveCount(0);
-  await terminal.getByLabel('Nível dos eventos do terminal').selectOption('error');
-  await expect(
-    output.getByText('Nenhum evento nesta visualização.', { exact: true }),
-  ).toBeVisible();
-  await terminal.getByLabel('Pesquisar eventos do terminal').clear();
-  await expect(output.getByText('Falha controlada da fixture;', { exact: false })).toBeVisible();
-  await terminal.getByRole('button', { name: 'Copiar logs visíveis', exact: true }).click();
-  const copied = await page.evaluate(() => sessionStorage.getItem('test-copy'));
-  expect(copied).toContain('ERROR');
-  expect(copied).not.toContain('legacy-log-password');
-  expect(copied).not.toContain('Iniciando análise');
-  await terminal
-    .getByRole('button', { name: 'Limpar visualização do terminal', exact: true })
-    .click();
-  await expect(
-    output.getByText('Nenhum evento nesta visualização.', { exact: true }),
-  ).toBeVisible();
-  await page.getByRole('button', { name: 'Achados', exact: true }).click();
+  await navigate(page, 'Achados');
   await page.getByRole('tab', { name: 'Terminal', exact: true }).click();
-  await expect(
-    page
-      .getByRole('log', { name: 'Logs da execução' })
-      .getByText('Iniciando análise da fixture.', { exact: false }),
-  ).toBeVisible();
+  const logs = page.getByRole('log', { name: 'Logs da execução' });
+  await expect(logs.getByText('Iniciando análise da fixture.', { exact: false })).toBeVisible();
+  await expect(logs.getByText('CSP permissiva observada.', { exact: false })).toBeVisible();
+  await expect(logs.getByText('Falha controlada da fixture;', { exact: false })).toBeVisible();
+  await expect(logs).toContainText('ERROR');
+  await expect(logs).not.toContainText('legacy-log-password');
+
+  await page
+    .getByRole('complementary', { name: 'Navegação do workspace' })
+    .getByRole('button', { name: 'Alternar terminal global', exact: true })
+    .click();
+  const dock = page.getByRole('region', { name: 'Terminal Qypher', exact: true });
+  const command = dock.getByRole('textbox', { name: 'Terminal do Qypher' });
+  await command.fill('history');
+  await command.press('Enter');
+  await expect(dock.getByText('ID        STATUS      ALVO', { exact: false })).toBeVisible();
+  await dock.getByRole('button', { name: 'Limpar terminal', exact: true }).click();
+  await expect(dock.getByText('ID        STATUS      ALVO', { exact: false })).toHaveCount(0);
+  await expect(logs.getByText('Iniciando análise da fixture.', { exact: false })).toBeVisible();
 });

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, navigate, test, type Page } from './fixtures';
 import { createRequire } from 'node:module';
 import type { LabRequest, LabRun } from '../../apps/desktop/src/labTypes';
 
@@ -151,10 +151,7 @@ async function laboratory(page: Page, history: LabRun[] = []) {
     { initialHistory: history, template: savedRun() },
   );
   await page.goto('/');
-  await page
-    .getByRole('navigation', { name: 'Navegação principal' })
-    .getByRole('button', { name: 'Laboratório', exact: true })
-    .click();
+  await navigate(page, 'Laboratório');
   await expect(
     page.getByRole('heading', { name: 'Laboratório de autorização', exact: true }),
   ).toBeVisible();
