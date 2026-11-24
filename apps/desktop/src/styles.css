@@ -1,5 +1,5 @@
 :root {
-  font-family: 'Inter Variable', Inter, system-ui, sans-serif;
+  font-family: 'Geist Variable', system-ui, sans-serif;
   color: #e5eaf5;
   background: #08090c;
   font-synthesis: none;
@@ -15,7 +15,7 @@
   --accent-soft: #9ab3ec;
   --red: #e6667d;
   --yellow: #debb31;
-  --mono: 'IBM Plex Mono', 'Cascadia Mono', Consolas, Menlo, monospace;
+  --mono: 'Geist Mono Variable', 'Cascadia Mono', Consolas, Menlo, monospace;
 }
 * {
   box-sizing: border-box;

@@ -1,8 +1,25 @@
-﻿import { useState } from 'react';
-import { ChevronDown, FileDown, Search, Shield, Square } from 'lucide-react';
+﻿import { useRef, useState, type CSSProperties } from 'react';
+import {
+  Check,
+  ChevronDown,
+  Copy,
+  FileDown,
+  Search,
+  Shield,
+  Sparkles,
+  Square,
+  X,
+} from 'lucide-react';
 import { api } from '../api';
-import { confidenceLabel, findingKind, kindLabel, scanCoverage, usableScore } from '../assessment';
-import { safeLocation, sanitizeTechnicalText } from '../aiPrompt';
+import {
+  confidenceLabel,
+  elapsedSeconds,
+  findingKind,
+  kindLabel,
+  scanCoverage,
+  usableScore,
+} from '../assessment';
+import { copyText, safeLocation, sanitizeTechnicalText } from '../aiPrompt';
 import { date, severityLabel, type Finding, type Scan, type Severity } from '../types';
 import type { Workspace } from '../useWorkspace';
 import { Empty, PageTitle, Panel, SeverityBadge, StatusBadge } from './ui';
@@ -84,9 +101,38 @@ export function FindingList({ findings }: { findings: Finding[] }) {
     </div>
   );
 }
-// Finding Inspector 2.0: lista selecionável à esquerda, detalhe completo à direita.
+// Finding Inspector: lista selecionável à esquerda, detalhe completo (fixo ao rolar) à direita.
+const severityOrder: Severity[] = ['high', 'medium', 'low', 'info', 'unrated'];
+
+function EvidenceBlock({ text }: { text: string }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  async function copy() {
+    try {
+      await copyText(text);
+      setState('copied');
+    } catch {
+      setState('failed');
+    }
+  }
+  return (
+    <div className="rv-evidence">
+      <pre>{text}</pre>
+      <button
+        className="rv-copy"
+        onClick={() => void copy()}
+        aria-label="Copiar evidência técnica"
+        title="Copiar evidência"
+      >
+        {state === 'copied' ? <Check size={13} /> : <Copy size={13} />}
+        <span>{state === 'copied' ? 'Copiado' : state === 'failed' ? 'Falhou' : 'Copiar'}</span>
+      </button>
+    </div>
+  );
+}
+
 export function FindingInspector({ findings }: { findings: Finding[] }) {
   const [sel, setSel] = useState(0);
+  const rows = useRef<(HTMLButtonElement | null)[]>([]);
   if (!findings.length)
     return (
       <Empty
@@ -98,79 +144,171 @@ export function FindingInspector({ findings }: { findings: Finding[] }) {
   const clean = sanitizeTechnicalText;
   const index = Math.min(sel, findings.length - 1);
   const finding = findings[index];
-  return (
-    <div className="finding-inspector">
-      <ul className="fi-list" role="listbox" aria-label="Lista de achados">
-        {findings.map((item, i) => (
-          <li key={item.id}>
-            <button
-              role="option"
-              aria-selected={i === index}
-              className={`fi-row ${i === index ? 'active' : ''}`}
-              onClick={() => setSel(i)}
-              onKeyDown={(event) => {
-                if (event.key === 'ArrowDown') {
-                  event.preventDefault();
-                  setSel(Math.min(i + 1, findings.length - 1));
-                } else if (event.key === 'ArrowUp') {
-                  event.preventDefault();
-                  setSel(Math.max(i - 1, 0));
-                }
-              }}
-            >
-              <SeverityBadge value={item.severity} />
-              <span className="fi-row-text">
-                <strong>{clean(item.title)}</strong>
-                <code>{item.detectorId}</code>
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      <div className="fi-detail" key={finding.id}>
-        <div className="fi-head">
-          <SeverityBadge value={finding.severity} />
-          <div>
-            <h2>{clean(finding.title)}</h2>
-            <code>
-              {finding.detectorId} · v{finding.detectorVersion}
-            </code>
-          </div>
-        </div>
-        <div className="fi-tags">
-          <span className="fi-tag">{kindLabel[findingKind(finding)]}</span>
-          <span className="fi-tag">Confiança: {confidenceLabel(finding.confidence)}</span>
-          {finding.category && <span className="fi-tag">{clean(finding.category)}</span>}
-          <code className="fi-loc">{clean(safeLocation(finding.location))}</code>
-        </div>
-        <h3>O que está errado?</h3>
-        <p>{clean(finding.description || finding.title)}</p>
-        <h3>Evidência técnica</h3>
-        <pre>{clean(finding.evidence)}</pre>
-        <h3>Por que isso importa?</h3>
-        <p>{clean(finding.impact)}</p>
-        <h3>Como corrigir?</h3>
-        <p className="recommendation">{clean(finding.recommendation)}</p>
-        <h3>Como verificar a correção?</h3>
+  const move = (next: number) => {
+    const target = Math.max(0, Math.min(next, findings.length - 1));
+    setSel(target);
+    rows.current[target]?.focus();
+  };
+  const steps = [
+    { title: 'O que está errado?', body: <p>{clean(finding.description || finding.title)}</p> },
+    { title: 'Evidência técnica', body: <EvidenceBlock text={clean(finding.evidence)} /> },
+    { title: 'Por que isso importa?', body: <p>{clean(finding.impact)}</p> },
+    {
+      title: 'Como corrigir?',
+      body: <p className="recommendation">{clean(finding.recommendation)}</p>,
+    },
+    {
+      title: 'Como verificar a correção?',
+      body: (
         <p>
           {clean(
             finding.verification ||
               'Repita a mesma verificação no escopo autorizado após a alteração e compare evidências e cobertura. Verificações não executadas ou incompletas são inconclusivas.',
           )}
         </p>
-        <h3>Referências</h3>
-        {finding.references.map((reference) => (
-          <p className="reference" key={reference}>
-            {clean(reference)}
-          </p>
+      ),
+    },
+  ];
+  return (
+    <div className="finding-inspector">
+      <ul className="fi-list" role="listbox" aria-label="Lista de achados">
+        {findings.map((item, i) => (
+          <li key={item.id}>
+            <button
+              ref={(el) => {
+                rows.current[i] = el;
+              }}
+              role="option"
+              aria-selected={i === index}
+              tabIndex={i === index ? 0 : -1}
+              className={`fi-row sev-${item.severity} ${i === index ? 'active' : ''}`}
+              onClick={() => setSel(i)}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown') {
+                  event.preventDefault();
+                  move(i + 1);
+                } else if (event.key === 'ArrowUp') {
+                  event.preventDefault();
+                  move(i - 1);
+                } else if (event.key === 'Home') {
+                  event.preventDefault();
+                  move(0);
+                } else if (event.key === 'End') {
+                  event.preventDefault();
+                  move(findings.length - 1);
+                }
+              }}
+            >
+              <span className="fi-dot" aria-hidden="true" />
+              <span className="fi-row-text">
+                <strong>{clean(item.title)}</strong>
+                <span className="fi-row-meta">
+                  <span>{severityLabel[item.severity]}</span>
+                  <code>{clean(safeLocation(item.location))}</code>
+                </span>
+              </span>
+            </button>
+          </li>
         ))}
+      </ul>
+      <article className="fi-detail" key={finding.id} aria-label="Detalhe do achado">
+        <header className="fi-head">
+          <div className="fi-head-top">
+            <SeverityBadge value={finding.severity} />
+            <span className="fi-counter">
+              {index + 1} de {findings.length}
+            </span>
+          </div>
+          <h2>{clean(finding.title)}</h2>
+          <code>
+            {finding.detectorId} · v{finding.detectorVersion}
+          </code>
+        </header>
+        <dl className="fi-facts">
+          <div>
+            <dt>Local</dt>
+            <dd>
+              <code className="fi-loc">{clean(safeLocation(finding.location))}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>Tipo</dt>
+            <dd>{kindLabel[findingKind(finding)]}</dd>
+          </div>
+          <div>
+            <dt>Confiança</dt>
+            <dd>{confidenceLabel(finding.confidence)}</dd>
+          </div>
+          {finding.category && (
+            <div>
+              <dt>Categoria</dt>
+              <dd>{clean(finding.category)}</dd>
+            </div>
+          )}
+        </dl>
+        <ol className="fi-steps">
+          {steps.map((step, i) => (
+            <li key={step.title}>
+              <span className="fi-step-n" aria-hidden="true">
+                {i + 1}
+              </span>
+              <div>
+                <h3>{step.title}</h3>
+                {step.body}
+              </div>
+            </li>
+          ))}
+        </ol>
+        {finding.references.length > 0 && (
+          <div className="fi-refs">
+            <h3>Referências</h3>
+            {finding.references.map((reference) => (
+              <p className="reference" key={reference}>
+                {clean(reference)}
+              </p>
+            ))}
+          </div>
+        )}
         <small>ID: {clean(finding.id)}</small>
         <AiFixStudio context={finding.location} issues={fixIssues([finding])} />
+      </article>
+    </div>
+  );
+}
+
+// Medidor do índice de postura. Sem índice utilizável, mostra estado inconclusivo.
+function ScoreDial({ score, grade }: { score: number | null; grade?: string }) {
+  const radius = 44;
+  const length = 2 * Math.PI * radius;
+  const tone = score === null ? 'none' : score >= 80 ? 'good' : score >= 50 ? 'fair' : 'poor';
+  const label =
+    score === null
+      ? 'Índice indisponível: execução parcial ou inconclusiva'
+      : `Índice de postura ${score} de 100`;
+  return (
+    <div className={`rv-dial tone-${tone}`} role="img" aria-label={label}>
+      <svg viewBox="0 0 104 104" aria-hidden="true">
+        <circle className="rv-dial-track" cx="52" cy="52" r={radius} />
+        {score !== null && (
+          <circle
+            className="rv-dial-value"
+            cx="52"
+            cy="52"
+            r={radius}
+            strokeDasharray={length}
+            style={{ '--rv-offset': length * (1 - score / 100) } as CSSProperties}
+          />
+        )}
+      </svg>
+      <div className="rv-dial-text" aria-hidden="true">
+        <strong>{score ?? '—'}</strong>
+        <span>{score === null ? 'inconclusivo' : grade ? `nota ${grade}` : 'de 100'}</span>
       </div>
     </div>
   );
 }
-// Resumo de severidades clicável (filtra ao clicar) acima do inspetor.
+
+// Distribuição por severidade: barra empilhada + legenda clicável (filtra o inspetor).
 function SeveritySummary({
   findings,
   active,
@@ -180,29 +318,41 @@ function SeveritySummary({
   active: string;
   onPick: (value: string) => void;
 }) {
-  if (!findings.length) return null;
-  const order: Severity[] = ['high', 'medium', 'low', 'info', 'unrated'];
-  const counts = order
+  if (!findings.length) return <p className="rv-clean">Nenhum achado registrado nesta execução.</p>;
+  const counts = severityOrder
     .map((value) => ({ value, n: findings.filter((f) => f.severity === value).length }))
     .filter((item) => item.n > 0);
   return (
-    <div className="sev-summary" role="group" aria-label="Resumo por severidade">
-      <button
-        className={`sev-chip ${active === 'all' ? 'active' : ''}`}
-        onClick={() => onPick('all')}
-      >
-        Todas <b>{findings.length}</b>
-      </button>
-      {counts.map(({ value, n }) => (
+    <div className="rv-severity">
+      <div className="rv-bar" aria-hidden="true">
+        {counts.map(({ value, n }) => (
+          <i
+            key={value}
+            className={`sev-${value}`}
+            style={{ flexGrow: n }}
+            data-dim={active !== 'all' && active !== value ? '' : undefined}
+          />
+        ))}
+      </div>
+      <div className="sev-summary" role="group" aria-label="Resumo por severidade">
         <button
-          key={value}
-          className={`sev-chip sev-${value} ${active === value ? 'active' : ''}`}
-          aria-pressed={active === value}
-          onClick={() => onPick(value)}
+          className={`sev-chip ${active === 'all' ? 'active' : ''}`}
+          aria-pressed={active === 'all'}
+          onClick={() => onPick('all')}
         >
-          {severityLabel[value]} <b>{n}</b>
+          Todas <b>{findings.length}</b>
         </button>
-      ))}
+        {counts.map(({ value, n }) => (
+          <button
+            key={value}
+            className={`sev-chip sev-${value} ${active === value ? 'active' : ''}`}
+            aria-pressed={active === value}
+            onClick={() => onPick(active === value ? 'all' : value)}
+          >
+            {severityLabel[value]} <b>{n}</b>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -235,11 +385,26 @@ export function Results({
         .includes(search.toLocaleLowerCase('pt-BR')),
   );
   const coverage = scan ? scanCoverage(scan) : null;
+  const score = scan ? usableScore(scan) : null;
+  const elapsed = scan ? elapsedSeconds(scan) : null;
+  const filtered =
+    severity !== 'all' ||
+    category !== 'all' ||
+    confidence !== 'all' ||
+    kind !== 'all' ||
+    search.trim() !== '';
   const tabs = [
-    { key: 'findings', label: 'Resultados' },
-    { key: 'terminal', label: 'Terminal' },
-    { key: 'details', label: 'Detalhes e cobertura' },
+    { key: 'findings', label: 'Resultados', count: all.length },
+    { key: 'terminal', label: 'Terminal', count: scan?.logs.length ?? 0 },
+    { key: 'details', label: 'Detalhes e cobertura', count: scan?.checks.length ?? 0 },
   ] as const;
+  function resetFilters() {
+    setSeverity('all');
+    setCategory('all');
+    setConfidence('all');
+    setKind('all');
+    setSearch('');
+  }
   async function cancel() {
     if (scan)
       try {
@@ -248,8 +413,11 @@ export function Results({
         w.setError(String(error));
       }
   }
+  const requestRatio = scan?.config.maxRequests
+    ? Math.min(1, scan.requestCount / scan.config.maxRequests)
+    : 0;
   return (
-    <>
+    <div className="rv-page">
       <PageTitle
         tag="INTELIGÊNCIA / ACHADOS"
         title="Inspetor de evidências HTTP"
@@ -294,30 +462,43 @@ export function Results({
               </button>
             )}
           </div>
-          <div className="result-strip">
-            <div>
-              <small>ALVO / ESCOPO</small>
-              <code>{safeLocation(scan.config.url)}</code>
-              <span>Prefixo: {scan.config.pathPrefix}</span>
+          <section className="rv-overview" aria-label="Resumo da execução">
+            <ScoreDial score={score} grade={scan.risk?.grade} />
+            <div className="rv-overview-main">
+              <div className="rv-target">
+                <small>Alvo analisado</small>
+                <code title={safeLocation(scan.config.url)}>{safeLocation(scan.config.url)}</code>
+                <span>
+                  Escopo {scan.config.pathPrefix} · iniciada {date(scan.startedAt)}
+                  {elapsed !== null &&
+                    ` · ${elapsed < 10 ? elapsed.toFixed(1) : Math.round(elapsed)} s`}
+                </span>
+              </div>
+              <SeveritySummary findings={all} active={severity} onPick={setSeverity} />
             </div>
-            <div>
-              <small>REQUISIÇÕES</small>
-              <strong>
-                {scan.requestCount} / {scan.config.maxRequests}
-              </strong>
-            </div>
-            <div>
-              <small>ÍNDICE DE POSTURA</small>
-              <strong>{usableScore(scan) ?? '—'} / 100</strong>
-            </div>
-            <div>
-              <small>COBERTURA</small>
-              <span>
-                {coverage?.executed} executadas · {coverage?.notRun} não executadas ·{' '}
-                {coverage?.errors} erros
-              </span>
-            </div>
-          </div>
+            <dl className="rv-stats">
+              <div>
+                <dt>Requisições</dt>
+                <dd>
+                  <strong>{scan.requestCount}</strong>
+                  <span>/ {scan.config.maxRequests}</span>
+                </dd>
+                <div className="rv-meter" aria-hidden="true">
+                  <i style={{ transform: `scaleX(${requestRatio})` }} />
+                </div>
+              </div>
+              <div>
+                <dt>Verificações</dt>
+                <dd>
+                  <strong>{coverage?.executed ?? 0}</strong>
+                  <span>executadas</span>
+                </dd>
+                <p>
+                  {coverage?.notRun ?? 0} não executadas · {coverage?.errors ?? 0} erros
+                </p>
+              </div>
+            </dl>
+          </section>
           {(scan.error || coverage?.partial) && (
             <div className="notice warning">
               <Shield size={18} />
@@ -354,10 +535,18 @@ export function Results({
                 }}
               >
                 {item.label}
+                <span className="rv-tab-count" aria-hidden="true">
+                  {item.count}
+                </span>
               </button>
             ))}
           </div>
-          <section role="tabpanel" id={`scan-panel-${tab}`} aria-labelledby={`scan-tab-${tab}`}>
+          <section
+            role="tabpanel"
+            id={`scan-panel-${tab}`}
+            aria-labelledby={`scan-tab-${tab}`}
+            className="rv-panel"
+          >
             {tab === 'findings' && (
               <>
                 <div className="results-filters">
@@ -376,7 +565,7 @@ export function Results({
                     onChange={(event) => setSeverity(event.target.value)}
                   >
                     <option value="all">Todas as severidades</option>
-                    {(['high', 'medium', 'low', 'info', 'unrated'] as Severity[]).map((value) => (
+                    {severityOrder.map((value) => (
                       <option key={value} value={value}>
                         {severityLabel[value]}
                       </option>
@@ -416,11 +605,29 @@ export function Results({
                       </option>
                     ))}
                   </select>
-                  <span className="muted-text">{findings.length} resultados</span>
+                  <div className="rv-filter-status">
+                    <span className="muted-text" role="status">
+                      {findings.length} de {all.length} achados
+                    </span>
+                    {filtered && (
+                      <button className="rv-clear" onClick={resetFilters}>
+                        <X size={13} />
+                        Limpar filtros
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <SeveritySummary findings={all} active={severity} onPick={setSeverity} />
-                {!!all.length && <AiFixStudio context={scan.config.url} issues={fixIssues(all)} />}
                 <FindingInspector findings={findings} />
+                {!!all.length && (
+                  <details className="rv-bulk">
+                    <summary>
+                      <Sparkles size={15} />
+                      <span>Gerar um prompt de correção para todos os {all.length} achados</span>
+                      <ChevronDown size={16} />
+                    </summary>
+                    <AiFixStudio context={scan.config.url} issues={fixIssues(all)} />
+                  </details>
+                )}
               </>
             )}
             {tab === 'terminal' && (
@@ -431,7 +638,7 @@ export function Results({
                 </p>
                 <div className="terminal" role="log" aria-label="Logs da execução">
                   {scan.logs.map((entry, index) => (
-                    <p key={`${entry.at}-${index}`}>
+                    <p key={`${entry.at}-${index}`} className={`log-${entry.level}`}>
                       <time title={entry.at}>[{entry.at.slice(11, 19)} UTC]</time>{' '}
                       {entry.level.toUpperCase()} <code>{sanitizeTechnicalText(entry.event)}</code>{' '}
                       {sanitizeTechnicalText(entry.message)}
@@ -449,7 +656,7 @@ export function Results({
           </p>
         </>
       )}
-    </>
+    </div>
   );
 }
 function Coverage({ scan }: { scan: Scan }) {

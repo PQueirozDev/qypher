@@ -869,7 +869,7 @@ html[data-motion='off'] .t-shell *::after {
 
 /* Rótulo do modo (cadeado/órbita) ligado ao tipo de varredura */
 .ascii-mode {
-  font-family: var(--t-mono, 'JetBrains Mono', monospace);
+  font-family: var(--t-mono);
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -886,7 +886,7 @@ html[data-motion='off'] .t-shell *::after {
   border-radius: 6px;
   background: #0f0f19;
   color: var(--t-violet, #a78bfa);
-  font-family: var(--t-mono, 'JetBrains Mono', monospace);
+  font-family: var(--t-mono);
   font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: uppercase;

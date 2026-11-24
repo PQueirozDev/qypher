@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Accessibility, Check, Code2, Database, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { PageTitle, Panel } from './ui';
 import { MotionControls } from './MotionControls';
-import { startInTerminal, setStartInTerminal } from '../startup';
+import { APP_VERSION, startInTerminal, setStartInTerminal } from '../startup';
 
 function StartupControl() {
   const [on, setOn] = useState(() => startInTerminal());
@@ -141,7 +141,10 @@ export function About() {
         title="Qypher / sobre esta versão"
         description="De vibe coders, para vibe coders."
       />
-      <Panel title="Qypher 0.1.0" meta={<span className="badge status-completed">MVP</span>}>
+      <Panel
+        title={`Qypher ${APP_VERSION}`}
+        meta={<span className="badge status-completed">MVP</span>}
+      >
         <div className="feature-explainer">
           <div className="brand about-brand">
             <ShieldCheck />

@@ -10,6 +10,22 @@ export function readMotionPreference(): MotionPreference {
 export function applyMotionPreference(value: MotionPreference) {
   if (typeof document !== 'undefined') document.documentElement.dataset.motion = value;
 }
+const BOOT_KEY = 'qypher.bootSplash';
+export function bootSplashEnabled(): boolean {
+  try {
+    if (localStorage.getItem(BOOT_KEY) === 'off') return false;
+  } catch {
+    /* Sem armazenamento: usa o padrão. */
+  }
+  return readMotionPreference() !== 'off';
+}
+export function saveBootSplash(enabled: boolean) {
+  try {
+    localStorage.setItem(BOOT_KEY, enabled ? 'on' : 'off');
+  } catch {
+    /* Preferência válida só nesta sessão quando o armazenamento está indisponível. */
+  }
+}
 export function saveMotionPreference(value: MotionPreference) {
   applyMotionPreference(value);
   try {

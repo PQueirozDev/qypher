@@ -69,7 +69,7 @@ async fn query(scan: &mut SourceScan, cancel: &CancellationToken) -> Result<bool
         .resolve_to_addrs("api.osv.dev", &addresses)
         .connect_timeout(Duration::from_secs(5))
         .timeout(Duration::from_secs(12))
-        .user_agent("Qypher/0.1.0")
+        .user_agent(concat!("Qypher/", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|_| "OSV: cliente indisponível")?;
     let dependencies = safe;

@@ -1,0 +1,252 @@
+/* Animação de abertura: escudo desenhado, prompt, wordmark e status reais. */
+.boot-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: #07070b;
+  cursor: default;
+  overflow: hidden;
+}
+/* Fundo opaco desde o primeiro quadro; o conteúdo só anima depois das fontes. */
+.boot-splash:not(.playing) *,
+.boot-splash:not(.playing)::before {
+  animation-play-state: paused !important;
+}
+.boot-splash::before {
+  /* textura de grade discreta, sem gradiente */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#ffffff05 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff05 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0;
+  animation: boot-fade 800ms 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.boot-splash.leaving {
+  animation: boot-out 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+.boot-splash.leaving .boot-center {
+  animation: boot-lift 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.boot-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(360px, calc(100vw - 32px));
+}
+
+.boot-mark {
+  width: 64px;
+  height: 64px;
+  overflow: visible;
+}
+.boot-mark path {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.boot-shield {
+  stroke: #b49af5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: boot-draw 800ms 80ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.boot-prompt {
+  stroke: #f4f4f5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: boot-draw 400ms 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.boot-cursor {
+  stroke: #f4f4f5;
+  opacity: 0;
+  animation:
+    boot-fade 200ms 820ms forwards,
+    boot-blink 1s 1100ms steps(1) infinite;
+}
+
+.boot-word {
+  display: flex;
+  margin-top: 8px;
+  font: 600 36px/40px var(--t-mono);
+  letter-spacing: -0.04em;
+  color: #f4f4f5;
+}
+.boot-word span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: boot-rise 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.boot-tagline {
+  margin: 0;
+  font: 14px/20px var(--t-sans);
+  color: #8a8aa0;
+  opacity: 0;
+  animation: boot-fade 500ms 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.boot-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  font: 12px/16px var(--t-mono);
+}
+.boot-lines li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(4px);
+  animation: boot-rise 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.boot-lines span {
+  color: #8a8aa0;
+}
+.boot-lines i {
+  flex: 1;
+  height: 1px;
+  background: #20202e;
+}
+.boot-lines b {
+  font-weight: 500;
+}
+.boot-lines .tone-ok {
+  color: #4fd1a5;
+}
+.boot-lines .tone-wait {
+  color: #f5b14c;
+}
+.boot-lines .tone-muted {
+  color: #8a8aa0;
+}
+
+.boot-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  width: 160px;
+  height: 2px;
+  margin-left: -80px;
+  border-radius: 1px;
+  background: #1a1a25;
+  overflow: hidden;
+}
+.boot-progress i {
+  display: block;
+  height: 100%;
+  background: #a78bfa;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: boot-progress 1900ms 100ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Linha de varredura que atravessa a tela na saída. */
+.boot-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: #a78bfa;
+  box-shadow: 0 0 16px 2px #a78bfa66;
+  opacity: 0;
+}
+.boot-splash.leaving .boot-scan {
+  animation: boot-sweep 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Workspace entra enquanto o splash sai. */
+:root[data-boot='reveal'] .t-topbar,
+:root[data-boot='reveal'] .t-body,
+:root[data-boot='reveal'] .statusbar {
+  animation: boot-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+:root[data-boot='reveal'] .t-body {
+  animation-delay: 60ms;
+}
+@keyframes boot-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
+  }
+}
+@keyframes boot-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes boot-lift {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+@keyframes boot-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes boot-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes boot-fade {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes boot-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes boot-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes boot-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes boot-sweep {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .boot-splash *,
+  :root:not([data-motion='on']) .boot-splash::before {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  :root:not([data-motion='on']) .boot-splash.leaving {
+    animation-duration: 300ms;
+  }
+  :root:not([data-motion='on'])[data-boot='reveal'] :is(.t-topbar, .t-body, .statusbar) {
+    animation: boot-fade-in 300ms linear both;
+  }
+}

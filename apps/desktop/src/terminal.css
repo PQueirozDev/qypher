@@ -18,8 +18,8 @@
   --t-medium: #f5b14c;
   --t-low: #e9d169;
   --t-info: #6ea8ff;
-  --t-mono: 'JetBrains Mono', 'Cascadia Code', 'Cascadia Mono', Consolas, monospace;
-  --t-sans: 'Inter Variable', Inter, system-ui, sans-serif;
+  --t-mono: 'Geist Mono Variable', 'Cascadia Code', 'Cascadia Mono', Consolas, monospace;
+  --t-sans: 'Geist Variable', system-ui, sans-serif;
 }
 
 html,

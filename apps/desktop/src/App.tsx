@@ -17,6 +17,7 @@ import { LabMode } from './components/LabMode';
 import { CommandPalette, type PaletteAction } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
 import { UnlockTransition } from './components/UnlockTransition';
+import { BootSplash } from './components/BootSplash';
 import { Sidebar } from './components/Sidebar';
 import { parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
@@ -379,6 +380,7 @@ export default function App() {
           dynamic={paletteDynamic}
         />
       )}
+      <BootSplash native={native} ready={w.ready} />
     </div>
   );
 }

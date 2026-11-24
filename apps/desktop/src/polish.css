@@ -1,0 +1,34 @@
+/* Acabamento geral do workspace: superfície plana, foco visível, feedback de toque
+   e transições na curva base. Carregado por último para valer sobre os temas. */
+.t-shell {
+  background: var(--t-bg);
+}
+.t-shell :where(button, a, select, input, textarea, summary):focus-visible {
+  outline: 2px solid var(--t-violet);
+  outline-offset: 2px;
+}
+.t-shell :where(.button, .sev-chip, .sb-item, .t-command, .rv-copy):active:not(:disabled) {
+  transform: translateY(1px);
+}
+.t-shell :where(.button, .sb-item, .t-command, .text-button) {
+  transition:
+    background-color 300ms var(--q-ease),
+    border-color 300ms var(--q-ease),
+    color 300ms var(--q-ease),
+    transform 200ms var(--q-ease);
+}
+.t-shell .button.primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.t-shell :where(.page-title h1, h1, h2) {
+  text-wrap: balance;
+}
+.t-shell :where(p) {
+  text-wrap: pretty;
+}
+.t-shell :where(code, kbd, .t-mono) {
+  font-variant-ligatures: none;
+}
+.t-shell :where(strong, b, td, .badge) {
+  font-variant-numeric: tabular-nums;
+}

@@ -4,7 +4,8 @@ Qypher usa dependências open source com suas próprias licenças. Este inventá
 
 | Componente               | Uso                                              | Licença                                   |
 | ------------------------ | ------------------------------------------------ | ----------------------------------------- |
-| Inter (Fontsource)       | Fonte variável embarcada, sem requisição externa | SIL Open Font License 1.1                 |
+| Geist / Geist Mono (Fontsource) | Fontes variáveis do app desktop, embarcadas | SIL Open Font License 1.1          |
+| Inter (Fontsource)       | Fonte variável do site de apresentação           | SIL Open Font License 1.1                 |
 | React / React DOM        | Interface                                        | MIT                                       |
 | Lucide                   | Ícones da interface                              | ISC                                       |
 | Tauri e plugins oficiais | Runtime e integração desktop                     | MIT / Apache-2.0                          |
@@ -12,4 +13,4 @@ Qypher usa dependências open source com suas próprias licenças. Este inventá
 | SQLite / rusqlite        | Persistência local                               | domínio público / MIT                     |
 | lopdf                    | Escrita e leitura de PDF                         | MIT                                       |
 
-A fonte Inter mantém o copyright dos Inter Project Authors. Seu texto de licença está em `licenses/Inter-OFL.txt` e acompanha o pacote desktop em `licenses/`. Licenças React e Lucide também são incluídas. Antes de release, gere um inventário completo/SBOM e preserve os avisos exigidos por todas as dependências transitivas.
+As fontes Geist e Geist Mono mantêm o copyright dos Geist Project Authors; os textos de licença estão em `licenses/Geist-OFL.txt` e `licenses/GeistMono-OFL.txt`. A fonte Inter mantém o copyright dos Inter Project Authors. Seu texto de licença está em `licenses/Inter-OFL.txt` e acompanha o pacote desktop em `licenses/`. Licenças React e Lucide também são incluídas. Antes de release, gere um inventário completo/SBOM e preserve os avisos exigidos por todas as dependências transitivas.

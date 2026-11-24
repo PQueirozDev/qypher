@@ -6,7 +6,7 @@
   --muted: #9fa2aa;
   --accent: #9ab3ec;
   --accent-soft: #9fb2e1;
-  --mono: 'Cascadia Code', 'Cascadia Mono', Consolas, 'SFMono-Regular', Menlo, monospace;
+  --mono: 'Geist Mono Variable', 'Cascadia Mono', Consolas, 'SFMono-Regular', Menlo, monospace;
   color: #dadee6;
   background: var(--bg);
 }

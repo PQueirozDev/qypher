@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1
+
+- Abertura animada do aplicativo: escudo desenhado, wordmark e status reais (interface, motor local, telemetria). Exibida uma vez por abertura, pulável com clique ou Esc, desligável em Configuração e reduzida quando o sistema pede menos movimento. Aguarda o motor responder (com limite) e o workspace entra junto com a saída.
+- Tela de achados redesenhada: medidor do índice de postura, barra de severidades clicável, abas com contagem, filtros em uma linha com "Limpar filtros", lista fixa ao rolar, detalhe em passos numerados, cópia da evidência e prompt em lote recolhido. Corrige abas e filtros sem estilo (as regras estavam em um CSS não importado).
+- Tipografia: Geist e Geist Mono embarcadas no app desktop (antes Inter e fallback do sistema para monoespaçada).
+- Acabamento: fundo plano, foco visível consistente, feedback ao clicar e transições na mesma curva.
+- Versão exibida em "Sobre" e no User-Agent do OSV passa a vir da versão do pacote.
+- Proposta de extensão para navegadores em docs/BROWSER_EXTENSION.md.
+
 ## 0.1.0 — em desenvolvimento
 
 - Instalador: Linux (.deb, .rpm, AppImage) e macOS (.dmg universal) voltam a ser gerados no release; NSIS com página de licença, imagens próprias, pasta no menu Iniciar, metadados de publisher/copyright e compressão LZMA.
