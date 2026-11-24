@@ -161,6 +161,7 @@ pub struct IntegrationStatus {
     pub chrome_extension_id: &'static str,
 }
 
+#[cfg(windows)]
 fn manifest_dir() -> Result<PathBuf, String> {
     let base = dirs::data_local_dir().ok_or("Pasta de dados local indisponível.")?;
     Ok(base.join("Qypher").join("native-host"))
