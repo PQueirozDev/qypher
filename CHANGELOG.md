@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5
+
+- Abertura do app volta a tocar quando o sistema pede menos movimento (por exemplo, Windows com "Efeitos de animação" desligados): antes virava cerca de 2 s de tela preta. Agora toca uma versão calma, só com fades em sequência; no modo normal, a versão completa.
+- "Ativadas" em Configuração → Animações da interface passa a valer sobre a preferência do sistema no app inteiro, com aviso na tela quando o sistema está reduzindo o movimento.
+- Testes automáticos para o modo calmo e para a opção "Ativadas".
+
 ## 0.1.4
 
 - Resultado da análise (página "analisar") redesenhado: medidor do índice com contagem animada, distribuição por severidade com filtros, achados em acordeão com passos numerados (o que está errado, evidência com cópia, por que importa, como corrigir, como verificar), prompt de IA por achado e em lote, exportação e estado limpo. Corrige o corpo do achado, que usava a classe de layout `t-body` e quebrava em colunas.

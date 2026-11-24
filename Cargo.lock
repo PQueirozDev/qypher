@@ -3374,7 +3374,7 @@ dependencies = [
 
 [[package]]
 name = "qypher-desktop"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "dirs",
  "scanner-core",
@@ -3840,7 +3840,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-core"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "chrono",
  "serde",
@@ -3853,7 +3853,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-http"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "chrono",
  "reqwest 0.12.28",
@@ -3870,7 +3870,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-report"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "lopdf",
  "scanner-core",
@@ -3880,7 +3880,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-source"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "cap-std",
  "chrono",
@@ -3897,7 +3897,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-storage"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "chrono",
  "rusqlite",
