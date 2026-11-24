@@ -307,6 +307,16 @@
   outline: none;
 }
 
+.motion-hint {
+  display: block;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid #4a3d1f;
+  border-radius: 8px;
+  background: #f5b14c0d;
+  color: #f0dcb4 !important;
+}
+
 @keyframes m-page {
   from {
     opacity: 0;

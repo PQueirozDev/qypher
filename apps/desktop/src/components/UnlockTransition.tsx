@@ -1,3 +1,4 @@
+import { motionReduced } from '../appearance';
 import { useEffect, useRef } from 'react';
 import { asciiFrame } from '../ascii';
 
@@ -9,9 +10,7 @@ export function UnlockTransition() {
     const el = frame.current;
     if (!el) return;
     el.textContent = asciiFrame(0, 'orbit');
-    const reduce =
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      document.documentElement.dataset.motion === 'off';
+    const reduce = motionReduced();
     if (reduce) return;
     let t = 0;
     const id = setInterval(() => {

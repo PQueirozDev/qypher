@@ -17,6 +17,7 @@ import { copyText, safeLocation, sanitizeTechnicalText, type FixIssue } from '..
 import { confidenceLabel, findingKind, kindLabel } from '../assessment';
 import { severityLabel, type Finding, type Scan, type Severity } from '../types';
 import { AiFixStudio } from './AiFixStudio';
+import { motionReduced } from '../appearance';
 
 // Telas de execução e resultado da análise rápida (página "analisar").
 // Toda informação exibida vem do motor; animações são só apresentação.
@@ -24,12 +25,7 @@ import { AiFixStudio } from './AiFixStudio';
 export const severityOrder: Severity[] = ['high', 'medium', 'low', 'info', 'unrated'];
 
 function prefersStill() {
-  return (
-    typeof window !== 'undefined' &&
-    (document.documentElement.dataset.motion === 'off' ||
-      (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches &&
-        document.documentElement.dataset.motion !== 'on'))
-  );
+  return motionReduced();
 }
 
 /** Conta de 0 até `target` com desaceleração; instantâneo sem movimento. */

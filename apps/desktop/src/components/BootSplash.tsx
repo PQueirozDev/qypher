@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { bootSplashEnabled } from '../appearance';
+import { createPortal } from 'react-dom';
+import { bootSplashEnabled, motionReduced } from '../appearance';
 
-// Animação de abertura do app. Aparece uma vez por sessão da janela, pode ser
-// pulada com clique ou Esc e respeita as preferências de movimento.
-// As linhas de status refletem o estado real do workspace; nada é simulado.
+// Animação de abertura do app. Aparece uma vez por sessão da janela e pode ser
+// pulada com clique ou Esc. Com "reduzir movimento" no sistema (por exemplo, o modo
+// de melhor desempenho do Windows), toca uma versão calma só com fades.
+// Renderizada fora de .t-shell para não ser desligada pelas regras globais de
+// movimento do workspace. As linhas de status refletem o estado real; nada é simulado.
 const SESSION_KEY = 'qypher.bootShown';
 const WORD = 'qypher';
 
@@ -21,20 +24,13 @@ function shouldShow(): boolean {
 // Decidido uma única vez ao carregar o módulo (o StrictMode repete inicializadores).
 const SHOW_AT_LAUNCH = typeof window !== 'undefined' && shouldShow();
 
-function reducedMotion(): boolean {
-  return (
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
-    document.documentElement.dataset.motion !== 'on'
-  );
-}
-
 export function BootSplash({ native, ready }: { native: boolean; ready: boolean }) {
   const [visible, setVisible] = useState(SHOW_AT_LAUNCH);
   const [playing, setPlaying] = useState(false);
   const [minimumDone, setMinimumDone] = useState(false);
   const [capped, setCapped] = useState(false);
   const [skipped, setSkipped] = useState(false);
-  const reduced = visible && reducedMotion();
+  const [calm] = useState(motionReduced);
 
   // Só anima depois que as fontes carregam (evita troca de fonte no meio), com teto de 400 ms.
   useEffect(() => {
@@ -52,9 +48,9 @@ export function BootSplash({ native, ready }: { native: boolean; ready: boolean 
   // Tempo mínimo de exibição, contado a partir do início real da animação.
   useEffect(() => {
     if (!playing) return;
-    const timer = window.setTimeout(() => setMinimumDone(true), reduced ? 700 : 2000);
+    const timer = window.setTimeout(() => setMinimumDone(true), 2000);
     return () => window.clearTimeout(timer);
-  }, [playing, reduced]);
+  }, [playing]);
 
   // Sai quando o tempo mínimo passou e o motor respondeu; nunca segura mais de 1,6 s extra.
   useEffect(() => {
@@ -78,13 +74,13 @@ export function BootSplash({ native, ready }: { native: boolean; ready: boolean 
     if (!leaving) return;
     const root = document.documentElement;
     root.dataset.boot = 'reveal';
-    const done = window.setTimeout(() => setVisible(false), reduced ? 320 : 640);
-    const clear = window.setTimeout(() => delete root.dataset.boot, reduced ? 320 : 900);
+    const done = window.setTimeout(() => setVisible(false), 640);
+    const clear = window.setTimeout(() => delete root.dataset.boot, 900);
     return () => {
       window.clearTimeout(done);
       window.clearTimeout(clear);
     };
-  }, [leaving, reduced]);
+  }, [leaving]);
 
   if (!visible) return null;
   const engine = !native
@@ -97,9 +93,9 @@ export function BootSplash({ native, ready }: { native: boolean; ready: boolean 
     { name: 'motor local', value: engine.label, tone: engine.tone },
     { name: 'telemetria', value: 'desativada', tone: 'ok' },
   ];
-  return (
+  return createPortal(
     <div
-      className={`boot-splash${playing ? ' playing' : ''}${leaving ? ' leaving' : ''}`}
+      className={`boot-splash${calm ? ' calm' : ''}${playing ? ' playing' : ''}${leaving ? ' leaving' : ''}`}
       aria-hidden="true"
       onClick={() => setSkipped(true)}
     >
@@ -135,6 +131,7 @@ export function BootSplash({ native, ready }: { native: boolean; ready: boolean 
         <i />
       </div>
       <div className="boot-scan" />
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -1,3 +1,4 @@
+import { motionReduced } from '../appearance';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ChevronDown, ChevronUp, Terminal, Trash2 } from 'lucide-react';
 import { api, native } from '../api';
@@ -30,8 +31,7 @@ const BANNER = String.raw`
   ██████     ██    ██      ██   ██ ███████ ██   ██
     ▀▀`;
 
-const reduceMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduceMotion = () => motionReduced();
 
 export function TerminalMode({
   workspace: w,
@@ -78,7 +78,10 @@ export function TerminalMode({
     const seq: Line[] = isDock
       ? [
           { text: `qypher terminal · v${APP_VERSION} · sessão local`, cls: 't-accent' },
-          { text: "mesmo motor da tela cheia · digite 'ajuda' · 'lock' abre em tela cheia", cls: 't-muted' },
+          {
+            text: "mesmo motor da tela cheia · digite 'ajuda' · 'lock' abre em tela cheia",
+            cls: 't-muted',
+          },
           { text: '' },
         ]
       : [

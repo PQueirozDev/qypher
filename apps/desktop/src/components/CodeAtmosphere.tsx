@@ -1,3 +1,4 @@
+import { motionReduced } from '../appearance';
 import { useEffect, useRef, useState } from 'react';
 import { Pause, Play, Shuffle } from 'lucide-react';
 import { asciiFrame, type AsciiScene } from '../ascii';
@@ -41,13 +42,7 @@ export function CodeAtmosphere({ scene }: { scene: AsciiScene }) {
       clearInterval(timer);
       timer = undefined;
       render();
-      if (
-        !paused &&
-        visible &&
-        !document.hidden &&
-        !preference.matches &&
-        document.documentElement.dataset.motion !== 'off'
-      ) {
+      if (!paused && visible && !document.hidden && !motionReduced()) {
         timer = setInterval(() => {
           clock.current += 0.085;
           render();

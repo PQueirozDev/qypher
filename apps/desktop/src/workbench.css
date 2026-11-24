@@ -1846,9 +1846,10 @@ p {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  /* "Ativadas" em Configuração vence a preferência do sistema; o splash tem modo calmo próprio. */
+  :root:not([data-motion='on']) :not(.boot-splash, .boot-splash *),
+  :root:not([data-motion='on']) :not(.boot-splash, .boot-splash *)::before,
+  :root:not([data-motion='on']) :not(.boot-splash, .boot-splash *)::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
@@ -1884,9 +1885,10 @@ p {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  /* "Ativadas" em Configuração vence a preferência do sistema; o splash tem modo calmo próprio. */
+  :root:not([data-motion='on']) :not(.boot-splash, .boot-splash *),
+  :root:not([data-motion='on']) :not(.boot-splash, .boot-splash *)::before,
+  :root:not([data-motion='on']) :not(.boot-splash, .boot-splash *)::after {
     animation: none !important;
     transition: none !important;
   }

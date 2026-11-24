@@ -9,6 +9,11 @@ import {
 export function MotionControls() {
   const [motion, setMotion] = useState<MotionPreference>(readMotionPreference);
   const [boot, setBoot] = useState(bootSplashEnabled);
+  const [systemReduces] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  );
   return (
     <>
       <label className="motion-preference">
@@ -28,6 +33,13 @@ export function MotionControls() {
         <small>
           O código animado é decorativo. Eventos e resultados do motor nunca são simulados.
         </small>
+        {systemReduces && motion === 'system' && (
+          <small className="motion-hint" role="note">
+            Seu sistema está pedindo menos movimento (no Windows: Configurações › Acessibilidade ›
+            Efeitos visuais › Efeitos de animação). Por isso o app mostra só transições suaves e a
+            abertura em versão calma. Escolha “Ativadas” para ver todas as animações.
+          </small>
+        )}
       </label>
       <label className="motion-preference boot-preference">
         <span>

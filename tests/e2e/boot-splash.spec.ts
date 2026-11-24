@@ -36,4 +36,38 @@ test.describe('boot splash', () => {
     await page.reload();
     await expect(page.locator('.boot-splash')).toHaveCount(0);
   });
+
+  test.describe('when the system asks for reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('plays a calm fade-only splash instead of a blank screen', async ({ page }) => {
+      await page.goto('/');
+      const splash = page.locator('.boot-splash');
+      await expect(splash).toHaveClass(/calm/);
+      // Fora de .t-shell: as regras globais de movimento do workspace não o desligam.
+      await expect(page.locator('.t-shell .boot-splash')).toHaveCount(0);
+      const letter = splash.locator('.boot-word span').first();
+      await expect(letter).toHaveCSS('animation-name', 'boot-fade-in');
+      await expect(letter).toHaveCSS('opacity', '1', { timeout: 3000 });
+      await expect(splash.locator('.boot-lines li').last()).toHaveCSS('opacity', '1');
+      await expect(splash).toBeHidden({ timeout: 6000 });
+    });
+
+    test('“Ativadas” in settings overrides the system preference', async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem('qypher.motion', 'on'));
+      await page.goto('/');
+      const splash = page.locator('.boot-splash');
+      await expect(splash).not.toHaveClass(/calm/);
+      await expect(splash.locator('.boot-word span').first()).toHaveCSS(
+        'animation-name',
+        'boot-rise',
+      );
+      await expect(splash).toBeHidden({ timeout: 6000 });
+      await page
+        .getByRole('complementary', { name: 'Navegação do workspace', exact: true })
+        .getByRole('button', { name: 'Painel', exact: true })
+        .click();
+      await expect(page.locator('.t-inner')).toHaveCSS('animation-name', 'm-page');
+    });
+  });
 });

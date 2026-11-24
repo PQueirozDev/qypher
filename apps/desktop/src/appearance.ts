@@ -7,6 +7,16 @@ export function readMotionPreference(): MotionPreference {
     return 'system';
   }
 }
+/** Movimento reduzido? "Ativadas" vence o sistema; "Desativadas" sempre reduz. */
+export function motionReduced(): boolean {
+  const preference = readMotionPreference();
+  if (preference === 'on') return false;
+  if (preference === 'off') return true;
+  return (
+    typeof window !== 'undefined' &&
+    !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  );
+}
 export function applyMotionPreference(value: MotionPreference) {
   if (typeof document !== 'undefined') document.documentElement.dataset.motion = value;
 }

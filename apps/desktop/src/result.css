@@ -1013,7 +1013,7 @@
 
 /* Sem movimento: conteúdo dos acordeões aparece direto. */
 @media (prefers-reduced-motion: reduce) {
-  .rs-steps > li {
+  :root:not([data-motion='on']) .rs-steps > li {
     opacity: 1;
     transform: none;
   }

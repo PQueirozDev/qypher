@@ -705,11 +705,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rv-overview,
-  .rv-panel,
-  .rv-page .fi-detail,
-  .rv-bar i,
-  .rv-dial-value {
+  :root:not([data-motion='on']) :is(.rv-overview, .rv-panel, .rv-page .fi-detail, .rv-bar i, .rv-dial-value) {
     animation: rv-fade 200ms linear both;
   }
 }

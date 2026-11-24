@@ -790,13 +790,13 @@ html[data-motion='off'] .t-shell *::after {
   scroll-behavior: auto !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  .t-shell *,
-  .t-shell *::before,
-  .t-shell *::after {
+  :root:not([data-motion='on']) .t-shell *,
+  :root:not([data-motion='on']) .t-shell *::before,
+  :root:not([data-motion='on']) .t-shell *::after {
     animation: none !important;
     transition: none !important;
   }
-  .atmosphere-cursor {
+  :root:not([data-motion='on']) .atmosphere-cursor {
     opacity: 1;
   }
 }

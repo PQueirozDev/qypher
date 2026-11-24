@@ -946,13 +946,13 @@ body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .t-shell *,
-  .t-shell *::after,
-  .t-shell *::before {
+  :root:not([data-motion='on']) .t-shell *,
+  :root:not([data-motion='on']) .t-shell *::after,
+  :root:not([data-motion='on']) .t-shell *::before {
     animation: none !important;
     transition: none !important;
   }
-  .t-rain {
+  :root:not([data-motion='on']) .t-rain {
     display: none;
   }
 }
@@ -1284,13 +1284,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tui::after,
-  .tui-scan,
-  .tui-cursor,
-  .tui-hud .hud-dot.on {
+  :root:not([data-motion='on']) :is(.tui::after, .tui-scan, .tui-cursor, .tui-hud .hud-dot.on) {
     animation: none;
   }
-  .tui-scan {
+  :root:not([data-motion='on']) .tui-scan {
     display: none;
   }
 }
