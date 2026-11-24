@@ -8,6 +8,10 @@ export default ts.config(
   { files: ['**/*.{js,mjs}'], languageOptions: { globals: globals.node } },
   { files: ['apps/showcase/*.js'], languageOptions: { globals: globals.browser } },
   {
+    files: ['extensions/browser/src/*.js'],
+    languageOptions: { globals: { ...globals.browser, ...globals.webextensions } },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     plugins: { 'react-hooks': hooks },

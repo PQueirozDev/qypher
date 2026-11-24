@@ -46,7 +46,7 @@ Nenhuma configuração global ou do aplicativo foi alterada.
   mantém o cursor nativo e só funciona com mouse de precisão.
 - Menu e tooltips funcionam por teclado. Escape fecha o menu e dispensa tooltips.
 - O conteúdo permanece presente sem JavaScript. A primeira prévia apresenta o
-  terminal demonstrativo e uma aba separada mostra `interface.png`, a captura real
+  terminal demonstrativo e uma aba separada mostra `public/interface.png`, a captura real
   já disponível do renderer em desenvolvimento, sem motor nativo conectado.
 - O radar sincroniza pulsos e painéis com a varredura. Mouse, toque e teclado
   permitem fixar um achado. Escape e os controles retornam ao modo automático.
@@ -90,3 +90,5 @@ Há uma captura real de desenvolvimento disponível. A galeria não inventa tela
 separadas de achados, relatórios ou histórico. Estes testes não validam o runtime
 nativo. O README principal reúne capturas do website e uma pixel art complementar;
 essa arte não substitui a logo oficial.
+
+Imagens e arquivos estáticos referenciados por caminho absoluto (`/logo.png`, `/interface.png`) ficam em `site/public/`; o Vite só copia essa pasta para `dist/`.

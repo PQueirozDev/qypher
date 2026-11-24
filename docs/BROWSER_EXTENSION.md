@@ -1,6 +1,14 @@
-# Extensão de navegador (proposta)
+# Extensão de navegador
 
-Status: rascunho de design, nada implementado. Este documento existe para decidir a arquitetura antes de qualquer código, como pede o [THREAT_MODEL.md](THREAT_MODEL.md) para qualquer integração com navegador.
+Status: **MVP implementado (fases 1 e 2) na versão 0.1.2.** Código em [`extensions/browser/`](../extensions/browser/README.md), host em `apps/desktop/src-tauri/src/native_host.rs` e análise passiva em `crates/scanner-http/src/passive.rs`. Este documento registra a arquitetura e o modelo de ameaças, como pede o [THREAT_MODEL.md](THREAT_MODEL.md) para integrações com navegador.
+
+## Decisões do MVP
+
+- **Exige o app instalado.** O próprio executável do Qypher atua como host de Native Messaging quando o navegador o inicia (sem binário extra no instalador).
+- **Registro explícito:** nada é registrado no navegador até o usuário clicar em "Ativar integração" em Configuração; "Desativar" remove tudo (somente usuário atual, sem administrador).
+- **Distribuição inicial fora das lojas:** "carregar sem compactação" no Chromium (ID fixo pela chave do manifesto) e extensão temporária no Firefox.
+- **Pontuação separada:** a análise passiva não gera índice de postura; mostra só contagem por severidade.
+- **Popup** em vez de painel lateral: funciona igual no Chromium e no Firefox.
 
 ## Objetivo
 
@@ -51,20 +59,19 @@ Por que esta opção:
 
 ## Trabalho necessário no motor
 
-1. Expor uma entrada passiva sobre o que já existe: `detectors::analyze(&HttpObservation)` e `page::analyze(body, url)` já são funções puras, sem rede (a rede fica em `scanner-http/src/lib.rs`). Falta montar um `HttpObservation` a partir dos dados do navegador (sem TLS probe, que exige conexão própria) e marcar como não executados os detectores que dependem de requisições.
-2. Novo binário `qypher-native-host` no workspace: lê mensagens JSON com prefixo de tamanho (protocolo Native Messaging), valida esquema e tamanho máximo, chama a função acima, devolve achados sanitizados.
-3. Instalador registra o manifesto do host (chave de registro no Windows, arquivo JSON no macOS/Linux) com `allowed_origins` limitado ao ID da extensão publicada.
-4. Novo tipo de execução no banco: `source = "browser_passive"`, exibido com rótulo próprio na tela Achados.
+1. ✅ Expor uma entrada passiva sobre o que já existe: `detectors::analyze(&HttpObservation)` e `page::analyze(body, url)` já são funções puras, sem rede (a rede fica em `scanner-http/src/lib.rs`). Falta montar um `HttpObservation` a partir dos dados do navegador (sem TLS probe, que exige conexão própria) e marcar como não executados os detectores que dependem de requisições.
+2. ✅ Host de Native Messaging: o executável do app detecta o lançamento pelo navegador, lê mensagens JSON com prefixo de tamanho, valida esquema e tamanho máximo, chama a função acima e devolve achados sanitizados (até 1 MB).
+3. ✅ O app registra o manifesto do host sob demanda (registro HKCU no Windows, arquivo JSON no macOS/Linux) com `allowed_origins` limitado ao ID da extensão.
+4. Pendente: novo tipo de execução no banco: `source = "browser_passive"`, exibido com rótulo próprio na tela Achados.
 
 ## A extensão (MV3)
 
 Permissões mínimas:
 
-- `activeTab` e `scripting`: acesso só à aba em que o usuário clicou, sem `<all_urls>` fixo.
-- `webRequest` (observação, não bloqueio): cabeçalhos da navegação principal da aba ativa.
-- `cookies`: somente atributos (`secure`, `httpOnly`, `sameSite`), nunca o valor.
-- `nativeMessaging`, `sidePanel`, `storage`.
-- Sem `host_permissions` amplas; permissões opcionais pedidas sob demanda.
+- `activeTab` e `scripting`: lê o HTML só da aba em que o usuário clicou.
+- `webRequest` (observação, não bloqueio) + permissão de host **opcional**, pedida no clique: guarda os cabeçalhos da navegação principal por aba, com valores de cookies já substituídos por `[redigido]` e só uma lista fixa de cabeçalhos de segurança.
+- `nativeMessaging`, `storage` (sessão, apagada ao fechar a aba).
+- Sem `host_permissions` fixas.
 
 Interface:
 
@@ -96,8 +103,9 @@ Interface:
 3. **Firefox e modo sem app:** port para Firefox; avaliar WASM para análise passiva quando o app não estiver instalado.
 4. **Refinos:** reanálise automática opcional ao recarregar a aba (desligada por padrão), comparação com a última execução do mesmo site.
 
-## Decisões em aberto
+## Pendências
 
-- O MVP deve funcionar sem o app instalado (puxa o WASM para a fase 2) ou pode exigir o app?
-- Publicar nas lojas ou distribuir só junto com o instalador no início?
-- A análise passiva entra no índice de postura ou fica com pontuação separada?
+- Publicar na Chrome Web Store e no AMO (exige política de privacidade e o ID atribuído pela loja no `allowed_origins`).
+- Histórico unificado: gravar a análise passiva no banco local e exibi-la na tela Achados.
+- Remover os registros do host também na desinstalação (hoje: botão "Desativar" no app).
+- Fases 3 e 4 abaixo.

@@ -11,7 +11,30 @@ use std::{
 use tauri::{Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
 mod lab_commands;
+pub mod native_host;
 mod source_commands;
+
+/// URL vinda da extensão (`--scan-url`), consumida uma vez pela interface.
+static PENDING_SCAN_URL: Mutex<Option<String>> = Mutex::new(None);
+
+#[tauri::command]
+fn take_scan_url() -> Option<String> {
+    PENDING_SCAN_URL.lock().ok().and_then(|mut v| v.take())
+}
+
+#[tauri::command]
+fn browser_integration_status() -> native_host::IntegrationStatus {
+    native_host::status()
+}
+
+#[tauri::command]
+fn set_browser_integration(enabled: bool) -> Result<native_host::IntegrationStatus, String> {
+    if enabled {
+        native_host::enable()
+    } else {
+        native_host::disable()
+    }
+}
 
 // Static milestones help diagnose desktop startup without recording target data or paths.
 #[cfg(debug_assertions)]
@@ -259,8 +282,19 @@ async fn export_scan(
 
 pub fn run() {
     startup("runtime_build");
+    if let Some(url) = native_host::scan_url_from_args(&std::env::args().collect::<Vec<_>>()) {
+        if let Ok(mut pending) = PENDING_SCAN_URL.lock() {
+            *pending = Some(url);
+        }
+    }
     let app = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+        .plugin(tauri_plugin_single_instance::init(|app, args, _| {
+            if let Some(url) = native_host::scan_url_from_args(&args) {
+                if let Ok(mut pending) = PENDING_SCAN_URL.lock() {
+                    *pending = Some(url.clone());
+                }
+                let _ = app.emit("scan-url", url);
+            }
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
@@ -321,6 +355,9 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            take_scan_url,
+            browser_integration_status,
+            set_browser_integration,
             snapshot,
             create_project,
             start_scan,

@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Qypher: análise da aba",
+  "short_name": "Qypher",
+  "version": "0.1.0",
+  "description": "Análise passiva e local da página aberta com o motor do Qypher instalado no seu computador. Nada sai da máquina.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwmnNmK0ow966aTkm3uRFt5EEYJjEQthoHdh05RVgJgE4oNBMMDGc+cGKPttZ8xM4mQ1Q3LtWvb1hid4j1Zx8EexF1xCe6OaFcD09OSrHg5R7fhykAqdVFbgxxXiNyfYGtC67boM10Gj2gaEYdG8G7sCw6K2axg1ao6QkUNo6xE+Z+M/c3us5Ufc+SDGZJYyiSXf+OzUPgwupBypy7wrDTO3XwzfY7fVntej34pODAj+ChFusSCyJUMkqKvmvvbyNGVYtZfvc6SpBE62gouZWxbd1nxx/YSe/4rnuCasJ0iE5o9sWR1/J+lvl7C1C37S5b4t0t/DPe/tkhW7TdDRaiQIDAQAB",
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_title": "Analisar esta aba com o Qypher",
+    "default_popup": "popup.html",
+    "default_icon": { "32": "icons/32.png", "128": "icons/128.png" }
+  },
+  "icons": { "32": "icons/32.png", "128": "icons/128.png" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["activeTab", "scripting", "nativeMessaging", "storage", "webRequest"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+  }
+}

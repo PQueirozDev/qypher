@@ -1,6 +1,6 @@
 {
   "name": "qypher",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
@@ -21,10 +21,11 @@
     "doctor": "node scripts/doctor.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "test:e2e": "playwright test",
-    "lint": "eslint apps/desktop/src apps/showcase/main.js apps/showcase/vite.config.ts tests scripts --max-warnings 0",
+    "lint": "eslint apps/desktop/src apps/showcase/main.js apps/showcase/vite.config.ts tests scripts extensions/browser/src --max-warnings 0",
     "format": "prettier --write apps/desktop/src docs *.md",
     "check:rust": "cargo test && cargo clippy --all-targets -- -D warnings",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "extension:build": "node scripts/build-extension.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

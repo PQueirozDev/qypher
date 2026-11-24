@@ -10,6 +10,11 @@ import type {
   SourceReportFormat,
 } from './sourceTypes';
 export { native } from './bridge';
+export interface BrowserIntegrationStatus {
+  enabled: boolean;
+  browsers: string[];
+  chromeExtensionId: string;
+}
 export function call<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   if (!native)
     return Promise.reject(
@@ -18,6 +23,10 @@ export function call<T>(command: string, args?: Record<string, unknown>): Promis
   return invoke<T>(command, args);
 }
 export const api = {
+  takeScanUrl: () => call<string | null>('take_scan_url'),
+  browserIntegrationStatus: () => call<BrowserIntegrationStatus>('browser_integration_status'),
+  setBrowserIntegration: (enabled: boolean) =>
+    call<BrowserIntegrationStatus>('set_browser_integration', { enabled }),
   labHistory: () => call<LabRun[]>('lab_history'),
   startLab: (request: LabRequest) => call<string>('start_lab', { request }),
   deleteLab: (id: string) => call<void>('delete_lab', { id }),

@@ -3374,8 +3374,9 @@ dependencies = [
 
 [[package]]
 name = "qypher-desktop"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
+ "dirs",
  "scanner-core",
  "scanner-http",
  "scanner-report",
@@ -3391,6 +3392,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "uuid",
+ "windows-registry",
 ]
 
 [[package]]
@@ -3838,7 +3840,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono",
  "serde",
@@ -3851,7 +3853,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-http"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono",
  "reqwest 0.12.28",
@@ -3868,7 +3870,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-report"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "lopdf",
  "scanner-core",
@@ -3878,7 +3880,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-source"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "cap-std",
  "chrono",
@@ -3895,7 +3897,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-storage"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono",
  "rusqlite",

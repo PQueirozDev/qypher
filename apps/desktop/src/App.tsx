@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { Maximize2, Minus, ShieldAlert, X } from 'lucide-react';
 import { api, native } from './api';
+import { listen } from './bridge';
 import { useWorkspace } from './useWorkspace';
 import { Home } from './components/Home';
 import { Projects } from './components/Projects';
@@ -111,6 +112,34 @@ export default function App() {
   }, [page]);
   useEffect(() => {
     applyMotionPreference(readMotionPreference());
+  }, []);
+  // URL enviada pela extensão do navegador: só pré-preenche a nova análise;
+  // a autorização continua sendo pedida na tela.
+  useEffect(() => {
+    if (!native) return;
+    let stop: (() => void) | undefined;
+    let active = true;
+    const prefill = (url: string | null) => {
+      // A URL já foi consumida no motor: aplica mesmo após o cleanup (StrictMode).
+      if (!url) return;
+      setScanDraft((old) => ({ url, mode: 'quick', revision: old.revision + 1 }));
+      setLocked(false);
+      setPage('home');
+    };
+    api.takeScanUrl().then(prefill, () => undefined);
+    listen<string>('scan-url', () => {
+      api.takeScanUrl().then(prefill, () => undefined);
+    }).then(
+      (unlisten) => {
+        if (active) stop = unlisten;
+        else unlisten();
+      },
+      () => undefined,
+    );
+    return () => {
+      active = false;
+      stop?.();
+    };
   }, []);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
@@ -329,25 +358,25 @@ export default function App() {
           />
         )}
         <main ref={main} id="main" className="t-main" tabIndex={-1}>
-        {w.error && (
-          <div className="t-wrap">
-            <div className="t-error" role="alert">
-              <ShieldAlert size={16} />
-              <p>{w.error}</p>
-              <button aria-label="Dispensar erro" onClick={() => setError('')}>
-                <X size={14} />
-              </button>
+          {w.error && (
+            <div className="t-wrap">
+              <div className="t-error" role="alert">
+                <ShieldAlert size={16} />
+                <p>{w.error}</p>
+                <button aria-label="Dispensar erro" onClick={() => setError('')}>
+                  <X size={14} />
+                </button>
+              </div>
             </div>
+          )}
+          <div
+            className={`${isTerminal ? 'tui-host' : isHome ? '' : 'q-page t-inner'}${
+              revealing && !isTerminal ? ' q-unlock-reveal' : ''
+            }${locking && !isTerminal ? ' q-lock-collapse' : ''}`}
+            key={page}
+          >
+            {content}
           </div>
-        )}
-        <div
-          className={`${isTerminal ? 'tui-host' : isHome ? '' : 'q-page t-inner'}${
-            revealing && !isTerminal ? ' q-unlock-reveal' : ''
-          }${locking && !isTerminal ? ' q-lock-collapse' : ''}`}
-          key={page}
-        >
-          {content}
-        </div>
         </main>
       </div>
       {revealing && !isTerminal && <UnlockTransition />}

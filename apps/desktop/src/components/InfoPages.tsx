@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Accessibility, Check, Code2, Database, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { PageTitle, Panel } from './ui';
 import { MotionControls } from './MotionControls';
+import { BrowserIntegration } from './BrowserIntegration';
 import { APP_VERSION, startInTerminal, setStartInTerminal } from '../startup';
 
 function StartupControl() {
@@ -112,6 +113,9 @@ export function Settings() {
       </div>
       <Panel title="Inicialização">
         <StartupControl />
+      </Panel>
+      <Panel title="Extensão do navegador">
+        <BrowserIntegration />
       </Panel>
       <Panel title="Aparência e movimento">
         <div className="padded">

@@ -38,3 +38,5 @@ Sem autenticação web, exploração destrutiva, brute force, persistência, eva
 ## Checklist para mudanças de rede
 
 Não adicionar novos protocolos ou métodos sem rever a autorização e os testes. Não desabilitar validação TLS. Todo salto passa pela allowlist. Endereços especiais e IPv4 mapeado devem ter regressões. Não obedecer variáveis de proxy do ambiente no transporte protegido. A autorização de rede privada nunca deve liberar link-local ou metadados.
+
+Extensão de navegador (0.1.2): análise passiva via Native Messaging, sem rede nova, sem renderizar o alvo no app e com host restrito ao ID da extensão. Ameaças e mitigações em [BROWSER_EXTENSION.md](BROWSER_EXTENSION.md).

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Extensão para navegadores (Chrome, Edge, Brave e Firefox): analisa a aba aberta de forma passiva com o motor local, sem requisições novas, mostra achados por severidade e abre a análise completa no app com a URL preenchida (a autorização continua no app). Código em `extensions/browser/`.
+- App: o executável atua como host de Native Messaging; integração ativada e desativada em Configuração, somente para o usuário atual.
+- Motor: `scanner-http::passive` analisa cabeçalhos e HTML já recebidos pelo navegador, com limites de entrada e TLS/descoberta marcados como não executados.
+- Site: imagens (logo, favicon e captura) voltam a ser publicadas; estavam fora de `site/public/` e o build não as copiava.
+
 ## 0.1.1
 
 - Abertura animada do aplicativo: escudo desenhado, wordmark e status reais (interface, motor local, telemetria). Exibida uma vez por abertura, pulável com clique ou Esc, desligável em Configuração e reduzida quando o sistema pede menos movimento. Aguarda o motor responder (com limite) e o workspace entra junto com a saída.

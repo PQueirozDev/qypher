@@ -3,6 +3,7 @@ pub mod detectors;
 pub mod discovery;
 pub mod lab;
 pub mod page;
+pub mod passive;
 pub mod probes;
 pub mod software;
 pub mod tls;
@@ -43,6 +44,21 @@ pub(crate) const USER_AGENT: &str = concat!(
 );
 
 fn header_facts(headers: &HeaderMap) -> (BTreeMap<String, String>, Vec<CookieFact>) {
+    facts_from(
+        |name| headers.get(name).and_then(|h| h.to_str().ok()),
+        headers
+            .get_all("set-cookie")
+            .iter()
+            .filter_map(|v| v.to_str().ok()),
+    )
+}
+
+/// Resumo de cabeçalhos e cookies a partir de qualquer fonte (resposta própria ou
+/// cabeçalhos já recebidos pelo navegador). Valores sensíveis nunca são guardados.
+pub(crate) fn facts_from<'a>(
+    get: impl Fn(&str) -> Option<&'a str>,
+    set_cookies: impl Iterator<Item = &'a str>,
+) -> (BTreeMap<String, String>, Vec<CookieFact>) {
     let mut facts = BTreeMap::new();
     for name in [
         "strict-transport-security",
@@ -62,11 +78,7 @@ fn header_facts(headers: &HeaderMap) -> (BTreeMap<String, String>, Vec<CookieFac
     ] {
         // Vários cabeçalhos CSP são combinados pelo navegador; analisamos o primeiro,
         // que é o comportamento conservador para relatar fraquezas.
-        if let Some(value) = headers
-            .get(name)
-            .and_then(|h| h.to_str().ok())
-            .filter(|v| !v.trim().is_empty())
-        {
+        if let Some(value) = get(name).filter(|v| !v.trim().is_empty()) {
             let summary: String = match name {
                 "strict-transport-security" => analysis::hsts_summary(value),
                 "content-security-policy" | "content-security-policy-report-only" => {
@@ -102,11 +114,8 @@ fn header_facts(headers: &HeaderMap) -> (BTreeMap<String, String>, Vec<CookieFac
             facts.insert(name.to_string(), summary);
         }
     }
-    let cookies = headers
-        .get_all("set-cookie")
-        .iter()
+    let cookies = set_cookies
         .take(64)
-        .filter_map(|v| v.to_str().ok())
         .map(|v| {
             let mut parts = v.split(';');
             let name = clean(

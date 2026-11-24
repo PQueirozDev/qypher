@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Qypher</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="top">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path
+          d="M16 3 27 7v8c0 7-6 11-11 14C11 26 5 22 5 15V7L16 3Z"
+          stroke="#b49af5"
+          stroke-width="1.5"
+        />
+        <path
+          d="m12 12 5 4-5 4m7 0h4"
+          stroke="#f4f4f5"
+          stroke-width="1.5"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <strong>qypher</strong>
+      <span class="mode">análise passiva</span>
+    </header>
+
+    <main id="view" aria-live="polite">
+      <section class="state" id="loading">
+        <div class="scanline" aria-hidden="true"><i></i></div>
+        <p>Analisando a aba localmente…</p>
+      </section>
+
+      <section class="state" id="message" hidden>
+        <h1 id="message-title"></h1>
+        <p id="message-text"></p>
+        <button id="retry" class="button secondary" type="button">Tentar novamente</button>
+      </section>
+
+      <section id="result" hidden>
+        <div class="target">
+          <small>Página analisada</small>
+          <code id="target-url"></code>
+        </div>
+        <div class="summary">
+          <div class="total"><strong id="total">0</strong><span>achados</span></div>
+          <div class="bars">
+            <div class="bar" id="bar" aria-hidden="true"></div>
+            <div class="chips" id="chips" role="group" aria-label="Filtrar por severidade"></div>
+          </div>
+        </div>
+        <div class="notice" id="headers-notice" hidden>
+          <p>
+            Cabeçalhos não observados nesta carga. Permita a leitura de cabeçalhos e recarregue a
+            página para avaliar CSP, HSTS e cookies.
+          </p>
+          <button id="grant" class="button secondary" type="button">
+            Permitir leitura de cabeçalhos
+          </button>
+        </div>
+        <ul class="findings" id="findings" aria-label="Achados"></ul>
+        <p class="empty" id="empty" hidden>
+          Nenhum achado passivo. Isso não comprova segurança: TLS, arquivos expostos e testes ativos
+          só rodam na análise completa.
+        </p>
+      </section>
+    </main>
+
+    <footer class="bottom">
+      <button id="open" class="button primary" type="button" disabled>
+        Abrir análise completa no Qypher
+      </button>
+      <p>Nada sai do seu computador. A análise completa pede sua autorização no app.</p>
+    </footer>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
