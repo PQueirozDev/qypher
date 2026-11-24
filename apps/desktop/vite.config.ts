@@ -7,6 +7,9 @@ const version = JSON.parse(readFileSync(new URL('../../package.json', import.met
 
 export default defineConfig({
   root: 'apps/desktop',
+  // Cache próprio: a vitrine (apps/showcase) roda outro servidor Vite em paralelo
+  // nos testes, e um cache compartilhado faz um invalidar o outro (504).
+  cacheDir: '../../node_modules/.vite-desktop',
   plugins: [react()],
   clearScreen: false,
   define: { __APP_VERSION__: JSON.stringify(version) },
