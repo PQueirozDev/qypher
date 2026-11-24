@@ -10,7 +10,25 @@ export default defineConfig({
   plugins: [react()],
   clearScreen: false,
   define: { __APP_VERSION__: JSON.stringify(version) },
-  server: { host: '127.0.0.1', port: 1420, strictPort: true },
+  // Pré-empacota as dependências na inicialização: sem isso, um cache vazio (CI)
+  // pode descobrir dependências tarde e invalidar módulos já carregados (504
+  // "Outdated Optimize Dep"), quebrando a página no meio dos testes.
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-dom/client',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'lucide-react',
+    ],
+  },
+  server: {
+    host: '127.0.0.1',
+    port: 1420,
+    strictPort: true,
+    warmup: { clientFiles: ['./src/main.tsx'] },
+  },
   preview: { host: '127.0.0.1', port: 1420, strictPort: true },
   build: { outDir: 'dist', emptyOutDir: true, target: 'es2022' },
 });
