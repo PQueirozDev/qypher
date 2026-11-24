@@ -19,6 +19,7 @@ export function CommandPalette({
   dynamic?: (query: string) => PaletteAction[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const search = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
   const needle = query.trim().toLowerCase();
@@ -29,6 +30,8 @@ export function CommandPalette({
   const active = Math.min(selected, Math.max(0, items.length - 1));
   useEffect(() => {
     dialog.current?.showModal();
+    // showModal() foca o primeiro botão; a busca é o ponto de partida.
+    search.current?.focus();
   }, []);
   function run(action: PaletteAction) {
     action.run();
@@ -54,6 +57,7 @@ export function CommandPalette({
       <div className="palette-search">
         <Search size={16} />
         <input
+          ref={search}
           autoFocus
           aria-label="Pesquisar comando"
           value={query}

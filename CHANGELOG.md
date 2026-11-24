@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.4
+
+- Resultado da análise (página "analisar") redesenhado: medidor do índice com contagem animada, distribuição por severidade com filtros, achados em acordeão com passos numerados (o que está errado, evidência com cópia, por que importa, como corrigir, como verificar), prompt de IA por achado e em lote, exportação e estado limpo. Corrige o corpo do achado, que usava a classe de layout `t-body` e quebrava em colunas.
+- Análise em andamento: radar animado, progresso com brilho, contadores de requisições, tempo e eventos, e log que acompanha o fim sem roubar a leitura.
+- Painel: estilos restaurados e redesenhados (as regras estavam em `theme.css`, que não é carregado), métricas com contagem, barra de severidades e evolução animada.
+- Animações do app: transição entre páginas com entrada escalonada, pílula deslizante na barra lateral, entrada da tela inicial, foco do campo de URL, botão de análise com brilho, paleta de comandos redesenhada com fundo desfocado (a busca recebe o foco), avisos deslizando e hover nos cartões. Tudo desliga com "reduzir movimento" ou em Configuração.
+- Site: barra de progresso de leitura no menu, botão de voltar ao topo, inclinação 3D nos cartões de recursos, linha dos passos de "Como funciona" desenhada na rolagem, marcadores dos princípios em sequência e destaque do download para o seu sistema.
+
 ## 0.1.3
 
 - Desinstalador remove o registro do host da extensão em todos os navegadores (atualizações automáticas preservam a integração).

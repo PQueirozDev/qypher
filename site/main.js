@@ -1,4 +1,5 @@
 import { createExperience } from './experience/index.ts';
+import { createInteractions } from './experience/interactions.ts';
 import {
   LATEST_API,
   PLATFORM_LABEL,
@@ -50,6 +51,11 @@ const experience = createExperience({
   reduced: () => reduced.matches,
   animations,
 });
+
+const interactions = createInteractions(
+  { moving: running, reduced: () => reduced.matches, animations },
+  { signal, platform: detectPlatform(navigator.userAgent, navigator.userAgentData?.platform) },
+);
 
 function running() {
   return !paused && !reduced.matches && !document.hidden;
@@ -450,6 +456,7 @@ listen(window, 'pagehide', (event) => {
   if (event.persisted) return;
   controller.abort();
   experience.destroy();
+  interactions.destroy();
   reduced.removeEventListener('change', refreshMotion);
   fine.removeEventListener('change', refreshPointer);
   revealObserver.disconnect();

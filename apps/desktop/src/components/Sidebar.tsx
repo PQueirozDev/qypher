@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
@@ -53,6 +54,22 @@ export function Sidebar({
   onToggleTerminal: () => void;
   terminalOpen: boolean;
 }) {
+  const nav = useRef<HTMLElement>(null);
+  // Pílula do item ativo: posicionada por variáveis CSS e animada entre os itens.
+  useLayoutEffect(() => {
+    const root = nav.current;
+    if (!root) return;
+    const place = () => {
+      const active = root.querySelector<HTMLElement>('.sb-item.active');
+      root.style.setProperty('--sb-y', `${active?.offsetTop ?? 0}px`);
+      root.style.setProperty('--sb-h', `${active?.offsetHeight ?? 0}px`);
+      root.dataset.indicator = active ? 'on' : 'off';
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [page]);
   const renderItem = (nav: NavItem) => {
     const Icon = ICONS[nav.id] ?? Activity;
     const active = page === nav.id;
@@ -71,7 +88,8 @@ export function Sidebar({
   };
   return (
     <aside className="sidebar" aria-label="Navegação do workspace">
-      <nav className="sb-nav">
+      <nav className="sb-nav" ref={nav}>
+        <span className="sb-indicator" aria-hidden="true" />
         <div className="sb-group">{primary.map(renderItem)}</div>
         <div className="sb-sep" />
         <div className="sb-group">{more.map(renderItem)}</div>

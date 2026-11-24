@@ -1,28 +1,23 @@
-﻿import { useEffect, useRef, useState, type FormEvent } from 'react';
-import {
-  AlertTriangle,
-  ArrowRight,
-  Check,
-  ChevronRight,
-  Copy,
-  Eye,
-  EyeOff,
-  FileDown,
-  RotateCcw,
-  Sparkles,
-  Square,
-} from 'lucide-react';
-import { copyText, sanitizeTechnicalText, type FixIssue } from '../aiPrompt';
-import { confidenceLabel, findingKind, kindLabel, scanCoverage, usableScore } from '../assessment';
+﻿import { useState, type FormEvent } from 'react';
+import { ChevronRight, Sparkles } from 'lucide-react';
+import { type FixIssue } from '../aiPrompt';
+import { scanCoverage, usableScore } from '../assessment';
 import { api, native } from '../api';
 import { severityLabel, type Finding, type ScanConfig, type Severity } from '../types';
 import type { Workspace } from '../useWorkspace';
 import { AiFixStudio } from './AiFixStudio';
+import {
+  BulkFix,
+  CleanResult,
+  ExportBar,
+  FindingRow,
+  ResultSummary,
+  RunningScan,
+  SummaryAction,
+  severityOrder,
+} from './ScanResult';
 import { CodeAtmosphere } from './CodeAtmosphere';
 import { CodeView } from './CodeView';
-
-const severityOrder: Severity[] = ['high', 'medium', 'low', 'info', 'unrated'];
-const filterable: Severity[] = ['high', 'medium', 'low', 'info'];
 
 export function normalizeTarget(input: string): URL {
   const text = input.trim();
@@ -35,26 +30,6 @@ export function normalizeTarget(input: string): URL {
   url.search = '';
   url.hash = '';
   return url;
-}
-
-function gradeText(grade: string) {
-  return (
-    {
-      A: 'Índice sem alertas relevantes',
-      B: 'Índice com pontos a revisar',
-      C: 'Atenção',
-      D: 'Revisão prioritária',
-      F: 'Múltiplos alertas',
-    }[grade] ?? 'Sem nota'
-  );
-}
-function gradeFor(score: number | null): string {
-  if (score === null) return 'none';
-  if (score >= 90) return 'A';
-  if (score >= 75) return 'B';
-  if (score >= 60) return 'C';
-  if (score >= 40) return 'D';
-  return 'F';
 }
 
 function issues(findings: Finding[]): FixIssue[] {
@@ -72,104 +47,6 @@ function issues(findings: Finding[]): FixIssue[] {
     references: [...f.references, f.cwe ?? '', f.owasp ?? ''].filter(Boolean),
     verification: f.verification,
   }));
-}
-
-function GradeRing({ score, grade }: { score: number; grade: string }) {
-  const r = 33;
-  const c = 2 * Math.PI * r;
-  return (
-    <div className={`t-grade t-grade-${grade}`}>
-      <svg viewBox="0 0 78 78" width="78" height="78" aria-hidden="true">
-        <circle cx="39" cy="39" r={r} className="track" />
-        <circle
-          cx="39"
-          cy="39"
-          r={r}
-          className="val"
-          strokeDasharray={c}
-          strokeDashoffset={c - (c * score) / 100}
-        />
-      </svg>
-      <span>{grade === 'none' ? '–' : grade}</span>
-    </div>
-  );
-}
-
-function Leak({ sample }: { sample: string }) {
-  const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  async function copy() {
-    try {
-      await copyText(sample);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    } catch {
-      /* ignora */
-    }
-  }
-  return (
-    <div className="t-leak">
-      <div className="t-leak-head">
-        <AlertTriangle size={14} />
-        <strong>Conteúdo exposto publicamente</strong>
-        <button onClick={() => setOpen((v) => !v)}>
-          {open ? <EyeOff size={13} /> : <Eye size={13} />}
-          {open ? 'ocultar' : 'revelar'}
-        </button>
-        <button onClick={() => void copy()}>
-          {copied ? <Check size={13} /> : <Copy size={13} />}
-          {copied ? 'copiado' : 'copiar'}
-        </button>
-      </div>
-      {open ? (
-        <pre>{sample}</pre>
-      ) : (
-        <p className="t-leak-hidden">
-          Qualquer visitante vê este arquivo. A prévia mostra as chaves e um pedaço de cada valor (o
-          resto fica oculto) para você confirmar o vazamento e avisar o responsável. Troque
-          imediatamente qualquer senha, chave ou token que apareça aqui.
-        </p>
-      )}
-    </div>
-  );
-}
-
-function FindingCard({ finding, target }: { finding: Finding; target: string }) {
-  const clean = sanitizeTechnicalText;
-  return (
-    <details className="t-finding">
-      <summary>
-        <span className={`t-sev t-sev-${finding.severity}`}>{severityLabel[finding.severity]}</span>
-        <strong>{clean(finding.title)}</strong>
-        {finding.sample && <AlertTriangle size={14} className="t-leak-flag" />}
-        <ChevronRight size={16} className="chev" />
-      </summary>
-      <div className="t-body">
-        <h4>// o que está errado</h4>
-        <p>{clean(finding.description || finding.evidence)}</p>
-        <h4>// por que importa</h4>
-        <p>{clean(finding.impact)}</p>
-        <h4>// como corrigir</h4>
-        <p>{clean(finding.recommendation)}</p>
-        {finding.sample && <Leak sample={finding.sample} />}
-        <h4>// como verificar a correção</h4>
-        <p>
-          {clean(
-            finding.verification ||
-              'Repita a verificação no mesmo escopo e confirme a cobertura do detector em um ambiente autorizado.',
-          )}
-        </p>
-        <div className="t-tags">
-          <span>{kindLabel[findingKind(finding)]}</span>
-          <span>{confidenceLabel(finding.confidence)}</span>
-          {[finding.cwe, finding.owasp].filter(Boolean).map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </div>
-        <AiFixStudio context={target} issues={issues([finding])} />
-      </div>
-    </details>
-  );
 }
 
 export function Home({
@@ -193,13 +70,8 @@ export function Home({
   const [starting, setStarting] = useState(false);
   const [message, setMessage] = useState('');
   const [filter, setFilter] = useState<Severity | 'all'>('all');
-  const logRef = useRef<HTMLDivElement>(null);
   const scan = scanId ? w.scans.find((item) => item.id === scanId) : undefined;
   const running = scan?.status === 'running';
-
-  useEffect(() => {
-    logRef.current?.scrollTo(0, logRef.current.scrollHeight);
-  }, [scan?.logs.length, scan?.requestCount]);
 
   async function start(event: FormEvent) {
     event.preventDefault();
@@ -284,15 +156,12 @@ export function Home({
       )
     : [];
   const visible = filter === 'all' ? findings : findings.filter((f) => f.severity === filter);
-  const count = (s: Severity) => findings.filter((f) => f.severity === s).length;
   const coverage = scan ? scanCoverage(scan) : null;
   const score = scan ? usableScore(scan) : null;
   // Redirecionamento para outra origem: oferece reanalisar o endereço real.
   const redirectTarget = !running
     ? /redireciona para (https?:\/\/[^\s]+?)(?:[.,;]|\s|$)/.exec(scan?.error ?? '')?.[1]
     : undefined;
-  const progress = scan ? Math.min(scan.requestCount / Math.max(scan.config.maxRequests, 1), 1) : 0;
-  const step = scan?.logs.at(-1)?.message || 'Aguardando evento real do motor.';
   const blockedReason = !native
     ? 'Abra o desktop para conectar o motor real. As ferramentas locais funcionam nesta prévia.'
     : !w.ready
@@ -551,156 +420,65 @@ export function Home({
         </section>
       )}
 
-      {scan && running && (
-        <section className="t-window t-run-log">
-          <div className="t-window-bar">
-            <div className="t-dots">
-              <i />
-              <i />
-              <i />
-            </div>
-            qypher — analisando {sanitizeTechnicalText(scan.config.url)}
-          </div>
-          <div className="t-window-body" ref={logRef}>
-            <div className="t-line">
-              <span className="pfx">❯</span>
-              <span>
-                qypher scan {deep ? '--deep ' : ''}
-                {sanitizeTechnicalText(scan.config.url)}
-              </span>
-            </div>
-            {scan.logs.slice(-40).map((log, i) => (
-              <div className="t-line" key={i}>
-                <span className="pfx dim">{log.at.slice(11, 19)}</span>
-                <span
-                  className={log.level === 'warn' ? 't-warn' : log.level === 'error' ? 't-bad' : ''}
-                >
-                  {sanitizeTechnicalText(log.message)}
-                </span>
-              </div>
-            ))}
-            <div className="t-line">
-              <span className="pfx">❯</span>
-              <span className="t-muted">{step}</span>
-              <span className="t-caret" />
-            </div>
-          </div>
-          <div style={{ padding: '0 18px 16px' }}>
-            <div className="t-progress">
-              <i style={{ width: `${Math.max(progress * 100, 6)}%` }} />
-            </div>
-            <button
-              className="t-btn danger"
-              style={{ marginTop: 14 }}
-              onClick={() => void cancel()}
-            >
-              <Square size={12} /> interromper
-            </button>
-          </div>
-        </section>
-      )}
+      {scan && running && <RunningScan scan={scan} deep={deep} onCancel={() => void cancel()} />}
 
       {scan && !running && (
-        <>
-          <section className="t-summary">
-            <GradeRing score={score ?? 0} grade={gradeFor(score)} />
-            <div className="t-summary-text">
-              <strong>
-                {score !== null
-                  ? `${gradeText(gradeFor(score))} · ${score}/100`
-                  : 'Análise incompleta'}
-              </strong>
-              <span>{sanitizeTechnicalText(scan.error ?? scan.config.url)}</span>
-              <span>
-                {coverage?.executed} verificações · {coverage?.notRun} não executadas ·{' '}
-                {coverage?.errors} erros
-              </span>
-            </div>
-            {redirectTarget ? (
-              <button className="t-btn" onClick={() => analyzeRedirect(redirectTarget)}>
-                <ArrowRight size={13} /> analisar esse endereço
-              </button>
-            ) : (
-              <button className="t-btn" onClick={reset}>
-                <RotateCcw size={13} /> nova análise
-              </button>
-            )}
-          </section>
+        <div className="rs-result">
+          <ResultSummary
+            scan={scan}
+            score={score}
+            coverage={coverage}
+            findings={findings}
+            filter={filter}
+            onFilter={setFilter}
+            action={
+              <SummaryAction
+                redirectTarget={redirectTarget}
+                onRedirect={analyzeRedirect}
+                onReset={reset}
+              />
+            }
+          />
           {redirectTarget && (
-            <p className="t-foot">
+            <p className="rs-note">
               O site redireciona para outra origem. Por segurança, o Qypher não a segue
-              automaticamente. Clique acima para preencher o endereço e confirme a autorização.
+              automaticamente. Clique em “analisar esse endereço” para preencher o endereço e
+              confirme a autorização.
             </p>
           )}
-
-          {findings.length > 0 && (
+          {findings.length > 0 ? (
             <>
-              <div className="t-filters">
-                <button
-                  className={filter === 'all' ? 'active' : ''}
-                  onClick={() => setFilter('all')}
-                >
-                  tudo <b>{findings.length}</b>
-                </button>
-                {filterable.map((s) =>
-                  count(s) ? (
-                    <button
-                      key={s}
-                      className={`t-chip-${s} ${filter === s ? 'active' : ''}`}
-                      onClick={() => setFilter(filter === s ? 'all' : s)}
-                    >
-                      {severityLabel[s]} <b>{count(s)}</b>
-                    </button>
-                  ) : null,
-                )}
+              <div className="rs-list-head">
+                <h3>
+                  {visible.length} {visible.length === 1 ? 'achado' : 'achados'}
+                  {filter !== 'all' && ` · ${severityLabel[filter]}`}
+                </h3>
+                <span>Clique em um achado para ver evidência e correção.</span>
               </div>
-
-              <section className="t-ai">
-                <div>
-                  <Sparkles size={18} />
-                  <div className="txt">
-                    <strong>corrigir com IA</strong>
-                    <span>Gere um prompt com as fraquezas e cole no seu assistente.</span>
-                  </div>
-                </div>
-                <AiFixStudio context={scan.config.url} issues={issues(findings)} />
-              </section>
-
-              <section className="t-list">
-                {visible.map((finding) => (
-                  <FindingCard key={finding.id} finding={finding} target={scan.config.url} />
+              <section className="rs-list" key={filter}>
+                {visible.map((finding, index) => (
+                  <FindingRow
+                    key={finding.id}
+                    finding={finding}
+                    index={index}
+                    target={scan.config.url}
+                    issues={issues}
+                  />
                 ))}
               </section>
+              <BulkFix count={findings.length}>
+                <AiFixStudio context={scan.config.url} issues={issues(findings)} />
+              </BulkFix>
             </>
+          ) : (
+            <CleanResult />
           )}
-
-          {!findings.length && (
-            <section className="t-empty">
-              <Check size={20} />
-              <span>Nenhuma fraqueza encontrada nas verificações executadas.</span>
-            </section>
-          )}
-
-          <div className="t-actions">
-            <div className="t-actions-group">
-              <span>exportar (redigido):</span>
-              {['pdf', 'html', 'json'].map((format) => (
-                <button key={format} className="t-btn" onClick={() => void save(format)}>
-                  <FileDown size={13} /> {format.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-          {message && (
-            <p className="t-foot" role="status">
-              {message}
-            </p>
-          )}
-          <p className="t-foot">
+          <ExportBar onSave={(format) => void save(format)} message={message} />
+          <p className="rs-note">
             O índice resume apenas as verificações realizadas. Não é garantia de segurança nem
             substitui um teste de invasão manual.
           </p>
-        </>
+        </div>
       )}
     </div>
   );

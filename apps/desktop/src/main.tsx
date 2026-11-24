@@ -9,7 +9,10 @@ import './terminal.css';
 import './integration.css';
 import './hacker.css';
 import './review.css';
+import './result.css';
+import './dashboard.css';
 import './polish.css';
+import './motion.css';
 import './boot.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

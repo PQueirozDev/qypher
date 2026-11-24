@@ -1,0 +1,201 @@
+/* Interações de leitura (experience/interactions.ts). */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Progresso de rolagem no pé do cabeçalho */
+.scroll-progress {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--violet);
+  box-shadow: 0 0 12px #a78bfa80;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+/* Voltar ao topo */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  background: #0d0d14e6;
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.9);
+  pointer-events: none;
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 500ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    visibility 0s linear 500ms;
+}
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 500ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    visibility 0s;
+}
+.back-to-top:hover {
+  border-color: var(--violet);
+}
+.back-to-top:hover svg {
+  transform: translateY(-2px);
+}
+.back-to-top:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}
+.back-to-top svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 500ms var(--ease-out);
+}
+
+/* Cartões de recursos com inclinação 3D sutil */
+.card.tilting {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+    translateY(-4px);
+  transition:
+    transform 120ms linear,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+/* Passos de "Como funciona": linha que se desenha e números que acendem em sequência */
+.steps {
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--violet);
+  box-shadow: 0 0 10px #a78bfa99;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1400ms var(--ease-out);
+}
+.steps.is-in::before {
+  transform: scaleX(1);
+}
+.step .n {
+  transition:
+    color 500ms var(--ease-out),
+    text-shadow 500ms var(--ease-out);
+}
+.steps .step:nth-child(1) .n {
+  transition-delay: 200ms;
+}
+.steps .step:nth-child(2) .n {
+  transition-delay: 650ms;
+}
+.steps .step:nth-child(3) .n {
+  transition-delay: 1100ms;
+}
+.steps.is-in .step .n {
+  color: #ddd2ff;
+  text-shadow: 0 0 12px #a78bfa;
+}
+
+/* Princípios: marcadores aparecem um a um */
+.principles .mk {
+  display: inline-block;
+  opacity: 0;
+  transform: scale(0.4) rotate(-20deg);
+  transition:
+    opacity 400ms var(--ease-out),
+    transform 600ms var(--ease-out);
+}
+.principles.is-in .mk {
+  opacity: 1;
+  transform: none;
+}
+.principles .principle:nth-child(2) .mk {
+  transition-delay: 120ms;
+}
+.principles .principle:nth-child(3) .mk {
+  transition-delay: 240ms;
+}
+.principles .principle:nth-child(4) .mk {
+  transition-delay: 360ms;
+}
+
+/* Download recomendado para o sistema do visitante */
+.dl-card.recommended {
+  border-color: #a78bfa80;
+  box-shadow:
+    0 0 0 1px #a78bfa33,
+    0 20px 40px -24px #a78bfa66;
+}
+.dl-badge {
+  margin-block: -4px;
+  padding: 1px 8px;
+  line-height: 14px;
+  border: 1px solid #a78bfa66;
+  border-radius: 999px;
+  background: #a78bfa1a;
+  font: 10px var(--mono);
+  letter-spacing: 0.04em;
+  color: #ddd2ff;
+}
+.dl-card.recommended .get {
+  color: #fff;
+}
+
+/* Sem movimento: estados finais direto */
+@media (prefers-reduced-motion: reduce) {
+  .steps::before,
+  .principles .mk,
+  .step .n,
+  .back-to-top,
+  .back-to-top svg {
+    transition: none;
+  }
+  .steps::before {
+    transform: scaleX(1);
+  }
+  .principles .mk {
+    opacity: 1;
+    transform: none;
+  }
+}
+.motion-paused .steps::before {
+  transition: none;
+  transform: scaleX(1);
+}
+.motion-paused .principles .mk {
+  transition: none;
+  opacity: 1;
+  transform: none;
+}
+.motion-paused .card.tilting {
+  transform: translateY(-4px);
+}

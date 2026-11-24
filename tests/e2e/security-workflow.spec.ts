@@ -212,6 +212,7 @@ test('redirect failures never start a new origin, raw samples stay hidden and ex
   expect(
     await page.evaluate(() => JSON.parse(sessionStorage.getItem('test-export') ?? '{}')),
   ).toMatchObject({ id: scan.id, format: 'json', redact: true });
+  await page.getByRole('button', { name: /Corrigir com IA/ }).click();
   const studio = page.getByRole('region', { name: 'AI Fix Studio' }).first();
   await studio.getByRole('button', { name: 'Revisar prompt', exact: true }).click();
   await studio.getByLabel('Assistente de destino').selectOption('codex');

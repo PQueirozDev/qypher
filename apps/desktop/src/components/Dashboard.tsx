@@ -5,6 +5,17 @@ import { elapsedSeconds, findingKind, scanCoverage, usableScore } from '../asses
 import { date, severityLabel, type Comparison, type Severity } from '../types';
 import type { Workspace } from '../useWorkspace';
 import { StatusBadge } from './ui';
+import { gradeFor, useCountUp } from './ScanResult';
+
+function Metric({ label, value }: { label: string; value: number | null }) {
+  const shown = useCountUp(value ?? 0, 900);
+  return (
+    <div className="metric-card">
+      <span>{label}</span>
+      <strong>{value === null ? '—' : shown}</strong>
+    </div>
+  );
+}
 
 export function Dashboard({
   workspace: w,
@@ -65,10 +76,7 @@ export function Dashboard({
           { label: 'Análises de código', value: w.sourceScans.length },
           { label: 'Em execução', value: w.busy ? 1 : 0 },
         ].map((metric) => (
-          <div className="metric-card" key={metric.label}>
-            <span>{metric.label}</span>
-            <strong>{available ? metric.value : '—'}</strong>
-          </div>
+          <Metric key={metric.label} label={metric.label} value={available ? metric.value : null} />
         ))}
       </div>
       <section className="dashboard-analysis">
@@ -79,9 +87,9 @@ export function Dashboard({
         {latest ? (
           <>
             <div className="posture-summary">
-              <div className="posture-score">
+              <div className={`posture-score grade-${gradeFor(score)}`}>
                 <strong>{score ?? '—'}</strong>
-                <span>/ 100 · índice de postura</span>
+                <span>índice / 100</span>
               </div>
               <div>
                 <p>
@@ -121,6 +129,20 @@ export function Dashboard({
                 </div>
               ))}
             </div>
+            {latest.findings.length > 0 && (
+              <div className="dash-bar" aria-hidden="true">
+                {(['high', 'medium', 'low', 'info', 'unrated'] as Severity[]).map((severity, i) => {
+                  const n = latest.findings.filter((f) => f.severity === severity).length;
+                  return n ? (
+                    <i
+                      key={severity}
+                      className={`sev-${severity}`}
+                      style={{ flexGrow: n, animationDelay: `${200 + i * 80}ms` }}
+                    />
+                  ) : null;
+                })}
+              </div>
+            )}
             <div className="severity-overview">
               {(['high', 'medium', 'low', 'info', 'unrated'] as Severity[]).map((severity) => (
                 <span key={severity} className={`severity-count severity-${severity}`}>
