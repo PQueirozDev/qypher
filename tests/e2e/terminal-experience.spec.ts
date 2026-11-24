@@ -1,4 +1,4 @@
-import { expect, navigate, test } from './fixtures';
+import { expect, navigate, settleAnimations, test } from './fixtures';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
@@ -81,6 +81,7 @@ test('motion preferences work and terminal appearance remains accessible', async
     .locator('.atmosphere-cursor')
     .evaluate((node) => getComputedStyle(node).animationName);
   expect(animation).toBe('none');
+  await settleAnimations(page);
   await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
   const violations = await page.evaluate(async () =>
     (

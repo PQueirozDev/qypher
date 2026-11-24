@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3
+
+- Desinstalador remove o registro do host da extensão em todos os navegadores (atualizações automáticas preservam a integração).
+- Site: página de política de privacidade (`/privacidade`) cobrindo app e extensão, exigida pelas lojas de extensões; link no rodapé.
+- `package-lock.json` versionado: instalações de CI e release passam a usar `npm ci` reprodutível.
+- Testes de acessibilidade aguardam o fim das animações de entrada antes de medir contraste (falhavam no runner macOS, mais lento).
+
 ## 0.1.2
 
 - Extensão para navegadores (Chrome, Edge, Brave e Firefox): analisa a aba aberta de forma passiva com o motor local, sem requisições novas, mostra achados por severidade e abre a análise completa no app com a URL preenchida (a autorização continua no app). Código em `extensions/browser/`.

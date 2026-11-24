@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07070b" />
+    <title>Política de privacidade — Qypher</title>
+    <meta
+      name="description"
+      content="Como o aplicativo Qypher e a extensão de navegador tratam dados: tudo local, sem telemetria."
+    />
+    <link rel="icon" type="image/png" href="/favicon.png?v=shield" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/privacidade.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">❯_ qypher</a>
+    </header>
+    <main>
+      <p class="eyebrow">Atualizada em 24 de novembro de 2026</p>
+      <h1>Política de privacidade</h1>
+      <p class="lead">
+        O Qypher é local-first: o aplicativo desktop e a extensão de navegador não têm servidor
+        próprio, não coletam telemetria e não enviam seus dados ao desenvolvedor.
+      </p>
+
+      <h2>Aplicativo desktop</h2>
+      <ul>
+        <li>
+          Análises, histórico e relatórios ficam em um banco SQLite no diretório de dados do seu
+          usuário. Nada é enviado ao desenvolvedor.
+        </li>
+        <li>
+          O app só faz requisições para os sites que você autoriza na tela de análise, dentro do
+          escopo e dos limites exibidos antes de iniciar.
+        </li>
+        <li>
+          A consulta de vulnerabilidades de dependências no OSV (api.osv.dev) é opcional e só
+          acontece com seu consentimento explícito, enviando nomes e versões de pacotes.
+        </li>
+        <li>
+          Ao abrir, o app consulta as releases do projeto no GitHub para verificar atualizações
+          assinadas. Essa consulta não inclui dados das suas análises.
+        </li>
+      </ul>
+
+      <h2>Extensão de navegador</h2>
+      <ul>
+        <li>
+          A extensão analisa somente a aba em que você clica, de forma passiva: lê o HTML da página
+          e, se você permitir, os cabeçalhos de segurança da resposta. Ela não faz requisições
+          novas.
+        </li>
+        <li>
+          Os dados vão apenas para o aplicativo Qypher instalado no seu computador, pelo mecanismo
+          de Native Messaging do navegador. Nada é enviado pela internet.
+        </li>
+        <li>
+          Valores de cookies são substituídos por <code>[redigido]</code> antes de sair da
+          extensão; apenas nome e atributos são avaliados. Parâmetros de consulta e fragmentos da
+          URL não entram no resultado.
+        </li>
+        <li>
+          Os cabeçalhos observados ficam no armazenamento de sessão do navegador e são apagados
+          quando a aba é fechada ou o navegador é encerrado.
+        </li>
+      </ul>
+
+      <h2>Permissões da extensão</h2>
+      <dl>
+        <dt>activeTab e scripting</dt>
+        <dd>Ler o HTML da aba em que você clicou no ícone, apenas naquele momento.</dd>
+        <dt>webRequest e acesso a sites (opcional)</dt>
+        <dd>
+          Observar, sem bloquear ou alterar, os cabeçalhos de segurança da navegação principal.
+          Pedida somente quando você clica em “Permitir leitura de cabeçalhos”.
+        </dd>
+        <dt>nativeMessaging</dt>
+        <dd>Conversar com o aplicativo Qypher instalado neste computador.</dd>
+        <dt>storage</dt>
+        <dd>Guardar temporariamente, por aba, os cabeçalhos observados.</dd>
+      </dl>
+
+      <h2>Compartilhamento e venda de dados</h2>
+      <p>
+        O Qypher não vende, não compartilha e não transfere dados de usuários a terceiros, e não
+        usa dados para publicidade ou avaliação de crédito.
+      </p>
+
+      <h2>Contato</h2>
+      <p>
+        Dúvidas ou solicitações:
+        <a href="https://github.com/PQueirozDev/qypher/issues" rel="noopener"
+          >abra uma issue no GitHub</a
+        >.
+      </p>
+    </main>
+    <footer>
+      <a href="/">Voltar ao site</a>
+    </footer>
+  </body>
+</html>

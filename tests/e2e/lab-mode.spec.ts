@@ -1,4 +1,4 @@
-import { expect, navigate, test, type Page } from './fixtures';
+import { expect, navigate, settleAnimations, test, type Page } from './fixtures';
 import { createRequire } from 'node:module';
 import type { LabRequest, LabRun } from '../../apps/desktop/src/labTypes';
 
@@ -332,6 +332,7 @@ test('Lab controls and saved evidence have no automatically detected WCAG A/AA v
   page,
 }) => {
   await laboratory(page, [savedRun()]);
+  await settleAnimations(page);
   await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
   const violations = await page.evaluate(async () =>
     (

@@ -1,4 +1,4 @@
-import { expect, navigate, test, type Page } from './fixtures';
+import { expect, navigate, settleAnimations, test, type Page } from './fixtures';
 import { createRequire } from 'node:module';
 import { defaultSourceConfig, type SourceScan } from '../../apps/desktop/src/sourceTypes';
 
@@ -208,6 +208,7 @@ test('source results and export controls have no automatically detected WCAG A/A
   page,
 }) => {
   await sourceWorkspace(page);
+  await settleAnimations(page);
   await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
   const violations = await page.evaluate(async () =>
     (

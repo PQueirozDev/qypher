@@ -34,3 +34,14 @@ export async function navigate(page: Page, label: string) {
     .getByRole('button', { name: label, exact: true })
     .click();
 }
+
+// Espera as animações de entrada (finitas) terminarem antes de medir contraste:
+// no meio de um fade-in o texto ainda está translúcido e o axe acusa contraste baixo.
+export async function settleAnimations(page: Page) {
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+      .every((animation) => animation.playState !== 'running'),
+  );
+}

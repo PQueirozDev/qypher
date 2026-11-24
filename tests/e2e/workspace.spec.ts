@@ -1,4 +1,4 @@
-import { expect, navigate, test } from './fixtures';
+import { expect, navigate, settleAnimations, test } from './fixtures';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 test('web preview is honest and has no fake scan results', async ({ page }) => {
@@ -36,6 +36,7 @@ test('local hashing is usable without a native runtime', async ({ page }) => {
 test('dashboard has no automatically detectable WCAG A/AA violations', async ({ page }) => {
   await page.goto('/');
   await navigate(page, 'Painel');
+  await settleAnimations(page);
   await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
   const result = await page.evaluate(async () =>
     (

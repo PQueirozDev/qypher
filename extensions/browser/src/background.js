@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   const run = async () => {
     if (message?.type === 'analyze') {
       const tab = Number.isInteger(message.tabId)
-        ? await chrome.tabs.get(message.tabId)
+        ? await chrome.tabs.get(message.tabId).catch(() => null)
         : (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
       return analyzeTab(tab);
     }

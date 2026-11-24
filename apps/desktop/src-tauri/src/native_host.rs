@@ -228,8 +228,11 @@ pub fn disable() -> Result<IntegrationStatus, String> {
     for (_, key, _) in REGISTRY {
         let _ = CURRENT_USER.remove_tree(format!("{key}\\{HOST_NAME}"));
     }
+    // Remove só os manifestos criados pelo app; a pasta sai se ficar vazia.
     if let Ok(dir) = manifest_dir() {
-        let _ = std::fs::remove_dir_all(dir);
+        let _ = std::fs::remove_file(dir.join(format!("{HOST_NAME}.chromium.json")));
+        let _ = std::fs::remove_file(dir.join(format!("{HOST_NAME}.firefox.json")));
+        let _ = std::fs::remove_dir(dir);
     }
     Ok(status())
 }
@@ -298,7 +301,11 @@ fn host_dirs() -> Vec<(&'static str, PathBuf, bool)> {
 
 #[cfg(not(windows))]
 pub fn enable() -> Result<IntegrationStatus, String> {
-    for (_, dir, chromium) in host_dirs() {
+    let dirs = host_dirs();
+    if dirs.is_empty() {
+        return Err("Nenhum navegador compatível encontrado neste usuário.".into());
+    }
+    for (_, dir, chromium) in dirs {
         std::fs::create_dir_all(&dir).map_err(|_| "Não foi possível criar a pasta do host.")?;
         std::fs::write(dir.join(format!("{HOST_NAME}.json")), manifest(chromium)?)
             .map_err(|_| "Falha ao gravar manifesto.")?;

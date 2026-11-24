@@ -13,7 +13,9 @@ Arquitetura e modelo de ameaças: [docs/BROWSER_EXTENSION.md](../../docs/BROWSER
 2. No app: **Configuração → Extensão do navegador → Ativar integração com o navegador**.
    Isso registra o host `org.qypher.native` apenas para o usuário atual
    (Chrome, Edge, Brave, Chromium e Firefox). "Desativar" remove os registros.
-3. Gere a extensão na raiz do repositório:
+3. Baixe `qypher-extension-chromium-<versão>.zip` ou `qypher-extension-firefox-<versão>.zip`
+   na [página de releases](https://github.com/PQueirozDev/qypher/releases) e extraia, ou gere
+   a extensão na raiz do repositório:
 
    ```powershell
    npm run extension:build
@@ -21,10 +23,10 @@ Arquitetura e modelo de ameaças: [docs/BROWSER_EXTENSION.md](../../docs/BROWSER
 
 4. Carregue:
    - **Chrome / Edge / Brave:** `chrome://extensions` → ative o modo desenvolvedor →
-     **Carregar sem compactação** → `extensions/browser/dist/chromium`.
+     **Carregar sem compactação** → pasta extraída (ou `extensions/browser/dist/chromium`).
      O ID precisa ser `cnpaofiocpinipphkapcebfcmamffkif` (fixado pela chave do manifesto).
    - **Firefox 128+:** `about:debugging#/runtime/this-firefox` → **Carregar extensão
-     temporária** → `extensions/browser/dist/firefox/manifest.json`.
+     temporária** → `manifest.json` da pasta extraída (ou de `extensions/browser/dist/firefox`).
 
 5. Abra um site, clique no ícone do Qypher. Para avaliar CSP, HSTS e cookies, clique em
    **Permitir leitura de cabeçalhos** uma vez e recarregue a página.
@@ -47,6 +49,13 @@ Arquitetura e modelo de ameaças: [docs/BROWSER_EXTENSION.md](../../docs/BROWSER
 - O host aceita só esta extensão (`allowed_origins` / `allowed_extensions`), valida o
   esquema das mensagens e limita tamanhos.
 - Permissão de leitura de cabeçalhos é opcional e pedida no clique do usuário.
+
+## Lojas
+
+A política de privacidade exigida pela Chrome Web Store e pelo AMO está em
+<https://qypher.pqueirozdev.com.br/privacidade>. A justificativa de cada permissão está na
+mesma página. Para enviar à Chrome Web Store, remova o campo `key` do manifesto e acrescente o
+ID atribuído pela loja a `CHROME_EXTENSION_ID` no host (`native_host.rs`).
 
 ## A chave da extensão
 
