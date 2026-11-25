@@ -19,7 +19,7 @@ const assets = new Map();
 for (const size of sizes) {
   const page = await browser.newPage({ viewport: { width: size, height: size } });
   await page.setContent(
-    `<!doctype html><html><body style="margin:0;background:#0a0a08">
+    `<!doctype html><html><body style="margin:0;background:transparent">
       <img src="${dataUri}" style="width:${size}px;height:${size}px;display:block"/>
     </body></html>`,
   );
