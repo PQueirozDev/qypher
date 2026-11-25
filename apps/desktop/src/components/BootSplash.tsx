@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { bootSplashEnabled, motionReduced } from '../appearance';
+import { PixelMark } from './PixelLogo';
 
 // Animação de abertura do app. Aparece uma vez por sessão da janela e pode ser
 // pulada com clique ou Esc. Com "reduzir movimento" no sistema (por exemplo, o modo
@@ -100,15 +101,7 @@ export function BootSplash({ native, ready }: { native: boolean; ready: boolean 
       onClick={() => setSkipped(true)}
     >
       <div className="boot-center">
-        <svg className="boot-mark" viewBox="0 0 32 32" fill="none">
-          <path
-            className="boot-shield"
-            pathLength={1}
-            d="M16 3 27 7v8c0 7-6 11-11 14C11 26 5 22 5 15V7L16 3Z"
-          />
-          <path className="boot-prompt" pathLength={1} d="m12 12 5 4-5 4" />
-          <path className="boot-cursor" d="M19 20h4" />
-        </svg>
+        <PixelMark className="boot-mark boot-pixel" />
         <div className="boot-word">
           {WORD.split('').map((letter, i) => (
             <span key={i} style={{ animationDelay: `${420 + i * 60}ms` }}>

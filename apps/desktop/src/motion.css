@@ -42,9 +42,9 @@
   left: 0;
   right: 0;
   height: var(--sb-h, 0);
-  border: 1px solid #3a3452;
+  border: 1px solid #4f4837;
   border-radius: 8px;
-  background: #a78bfa14;
+  background: #e4d0a114;
   transform: translateY(var(--sb-y, 0));
   transition:
     transform var(--m-move) var(--m-ease),
@@ -102,10 +102,10 @@
     box-shadow var(--m-move) var(--m-ease);
 }
 .t-shell .t-prompt:focus-within {
-  border-color: #8b5cf6;
+  border-color: #d8bc7a;
   box-shadow:
-    0 0 0 4px #8b5cf61f,
-    0 12px 32px -20px #8b5cf6;
+    0 0 0 4px #d8bc7a1f,
+    0 12px 32px -20px #d8bc7a;
 }
 .t-shell .t-run {
   position: relative;
@@ -147,8 +147,8 @@
     background-color var(--m-fast) var(--m-ease);
 }
 .t-shell .scope-permission:has(input:checked) {
-  border-color: #3a3452;
-  background: #a78bfa0d;
+  border-color: #4f4837;
+  background: #e4d0a10d;
 }
 .t-shell .workflows > button {
   animation: m-rise 600ms var(--m-ease) both;
@@ -180,7 +180,7 @@
     box-shadow var(--m-move) var(--m-ease);
 }
 .t-shell :where(.project-card, .tool-card, .export-card, .scan-summary):hover {
-  border-color: #3a3452;
+  border-color: #4f4837;
   transform: translateY(-2px);
   box-shadow: 0 16px 32px -24px #000;
 }
@@ -202,7 +202,7 @@
   transform: translateY(-1px);
 }
 .t-shell .button.primary:hover:not(:disabled) {
-  box-shadow: 0 10px 24px -14px #8b5cf6;
+  box-shadow: 0 10px 24px -14px #d8bc7a;
 }
 
 /* ---------- Avisos e diálogos ---------- */
@@ -216,7 +216,7 @@
   animation: m-palette 400ms var(--m-ease) both;
 }
 .command-palette::backdrop {
-  background: #05050a99;
+  background: #03030399;
   backdrop-filter: blur(4px);
   animation: m-fade 300ms var(--m-ease) both;
 }
@@ -229,9 +229,9 @@
 /* ---------- Paleta de comandos ---------- */
 .command-palette {
   width: min(640px, calc(100vw - 32px));
-  border: 1px solid #2e2c3e;
+  border: 1px solid #3e392c;
   border-radius: 16px;
-  background: #0d0d14;
+  background: #080706;
   box-shadow:
     0 24px 80px -16px #000,
     0 0 0 1px #ffffff08 inset;
@@ -239,7 +239,7 @@
 }
 .command-palette h2 {
   padding: 12px 16px;
-  border-bottom: 1px solid #222230;
+  border-bottom: 1px solid #2f2b23;
   font: 500 12px/16px var(--t-mono);
   color: var(--t-dim);
 }
@@ -250,7 +250,7 @@
   gap: 12px;
   padding: 12px 16px;
   background: transparent;
-  border-bottom: 1px solid #222230;
+  border-bottom: 1px solid #2f2b23;
 }
 .palette-search svg {
   color: var(--t-violet);
@@ -280,13 +280,13 @@
   font: 14px/20px var(--t-sans);
 }
 .palette-list > button.selected {
-  border-color: #3a3452;
-  background: #a78bfa14;
+  border-color: #4f4837;
+  background: #e4d0a114;
   color: var(--t-text);
 }
 .palette-list kbd {
   padding: 2px 6px;
-  border: 1px solid #2b2b3d;
+  border: 1px solid #3d382b;
   border-radius: 4px;
   font: 12px/16px var(--t-mono);
   color: var(--t-faint);
@@ -299,7 +299,7 @@
 .palette-footer {
   gap: 24px;
   padding: 10px 16px;
-  border-top: 1px solid #222230;
+  border-top: 1px solid #2f2b23;
   font: 12px/16px var(--t-mono);
   color: var(--t-faint);
 }

@@ -9,7 +9,7 @@
   z-index: 1000;
   display: grid;
   place-items: center;
-  background: #07070b;
+  background: #040403;
   color: #f4f4f5;
   cursor: default;
   overflow: hidden;
@@ -52,7 +52,7 @@
   stroke-linejoin: round;
 }
 .boot-shield {
-  stroke: #b49af5;
+  stroke: #e6d4a9;
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
   animation: boot-draw 900ms 80ms var(--boot-ease) both;
@@ -85,7 +85,7 @@
 .boot-tagline {
   margin: 0;
   font: 14px/20px var(--t-sans);
-  color: #8a8aa0;
+  color: #9d988d;
   animation: boot-fade-in 600ms 850ms var(--boot-ease) both;
 }
 
@@ -107,12 +107,12 @@
   animation: boot-rise-sm 550ms var(--boot-ease) both;
 }
 .boot-lines span {
-  color: #8a8aa0;
+  color: #9d988d;
 }
 .boot-lines i {
   flex: 1;
   height: 1px;
-  background: #20202e;
+  background: #2c2922;
   transform-origin: left;
   animation: boot-grow 700ms var(--boot-ease) both;
   animation-delay: inherit;
@@ -122,14 +122,14 @@
   transition: color 300ms var(--boot-ease);
 }
 .boot-lines .tone-ok {
-  color: #4fd1a5;
+  color: #7aa690;
 }
 .boot-lines .tone-wait {
   color: #f5b14c;
   animation: boot-pulse 1.2s ease-in-out infinite;
 }
 .boot-lines .tone-muted {
-  color: #8a8aa0;
+  color: #9d988d;
 }
 
 /* Barra de progresso */
@@ -141,13 +141,13 @@
   height: 2px;
   margin-left: -80px;
   border-radius: 1px;
-  background: #1a1a25;
+  background: #0e0d0b;
   overflow: hidden;
 }
 .boot-progress i {
   display: block;
   height: 100%;
-  background: #a78bfa;
+  background: #e4d0a1;
   transform-origin: left;
   animation: boot-grow 1900ms 100ms var(--boot-ease) both;
 }
@@ -159,8 +159,8 @@
   right: 0;
   top: 0;
   height: 1px;
-  background: #a78bfa;
-  box-shadow: 0 0 16px 2px #a78bfa66;
+  background: #e4d0a1;
+  box-shadow: 0 0 16px 2px #e4d0a166;
   opacity: 0;
 }
 

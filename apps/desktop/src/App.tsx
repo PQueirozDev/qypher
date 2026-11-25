@@ -20,6 +20,7 @@ import { StatusBar } from './components/StatusBar';
 import { UnlockTransition } from './components/UnlockTransition';
 import { BootSplash } from './components/BootSplash';
 import { Sidebar } from './components/Sidebar';
+import { PixelMark } from './components/PixelLogo';
 import { parseCommand } from './commands';
 import { PreviewNotice } from './components/PreviewNotice';
 import { applyMotionPreference, readMotionPreference } from './appearance';
@@ -310,7 +311,7 @@ export default function App() {
           <i />
         </div>
         <button className="t-brand" onClick={() => navigate('home')}>
-          <b>❯_</b> qypher
+          <PixelMark className="t-brand-mark" /> qypher
         </button>
         <span className="t-path">{locked ? '~' : (paths[page] ?? '~')}</span>
         {locked && (
@@ -357,7 +358,13 @@ export default function App() {
             terminalOpen={!collapsed}
           />
         )}
-        <main ref={main} id="main" className="t-main" tabIndex={-1}>
+        <main
+          ref={main}
+          id="main"
+          className="t-main"
+          tabIndex={-1}
+          data-title={locked ? '~' : (paths[page] ?? '~')}
+        >
           {w.error && (
             <div className="t-wrap">
               <div className="t-error" role="alert">

@@ -1,16 +1,16 @@
 /* Integration with the existing terminal shell; preserves its layout and components. */
 :root {
-  --t-bg: #09090b;
-  --t-bg-2: #111115;
-  --t-panel: #111115;
-  --t-panel-2: #16161c;
-  --t-line: #27272f;
+  --t-bg: #040404;
+  --t-bg-2: #080807;
+  --t-panel: #080807;
+  --t-panel-2: #0b0a09;
+  --t-line: #2f2d27;
   --t-line-2: #3f3f46;
   --t-text: #f4f4f5;
   --t-dim: #a1a1aa;
   --t-faint: #a1a1aa;
-  --t-violet: #a78bfa;
-  --accent: #8b5cf6;
+  --t-violet: #e4d0a1;
+  --accent: #d8bc7a;
 }
 .t-shell {
   background: var(--t-bg);
@@ -53,7 +53,7 @@
 .t-shell .console-filters input { width:100%; min-width:0; }
 .t-shell .console-filters select { width:160px; flex:0 0 160px; }
 .t-main { font-family:var(--t-sans); }
-.t-shell .button.primary { background:var(--t-panel-2); color:var(--t-text); border-color:#8b5cf6; }
+.t-shell .button.primary { background:var(--t-panel-2); color:var(--t-text); border-color:#d8bc7a; }
 .t-shell .console-filters input,
 .t-shell .console-filters select {
   min-height: 30px;

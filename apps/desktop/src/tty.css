@@ -1,0 +1,451 @@
+/* Tema TTY: estética de tiling window manager (dwm + st + vim + ncmpcpp).
+   Papel de parede sépia, janelas escuras translúcidas com borda de 2px e gaps de 10px,
+   tudo em monoespaçada, cantos retos e statusline creme no rodapé.
+   Carregado por último: redefine os tokens dos temas anteriores e o shell. */
+
+:root,
+:root .t-shell {
+  /* paleta base */
+  --tty-wall-a: #000000;
+  --tty-wall-b: #000000;
+  --tty-wall-c: #000000;
+  --tty-win: #000000;
+  --tty-win-solid: #000000;
+  --tty-border: #24211c;
+  --tty-focus: #e9e0c6;
+  --tty-bar-bg: #ece3c0;
+  --tty-bar-fg: #16140f;
+  --tty-sel: rgba(233, 217, 166, 0.1);
+  --tty-gap: 10px;
+
+  /* tokens do terminal (terminal.css) */
+  --t-bg: #000000;
+  --t-bg-2: #040403;
+  --t-panel: #070706;
+  --t-panel-2: #0c0b0a;
+  --t-line: #1c1a16;
+  --t-line-2: #29261f;
+  --t-text: #d6cfbf;
+  --t-dim: #aaa290;
+  --t-faint: #8f8775;
+  --t-violet: #e9d9a6;
+  --t-azure: #a9c3b6;
+  --t-cyan: #93b5a4;
+  --t-amber: #e3a35a;
+  --t-pink: #e8735a;
+  --t-high: #e8735a;
+  --t-medium: #e3a35a;
+  --t-low: #d6c56b;
+  --t-info: #93b5a4;
+  --t-sans: var(--t-mono);
+
+  /* tokens legados (styles.css / workbench.css) */
+  --bg: #000000;
+  --panel: #070706;
+  --panel-alt: #0c0b0a;
+  --line: #1c1a16;
+  --text: #d6cfbf;
+  --muted: #aaa290;
+  --accent: #e9d9a6;
+  --accent-soft: #e9d9a6;
+  --red: #e8735a;
+  --yellow: #d6c56b;
+
+  /* review.css / result.css */
+  --rv-surface: #070706;
+  --rv-surface-2: #0c0b0a;
+  --rv-line: #1c1a16;
+  --rv-good: #93b5a4;
+  --rs-surface: #070706;
+  --rs-surface-2: #0c0b0a;
+  --rs-line: #1c1a16;
+  --rs-good: #93b5a4;
+}
+
+html,
+body {
+  background: var(--tty-wall-c);
+}
+
+/* ---------- papel de parede + desktop ---------- */
+html .t-shell {
+  background:
+    radial-gradient(120% 80% at 72% 6%, var(--tty-wall-a) 0%, transparent 60%),
+    radial-gradient(90% 70% at 8% 96%, var(--tty-wall-b) 0%, transparent 70%),
+    linear-gradient(180deg, var(--tty-wall-b), var(--tty-wall-c));
+  font-family: var(--t-mono);
+}
+html .t-shell::after {
+  /* grão do papel de parede no lugar das scanlines */
+  content: '';
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+html .t-shell > :is(.t-topbar, .t-body, .term-dock, .statusbar, .runtime-notice) {
+  position: relative;
+  z-index: 1;
+}
+/* menus que abrem do topo e do aviso ficam acima das janelas */
+html .t-shell > .t-topbar {
+  z-index: 5;
+}
+html .t-shell > .runtime-notice {
+  z-index: 4;
+}
+html .t-shell .t-rain {
+  display: none;
+}
+
+/* tudo monoespaçado, reto e sem sombras de "app" */
+html .t-shell,
+html .t-shell *:not(svg, svg *) {
+  font-family: var(--t-mono) !important;
+  border-radius: 0 !important;
+}
+html .t-shell * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+html .t-shell :where(h1, h2, h3) {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- barra superior vira widget (eww) no gap ---------- */
+html .t-shell .t-topbar {
+  height: 40px;
+  padding: 0 calc(var(--tty-gap) + 4px);
+  background: transparent;
+  border: 0;
+  color: #f1ead8;
+}
+html .t-shell .t-topbar :where(.t-brand, .t-path, .t-status, .t-win button) {
+  color: #f1ead8;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55) !important;
+}
+html .t-shell .t-dots {
+  display: none;
+}
+html .t-shell .t-path {
+  opacity: 0.85;
+}
+html .t-shell .t-win button:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+html .t-shell .t-win .close:hover {
+  background: #e8735a;
+  color: #16140f;
+}
+
+/* ---------- tiling: sidebar | main, dock e statusline embaixo ---------- */
+html .t-shell .t-body {
+  gap: var(--tty-gap);
+  padding: 0 var(--tty-gap) var(--tty-gap);
+  background: transparent;
+}
+html .t-shell :is(.sidebar, .t-main, .term-dock) {
+  background: var(--tty-win);
+  border: 2px solid var(--tty-border);
+  backdrop-filter: blur(3px);
+}
+html .t-shell .t-main {
+  border-color: var(--tty-focus);
+}
+/* janela focada ganha a borda clara, como no dwm */
+html .t-shell .sidebar:focus-within,
+html .t-shell .term-dock:focus-within {
+  border-color: var(--tty-focus);
+}
+html .t-shell:has(.sidebar:focus-within, .term-dock:focus-within) .t-main {
+  border-color: var(--tty-border);
+}
+html .t-shell .term-dock {
+  margin: 0 var(--tty-gap) var(--tty-gap);
+  background-image: none;
+}
+html .t-shell .term-dock::before {
+  display: none;
+}
+html .t-shell .term-dock-bar {
+  background: transparent;
+  border-color: var(--t-line);
+  color: var(--t-dim);
+}
+
+/* ---------- sidebar como lista de tags ---------- */
+html .t-shell .sidebar {
+  padding: 6px;
+}
+html .t-shell .sidebar .sb-item {
+  color: var(--t-dim);
+  border: 0;
+}
+html .t-shell .sidebar .sb-item:hover {
+  background: var(--tty-sel);
+  color: var(--t-text);
+}
+html .t-shell .sidebar .sb-item.active {
+  background: var(--tty-bar-bg) !important;
+  color: var(--tty-bar-fg) !important;
+  border: 0;
+}
+html .t-shell .sidebar .sb-item.active svg,
+html .t-shell .sidebar .sb-item.active kbd {
+  color: var(--tty-bar-fg);
+  border-color: currentColor;
+}
+html .t-shell .sidebar .sb-indicator {
+  display: none;
+}
+html .t-shell .sidebar .sb-sep {
+  background: var(--t-line);
+}
+
+/* ---------- statusline creme (vim) ---------- */
+html .t-shell .statusbar {
+  height: 24px;
+  margin: 0 var(--tty-gap) var(--tty-gap);
+  padding: 0;
+  border: 0;
+  background: var(--tty-bar-bg);
+  color: var(--tty-bar-fg);
+  letter-spacing: 0;
+  font-size: 11.5px;
+}
+html .t-shell .statusbar :is(.sb-seg, .sb-btn) {
+  color: var(--tty-bar-fg);
+  border-color: rgba(22, 20, 15, 0.18);
+}
+html .t-shell .statusbar :is(svg, kbd) {
+  color: var(--tty-bar-fg);
+}
+html .t-shell .statusbar .sb-btn:hover {
+  background: rgba(22, 20, 15, 0.1);
+}
+
+/* ---------- superfícies, controles e foco ---------- */
+html .t-shell ::selection {
+  background: var(--tty-bar-bg);
+  color: var(--tty-bar-fg);
+}
+html .t-shell :where(button, a, select, input, textarea, summary):focus-visible {
+  outline: 1px solid var(--tty-focus);
+  outline-offset: 1px;
+}
+html .t-shell :where(input, select, textarea) {
+  background: #000000;
+  border-color: var(--t-line-2);
+  color: var(--t-text);
+}
+html .t-shell :where(input, select, textarea):focus {
+  border-color: var(--tty-focus);
+}
+html .t-shell .button.primary,
+html .t-shell button.primary {
+  background: var(--tty-bar-bg);
+  border-color: var(--tty-bar-bg);
+  color: var(--tty-bar-fg);
+}
+html .t-shell .button.primary:hover:not(:disabled) {
+  background: #f6eed2;
+}
+html .t-shell .button.secondary {
+  background: transparent;
+  border-color: var(--t-line-2);
+  color: var(--t-text);
+}
+
+/* rolagem fina, quadrada */
+html .t-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--t-line-2) transparent;
+}
+html .t-shell ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+html .t-shell ::-webkit-scrollbar-thumb {
+  background: var(--t-line-2);
+}
+html .t-shell ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- home: hero como janela do st ---------- */
+html .t-shell .t-hero {
+  background: transparent;
+  border: 1px solid var(--t-line-2);
+}
+html .t-shell .t-hero h1 {
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+html .t-shell .t-hero h1 .b {
+  color: var(--tty-bar-bg);
+}
+
+/* ---------- cara de terminal ---------- */
+/* logo pixel art: cores pelo tema */
+.pixel-logo .px-o,
+.pixel-logo .px-w {
+  fill: var(--tty-bar-bg);
+}
+.pixel-logo .px-s {
+  fill: #bfb38c;
+}
+.pixel-logo .px-d {
+  fill: #14120e;
+}
+.pixel-logo .px-g,
+.pixel-logo .px-c {
+  fill: #fff8e2;
+}
+html .t-shell .t-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+  color: #f1ead8;
+  font-weight: 700;
+}
+html .t-shell .t-brand .t-brand-mark {
+  width: 16px;
+  height: 19px;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.6));
+}
+.boot-mark.boot-pixel {
+  width: 64px;
+  height: 76px;
+  animation: tty-pixel-in 700ms steps(19) 80ms both;
+}
+.boot-splash.calm .boot-mark.boot-pixel {
+  animation: boot-fade-in 600ms 80ms both;
+}
+.boot-pixel .px-c {
+  animation: tty-blink 1s 900ms steps(1) infinite;
+}
+@keyframes tty-pixel-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes tty-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* barra de título de cada janela, como no st/tmux */
+html .t-shell .t-main {
+  padding: 0 28px 40px;
+}
+html .t-shell .t-main::before {
+  content: '[' attr(data-title) ']  qypher' / '';
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: block;
+  margin: 0 -28px 26px;
+  padding: 3px 12px;
+  border-bottom: 1px solid var(--t-line);
+  background: var(--tty-win-solid);
+  color: var(--t-dim);
+  font-size: 11.5px;
+  white-space: pre;
+}
+html .t-shell .t-main:has(.tui-host)::before {
+  margin-bottom: 0;
+}
+html .t-shell .sidebar::before {
+  content: '[tags]' / '';
+  display: block;
+  margin: -6px -6px 6px;
+  padding: 3px 10px;
+  border-bottom: 1px solid var(--t-line);
+  color: var(--t-dim);
+  font-size: 11.5px;
+}
+
+/* títulos como prompt, com cursor em bloco piscando */
+html .t-shell .q-page :is(h1, h2)::before {
+  content: '$ ' / '';
+  color: var(--t-faint);
+  font-weight: 400;
+}
+html .t-shell .q-page h3::before {
+  content: '# ' / '';
+  color: var(--t-faint);
+  font-weight: 400;
+}
+html .t-shell :is(.q-page h1, .t-hero h1)::after {
+  content: '';
+  display: inline-block;
+  width: 0.55em;
+  height: 0.85em;
+  margin-left: 0.18em;
+  vertical-align: -0.04em;
+  background: var(--tty-focus);
+  animation: tty-blink 1.06s steps(1) infinite;
+}
+html .t-shell .t-hero h1::before {
+  content: none;
+}
+
+/* botões entre colchetes */
+html .t-shell .button::before {
+  content: '[' / '';
+  color: inherit;
+  opacity: 0.55;
+}
+html .t-shell .button::after {
+  content: ']' / '';
+  color: inherit;
+  opacity: 0.55;
+}
+
+/* modo do vim na statusline */
+html .t-shell .statusbar::before {
+  content: 'NORMAL' / '';
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 10px;
+  background: var(--tty-bar-fg);
+  color: var(--tty-bar-bg);
+  font-weight: 700;
+}
+
+/* separadores tracejados */
+html .t-shell .sidebar .sb-sep {
+  height: 0;
+  background: none;
+  border-top: 1px dashed var(--t-line-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .t-shell :is(.q-page h1, .t-hero h1)::after,
+  :root:not([data-motion='on']) .boot-pixel .px-c {
+    animation: none;
+  }
+}
+:root[data-motion='off'] .t-shell :is(.q-page h1, .t-hero h1)::after,
+:root[data-motion='off'] .boot-pixel .px-c {
+  animation: none;
+}
+
+/* abertura também em monoespaçada */
+.boot-splash,
+.boot-splash * {
+  font-family: var(--t-mono) !important;
+}

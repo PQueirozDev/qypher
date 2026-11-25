@@ -1,5 +1,12 @@
 # Changelog
 
+## Não lançado
+
+- Visual novo no app e no site, no estilo de um tiling window manager: fundo preto, janelas com borda e barra de título (`[~/findings]`), tudo em fonte monoespaçada, cantos retos, destaques em creme, títulos como prompt (`$ `) com cursor piscando, botões entre colchetes e barra de status com o modo `NORMAL` do vim. Cores roxas e azuis substituídas em todas as folhas de estilo.
+- Logo novo em pixel art (escudo em Q com o prompt `>_`) no topo e na abertura do app, no cabeçalho e no rodapé do site, no favicon, na imagem de compartilhamento, nos ícones do app e nas imagens do instalador.
+- Prefixos e colchetes decorativos não entram no nome acessível de títulos e botões.
+- README e capturas do site atualizados; caminhos das imagens do README corrigidos para `site/public/`.
+
 ## 0.1.5
 
 - Abertura do app volta a tocar quando o sistema pede menos movimento (por exemplo, Windows com "Efeitos de animação" desligados): antes virava cerca de 2 s de tela preta. Agora toca uma versão calma, só com fades em sequência; no modo normal, a versão completa.

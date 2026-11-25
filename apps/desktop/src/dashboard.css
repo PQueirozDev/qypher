@@ -1,8 +1,8 @@
 /* Painel (visão geral). As regras antigas viviam em theme.css, que não é carregado. */
 .security-dashboard {
-  --d-surface: #0d0d14;
-  --d-surface-2: #12121b;
-  --d-line: #222230;
+  --d-surface: #080706;
+  --d-surface-2: #0a0a08;
+  --d-line: #2f2b23;
   --d-ease: cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
   flex-direction: column;
@@ -50,7 +50,7 @@
     transform 500ms var(--d-ease);
 }
 .security-dashboard .metric-card:hover {
-  border-color: #3a3452;
+  border-color: #4f4837;
   transform: translateY(-2px);
 }
 .security-dashboard .metric-card span {
@@ -106,7 +106,7 @@
 }
 .posture-score.grade-A,
 .posture-score.grade-B {
-  --d-tone: #4fd1a5;
+  --d-tone: #7aa690;
 }
 .posture-score.grade-C {
   --d-tone: var(--t-medium);
@@ -167,7 +167,7 @@
   height: 8px;
   border-radius: 4px;
   overflow: hidden;
-  background: #1a1a25;
+  background: #0e0d0b;
 }
 .dash-bar i {
   flex-basis: 0;
@@ -236,11 +236,11 @@
 }
 .comparison-metrics {
   padding: 12px 16px;
-  border: 1px solid #2c2840;
+  border: 1px solid #3d382b;
   border-radius: 10px;
-  background: #a78bfa0d;
+  background: #e4d0a10d;
   font: 13px/20px var(--t-mono);
-  color: #ddd2ff;
+  color: #f5eddc;
   animation: d-rise 400ms var(--d-ease) both;
 }
 .dashboard-empty {
@@ -319,8 +319,8 @@
     background-color 300ms var(--d-ease);
 }
 .security-dashboard .dashboard-source:hover {
-  border-color: #3a3452;
-  background: #14131f;
+  border-color: #4f4837;
+  background: #0c0a09;
 }
 .security-dashboard .dashboard-source > span {
   flex: 1;
@@ -359,7 +359,7 @@
 .trend-track {
   height: 6px;
   border-radius: 3px;
-  background: #1a1a25;
+  background: #0e0d0b;
   overflow: hidden;
 }
 .trend-track span {

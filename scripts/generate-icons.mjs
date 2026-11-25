@@ -1,5 +1,5 @@
 // Gera os ícones do aplicativo a partir do logo em apps/desktop/icon-source.png
-// (o "Q" neon). Redimensiona no navegador (Playwright/Edge) e empacota ICO/ICNS.
+// (escudo em Q em pixel art). Redimensiona no navegador (Playwright/Edge) e empacota ICO/ICNS.
 // O desenho das imagens do NSIS roda dentro do navegador (page.evaluate).
 /* global Image, document */
 import { chromium } from '@playwright/test';
@@ -19,7 +19,7 @@ const assets = new Map();
 for (const size of sizes) {
   const page = await browser.newPage({ viewport: { width: size, height: size } });
   await page.setContent(
-    `<!doctype html><html><body style="margin:0;background:#07070b">
+    `<!doctype html><html><body style="margin:0;background:#0a0a08">
       <img src="${dataUri}" style="width:${size}px;height:${size}px;display:block"/>
     </body></html>`,
   );
@@ -65,12 +65,12 @@ for (const [file, { width, height, layout }] of Object.entries(drawings)) {
         drawLogo(width - 52, 6, 45);
       } else {
         const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, '#0d0b1a');
-        gradient.addColorStop(1, '#06060a');
+        gradient.addColorStop(0, '#151410');
+        gradient.addColorStop(1, '#090807');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
         // Grade sutil no estilo do site.
-        ctx.strokeStyle = 'rgba(167, 139, 250, 0.08)';
+        ctx.strokeStyle = 'rgba(228, 208, 161, 0.08)';
         for (let x = 0.5; x < width; x += 16) {
           ctx.beginPath();
           ctx.moveTo(x, 0);
@@ -84,20 +84,20 @@ for (const [file, { width, height, layout }] of Object.entries(drawings)) {
           ctx.stroke();
         }
         const glow = ctx.createRadialGradient(82, 110, 4, 82, 110, 90);
-        glow.addColorStop(0, 'rgba(124, 92, 255, 0.35)');
-        glow.addColorStop(1, 'rgba(124, 92, 255, 0)');
+        glow.addColorStop(0, 'rgba(218, 191, 129, 0.35)');
+        glow.addColorStop(1, 'rgba(218, 191, 129, 0)');
         ctx.fillStyle = glow;
         ctx.fillRect(0, 0, width, height);
         drawLogo(42, 40, 80);
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#e9e9f2';
+        ctx.fillStyle = '#f1efea';
         ctx.font = `600 22px ${sans}`;
         ctx.fillText('Qypher', 82, 166);
-        ctx.fillStyle = '#a78bfa';
+        ctx.fillStyle = '#e4d0a1';
         ctx.font = `10px ${mono}`;
         ctx.fillText('SEGURANÇA DE', 82, 190);
         ctx.fillText('APLICAÇÕES', 82, 204);
-        ctx.fillStyle = '#5c5c72';
+        ctx.fillStyle = '#726b5c';
         ctx.font = `9px ${mono}`;
         ctx.fillText('local-first', 82, 290);
       }
@@ -180,4 +180,4 @@ const site = path.join(root, 'site');
 writeFileSync(path.join(site, 'favicon.png'), assets.get(128));
 writeFileSync(path.join(site, 'logo.png'), assets.get(256));
 
-console.log('Ícones gerados a partir do logo neon em', out, 'e em', site);
+console.log('Ícones gerados a partir do logo em pixel art em', out, 'e em', site);

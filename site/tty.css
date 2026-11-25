@@ -1,0 +1,305 @@
+/* Tema TTY do site: mesma estética do app (tiling window manager).
+   Papel de parede sépia, seções como janelas com borda de 2px e gaps,
+   tudo em monoespaçada, cantos retos e rodapé como statusline creme. */
+:root {
+  --tty-wall-a: #000000;
+  --tty-wall-b: #000000;
+  --tty-wall-c: #000000;
+  --tty-win: #000000;
+  --tty-border: #24211c;
+  --tty-focus: #e9e0c6;
+  --tty-bar-bg: #ece3c0;
+  --tty-bar-fg: #16140f;
+  --tty-gap: 10px;
+
+  --bg: #000000;
+  --bg2: #040403;
+  --panel: #070706;
+  --panel2: #0c0b0a;
+  --line: #1c1a16;
+  --line2: #29261f;
+  --text: #d6cfbf;
+  --dim: #aaa290;
+  --faint: #8f8775;
+  --violet: #e9d9a6;
+  --violet-deep: #d8c48a;
+  --azure: #a9c3b6;
+  --cyan: #93b5a4;
+  --amber: #e3a35a;
+  --pink: #e8735a;
+  --sans: var(--mono);
+}
+
+html {
+  background: var(--tty-wall-c);
+}
+body {
+  background:
+    radial-gradient(120% 80% at 72% 0%, var(--tty-wall-a) 0%, transparent 60%),
+    radial-gradient(90% 70% at 8% 100%, var(--tty-wall-b) 0%, transparent 70%),
+    linear-gradient(180deg, var(--tty-wall-b), var(--tty-wall-c));
+  background-attachment: fixed;
+  color: var(--text);
+}
+body::before {
+  /* grão do papel de parede */
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.ambient-glow,
+.cursor-halo {
+  display: none;
+}
+
+/* tudo monoespaçado, reto, sem sombras e sem gradiente de texto */
+body,
+body *:not(svg, svg *) {
+  font-family: var(--mono) !important;
+  border-radius: 0 !important;
+}
+body * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+h1,
+h2,
+h3 {
+  letter-spacing: -0.03em !important;
+}
+::selection {
+  background: var(--tty-bar-bg);
+  color: var(--tty-bar-fg);
+}
+:where(button, a, summary):focus-visible {
+  outline: 1px solid var(--tty-focus) !important;
+  outline-offset: 2px !important;
+}
+
+/* logo pixel art (SVG inline): cores pelo tema */
+.brand-art.brand-pixel {
+  aspect-ratio: 56 / 19;
+  overflow: visible;
+}
+.brand-pixel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.brand-pixel .px-o,
+.brand-pixel .px-w {
+  fill: var(--tty-bar-bg);
+}
+.brand-pixel .px-s {
+  fill: #bfb38c;
+}
+.brand-pixel .px-d {
+  fill: #14120e;
+}
+.brand-pixel .px-g,
+.brand-pixel .px-c {
+  fill: #fff8e2;
+}
+.brand-pixel .px-c {
+  animation: tty-blink 1.06s steps(1) infinite;
+}
+footer .brand-pixel :is(.px-o, .px-s, .px-w) {
+  fill: var(--tty-bar-fg);
+}
+footer .brand-pixel .px-d {
+  fill: var(--tty-bar-bg);
+}
+footer .brand-pixel :is(.px-g, .px-c) {
+  fill: var(--tty-bar-fg);
+}
+.radar-symbol img {
+  image-rendering: pixelated;
+}
+@keyframes tty-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- topo vira widget (eww) sobre o papel de parede ---------- */
+.site-header {
+  padding-block: var(--tty-gap);
+}
+.site-header .nav,
+.site-header.scrolled .nav {
+  background: var(--tty-win);
+  border: 2px solid var(--tty-border);
+  backdrop-filter: blur(3px);
+}
+.site-header .nav-cta,
+.btn.primary,
+.btn-primary {
+  background: var(--tty-bar-bg) !important;
+  border-color: var(--tty-bar-bg) !important;
+  color: var(--tty-bar-fg) !important;
+}
+
+/* ---------- seções como janelas tiling ---------- */
+main#conteudo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tty-gap);
+  padding-inline: max(var(--tty-gap), env(safe-area-inset-left, 0px));
+}
+main#conteudo > section {
+  background: var(--tty-win);
+  border: 2px solid var(--tty-border);
+  backdrop-filter: blur(3px);
+}
+main#conteudo > section.hero {
+  border-color: var(--tty-focus);
+}
+main#conteudo > section:hover {
+  border-color: var(--tty-focus);
+}
+main#conteudo > section.hero:not(:hover) ~ section:hover {
+  border-color: var(--tty-focus);
+}
+main#conteudo:has(> section:not(.hero):hover) > section.hero {
+  border-color: var(--tty-border);
+}
+
+/* ---------- rodapé como statusline do vim ---------- */
+footer {
+  position: relative;
+  z-index: 1;
+  margin: var(--tty-gap);
+  border: 0 !important;
+  background: var(--tty-bar-bg);
+  color: var(--tty-bar-fg);
+}
+footer .foot {
+  padding-block: 6px;
+}
+footer,
+footer * {
+  color: var(--tty-bar-fg) !important;
+}
+
+@media (max-width: 720px) {
+  /* no celular as janelas ocupam a largura toda (o radar precisa do espaço) */
+  main#conteudo {
+    padding-inline: 0;
+  }
+  main#conteudo > section {
+    border-inline-width: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body {
+    background-attachment: scroll;
+  }
+}
+
+/* a monoespaçada é mais larga: título do hero menor em telas estreitas */
+@media (max-width: 720px) {
+  .hero h1 {
+    font-size: clamp(30px, 10vw, 46px) !important;
+    letter-spacing: -0.06em !important;
+  }
+}
+
+/* a área de toque dos marcadores do radar continua circular (senão as quinas se sobrepõem) */
+body .radar-scene .blip {
+  border-radius: 50% !important;
+}
+
+/* ---------- cara de terminal ---------- */
+/* barra de título em cada janela */
+main#conteudo > section {
+  position: relative;
+}
+main#conteudo > section::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  padding: 3px 12px;
+  border-bottom: 1px solid var(--line);
+  background: #000000;
+  color: var(--dim);
+  font: 11.5px/1.5 var(--mono);
+  white-space: pre;
+  pointer-events: none;
+}
+main#conteudo > section.hero::before {
+  content: '[~/qypher]  st' / '';
+}
+main#conteudo > #produto::before {
+  content: '[~/qypher/produto]  st' / '';
+}
+main#conteudo > #recursos::before {
+  content: '[~/qypher/recursos]  st' / '';
+}
+main#conteudo > #como::before {
+  content: '[~/qypher/como-funciona]  st' / '';
+}
+main#conteudo > #seguranca::before {
+  content: '[~/qypher/seguranca]  st' / '';
+}
+main#conteudo > #downloads::before {
+  content: '[~/qypher/downloads]  st' / '';
+}
+main#conteudo > .finale-section::before {
+  content: '[~/qypher/clone]  st' / '';
+}
+
+/* títulos como prompt; cursor em bloco no título principal */
+main#conteudo > section:not(.hero) h2::before {
+  content: '$ ' / '';
+  color: var(--faint);
+  font-weight: 400;
+}
+.hero h1::after {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.8em;
+  margin-left: 0.12em;
+  vertical-align: -0.02em;
+  background: var(--tty-focus);
+  animation: tty-blink 1.06s steps(1) infinite;
+}
+
+/* links do menu como caminhos, botões entre colchetes */
+.links a:not(.nav-github)::before {
+  content: './' / '';
+  color: var(--faint);
+}
+.btn:not(.nav-cta) > span:first-child::before {
+  content: '[ ' / '';
+  opacity: 0.6;
+}
+.btn:not(.nav-cta) > span:last-child::after {
+  content: ' ]' / '';
+  opacity: 0.6;
+}
+
+/* modo do vim no rodapé */
+footer .foot::before {
+  content: 'NORMAL' / '';
+  padding: 0 10px;
+  margin-right: 6px;
+  background: var(--tty-bar-fg);
+  color: var(--tty-bar-bg) !important;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero h1::after,
+  .brand-pixel .px-c {
+    animation: none;
+  }
+}

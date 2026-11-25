@@ -14,6 +14,7 @@ import './dashboard.css';
 import './polish.css';
 import './motion.css';
 import './boot.css';
+import './tty.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

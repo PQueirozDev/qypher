@@ -1,23 +1,23 @@
 /* Qypher — tema "terminal / hacker" (sem verde): violeta, azul, âmbar e rosa sobre quase-preto. */
 :root {
-  --t-bg: #07070b;
-  --t-bg-2: #0b0b12;
-  --t-panel: #0e0e17;
-  --t-panel-2: #13131f;
-  --t-line: #20202e;
-  --t-line-2: #2b2b3d;
-  --t-text: #e7e7f0;
-  --t-dim: #8a8aa0;
-  --t-faint: #5a5a70;
-  --t-violet: #a78bfa;
-  --t-azure: #6ea8ff;
-  --t-cyan: #4fd1e0;
+  --t-bg: #040403;
+  --t-bg-2: #070605;
+  --t-panel: #080806;
+  --t-panel-2: #0c0a09;
+  --t-line: #2c2922;
+  --t-line-2: #3d382b;
+  --t-text: #efede8;
+  --t-dim: #9d988d;
+  --t-faint: #70695a;
+  --t-violet: #e4d0a1;
+  --t-azure: #dec68f;
+  --t-cyan: #83ac98;
   --t-amber: #f5b14c;
   --t-pink: #ff5c7a;
   --t-high: #ff5c7a;
   --t-medium: #f5b14c;
   --t-low: #e9d169;
-  --t-info: #6ea8ff;
+  --t-info: #dec68f;
   --t-mono: 'Geist Mono Variable', 'Cascadia Code', 'Cascadia Mono', Consolas, monospace;
   --t-sans: 'Geist Variable', system-ui, sans-serif;
 }
@@ -42,8 +42,8 @@ body {
   color: var(--t-text);
   font-size: 14px;
   background:
-    radial-gradient(1100px 520px at 50% -160px, #a78bfa14, transparent 70%),
-    radial-gradient(700px 420px at 100% 0, #6ea8ff10, transparent 70%), var(--t-bg);
+    radial-gradient(1100px 520px at 50% -160px, #e4d0a114, transparent 70%),
+    radial-gradient(700px 420px at 100% 0, #dec68f10, transparent 70%), var(--t-bg);
   overflow: hidden;
 }
 /* Scanlines sutis sobre tudo */
@@ -75,7 +75,7 @@ body {
   padding: 0 16px;
   flex: none;
   border-bottom: 1px solid var(--t-line);
-  background: #09090f;
+  background: #060504;
 }
 .t-dots {
   display: flex;
@@ -142,7 +142,7 @@ body {
 }
 .t-nav button.active {
   color: var(--t-violet);
-  background: #15101f;
+  background: #0b0a08;
 }
 .t-more {
   position: relative;
@@ -155,7 +155,7 @@ body {
   min-width: 190px;
   padding: 5px;
   display: grid;
-  background: #0c0c16;
+  background: #080706;
   border: 1px solid var(--t-line-2);
   border-radius: 8px;
   box-shadow: 0 18px 46px #000b;
@@ -230,7 +230,7 @@ body {
   width: 10px;
 }
 .t-main::-webkit-scrollbar-thumb {
-  background: #1e1e2c;
+  background: #2a2720;
   border-radius: 10px;
 }
 
@@ -238,7 +238,7 @@ body {
 .t-window {
   border: 1px solid var(--t-line-2);
   border-radius: 10px;
-  background: linear-gradient(180deg, #0c0c15, #0a0a11);
+  background: linear-gradient(180deg, #080706, #060605);
   box-shadow: 0 20px 60px #0007;
   overflow: hidden;
 }
@@ -247,7 +247,7 @@ body {
   align-items: center;
   gap: 10px;
   padding: 9px 12px;
-  background: #0a0a11;
+  background: #060605;
   border-bottom: 1px solid var(--t-line);
   color: var(--t-faint);
   font-size: 12px;
@@ -339,7 +339,7 @@ body {
   padding: 36px 26px 30px;
   border: 1px solid var(--t-line);
   border-radius: 14px;
-  background: radial-gradient(600px 220px at 50% -40px, #a78bfa12, transparent 70%), #0a0a12;
+  background: radial-gradient(600px 220px at 50% -40px, #e4d0a112, transparent 70%), #060605;
   overflow: hidden;
 }
 .t-hero-inner {
@@ -353,9 +353,9 @@ body {
   gap: 7px;
   margin-bottom: 16px;
   padding: 5px 12px;
-  border: 1px solid #2a2342;
+  border: 1px solid #3a352b;
   border-radius: 999px;
-  background: #140f22;
+  background: #0b0a08;
   color: var(--t-violet);
   font-size: 11.5px;
   letter-spacing: 0.04em;
@@ -388,14 +388,14 @@ body {
   padding: 12px 14px;
   border: 1px solid var(--t-line-2);
   border-radius: 10px;
-  background: #0c0c15;
+  background: #080706;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 }
 .t-prompt:focus-within {
-  border-color: #6b57b8;
-  box-shadow: 0 0 0 3px #a78bfa1f;
+  border-color: #a99566;
+  box-shadow: 0 0 0 3px #e4d0a11f;
 }
 .t-prompt .sign {
   color: var(--t-cyan);
@@ -422,13 +422,13 @@ body {
   padding: 9px 18px;
   border: 0;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--t-violet), #7c5cff);
-  color: #0a0a12;
+  background: linear-gradient(135deg, var(--t-violet), #dabf81);
+  color: #060605;
   font-family: var(--t-mono);
   font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 20px #7c5cff44;
+  box-shadow: 0 6px 20px #dabf8144;
   transition:
     transform 0.1s,
     filter 0.15s;
@@ -438,7 +438,7 @@ body {
   filter: brightness(1.08);
 }
 .t-run:disabled {
-  background: #1b1b28;
+  background: #0f0e0c;
   color: var(--t-faint);
   box-shadow: none;
   cursor: not-allowed;
@@ -495,7 +495,7 @@ body {
   height: 4px;
   margin-top: 14px;
   border-radius: 999px;
-  background: #15151f;
+  background: #0c0b09;
   overflow: hidden;
 }
 .t-progress i {
@@ -523,7 +523,7 @@ body {
   padding: 20px 22px;
   border: 1px solid var(--t-line);
   border-radius: 12px;
-  background: linear-gradient(135deg, #0e0e18, #0a0a11);
+  background: linear-gradient(135deg, #090806, #060605);
 }
 .t-grade {
   position: relative;
@@ -540,7 +540,7 @@ body {
   stroke-width: 6;
 }
 .t-grade .track {
-  stroke: #1b1b28;
+  stroke: #0f0e0c;
 }
 .t-grade .val {
   stroke: var(--c);
@@ -591,7 +591,7 @@ body {
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  background: #0f0f19;
+  background: #090807;
   border: 1px solid var(--t-line-2);
   border-radius: 8px;
   color: var(--t-text);
@@ -604,14 +604,14 @@ body {
 }
 .t-btn:hover {
   background: var(--t-panel-2);
-  border-color: #3a3a52;
+  border-color: #524b3a;
 }
 .t-btn.danger {
   color: #ffb1bd;
   border-color: #5c2434;
 }
 .t-btn.danger:hover {
-  background: #1d0f14;
+  background: #0a0708;
 }
 
 /* ---- Filtros ---- */
@@ -628,7 +628,7 @@ body {
   padding: 6px 13px;
   border: 1px solid var(--t-line-2);
   border-radius: 999px;
-  background: #0d0d16;
+  background: #080706;
   color: var(--t-dim);
   font-family: var(--t-mono);
   font-size: 12px;
@@ -670,9 +670,9 @@ body {
   flex-wrap: wrap;
   margin-bottom: 14px;
   padding: 15px 18px;
-  border: 1px solid #2a2342;
+  border: 1px solid #3a352b;
   border-radius: 12px;
-  background: linear-gradient(135deg, #150f24, #0d0a16);
+  background: linear-gradient(135deg, #0c0b09, #070706);
 }
 .t-ai > div {
   flex: 1;
@@ -680,7 +680,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #c9bcf5;
+  color: #ece0c5;
 }
 .t-ai .txt {
   display: grid;
@@ -704,13 +704,13 @@ body {
 .t-finding {
   border: 1px solid var(--t-line);
   border-radius: 11px;
-  background: #0b0b13;
+  background: #070605;
   overflow: hidden;
   animation: t-in 0.25s ease-out both;
 }
 .t-finding[open] {
   border-color: var(--t-line-2);
-  background: #0d0d17;
+  background: #080806;
 }
 @keyframes t-in {
   from {
@@ -790,7 +790,7 @@ body {
   font-family: var(--t-sans);
   font-size: 13.5px;
   line-height: 1.6;
-  color: #cfcfdd;
+  color: #dbd8d1;
   overflow-wrap: anywhere;
 }
 .t-tags {
@@ -802,7 +802,7 @@ body {
 .t-tags span {
   padding: 2px 9px;
   border-radius: 5px;
-  background: #11111c;
+  background: #0a0a08;
   border: 1px solid var(--t-line);
   color: var(--t-dim);
   font-family: var(--t-mono);
@@ -815,7 +815,7 @@ body {
   border: 1px solid #5c2434;
   border-radius: 9px;
   overflow: hidden;
-  background: #120a0e;
+  background: #060506;
 }
 .t-leak-head {
   display: flex;
@@ -843,7 +843,7 @@ body {
   cursor: pointer;
 }
 .t-leak-head button:hover {
-  background: #1d0f14;
+  background: #0a0708;
 }
 .t-leak-hidden {
   margin: 0;
@@ -858,7 +858,7 @@ body {
   padding: 13px 14px;
   max-height: 300px;
   overflow: auto;
-  background: #08080d;
+  background: #050404;
   border-top: 1px solid #3a1c24;
   color: #ffd9df;
   font-family: var(--t-mono);
@@ -876,7 +876,7 @@ body {
   padding: 20px 22px;
   border: 1px solid var(--t-line);
   border-radius: 12px;
-  background: #0b0b13;
+  background: #070605;
   color: var(--t-dim);
   font-family: var(--t-sans);
 }
@@ -914,7 +914,7 @@ body {
   margin-bottom: 18px;
   padding: 11px 15px;
   border-radius: 10px;
-  background: #1d0f14;
+  background: #0a0708;
   border: 1px solid #5c2434;
   color: #ffc3cd;
   font-family: var(--t-sans);
@@ -962,7 +962,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(1000px 500px at 50% -160px, #a78bfa12, transparent 70%), var(--t-bg);
+  background: radial-gradient(1000px 500px at 50% -160px, #e4d0a112, transparent 70%), var(--t-bg);
   font-family: var(--t-mono);
   cursor: text;
 }
@@ -1005,7 +1005,7 @@ body {
   color: var(--t-info);
 }
 .tui-line.t-prompt-echo {
-  color: #cfcfe4;
+  color: #e1dcd2;
 }
 .tui-input {
   display: flex;
@@ -1036,7 +1036,7 @@ body {
   flex-wrap: wrap;
   padding: 9px 26px;
   border-top: 1px solid var(--t-line);
-  background: #09090f;
+  background: #060504;
   color: var(--t-faint);
   font-size: 11.5px;
 }
@@ -1055,7 +1055,7 @@ body {
 
 /* ===== Tratamento "hacker": brilho neon, varredura e textura ===== */
 .t-brand b {
-  text-shadow: 0 0 10px rgba(167, 139, 250, 0.7);
+  text-shadow: 0 0 10px rgba(228, 208, 161, 0.7);
   animation: t-flicker 7s infinite steps(1);
 }
 @keyframes t-flicker {
@@ -1065,7 +1065,7 @@ body {
   99% { opacity: 0.6; }
 }
 .t-nav button.active {
-  text-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+  text-shadow: 0 0 10px rgba(228, 208, 161, 0.5);
   box-shadow:
     inset 0 -2px 0 -1px var(--t-violet),
     0 0 16px -7px var(--t-violet);
@@ -1107,7 +1107,7 @@ body {
 /* Modo terminal: grade sutil ao fundo + brilho no prompt */
 .tui {
   background-image:
-    radial-gradient(1000px 500px at 50% -160px, #a78bfa12, transparent 70%),
+    radial-gradient(1000px 500px at 50% -160px, #e4d0a112, transparent 70%),
     linear-gradient(#ffffff05 1px, transparent 1px),
     linear-gradient(90deg, #ffffff05 1px, transparent 1px);
   background-size: auto, 100% 30px, 30px 100%;
@@ -1115,7 +1115,7 @@ body {
 }
 .tui-ps,
 .tui-line.t-accent {
-  text-shadow: 0 0 9px rgba(167, 139, 250, 0.5);
+  text-shadow: 0 0 9px rgba(228, 208, 161, 0.5);
 }
 
 /* ===== Terminal: tratamento CRT / phosphor "hacker" ===== */
@@ -1125,7 +1125,7 @@ body {
 }
 /* leve brilho fosforescente em todo o texto da saída */
 .tui-body {
-  text-shadow: 0 0 2px rgba(231, 231, 240, 0.22);
+  text-shadow: 0 0 2px rgba(239, 237, 232, 0.22);
 }
 /* scanlines fixas sobre toda a tela */
 .tui::before {
@@ -1169,9 +1169,9 @@ body {
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(167, 139, 250, 0.06) 46%,
-    rgba(79, 209, 224, 0.09) 50%,
-    rgba(167, 139, 250, 0.06) 54%,
+    rgba(228, 208, 161, 0.06) 46%,
+    rgba(131, 172, 152, 0.09) 50%,
+    rgba(228, 208, 161, 0.06) 54%,
     transparent
   );
   will-change: transform;
@@ -1192,7 +1192,7 @@ body {
   gap: 12px;
   padding: 7px 26px;
   border-bottom: 1px solid var(--t-line);
-  background: linear-gradient(180deg, #0c0c16, #08080e);
+  background: linear-gradient(180deg, #080706, #050504);
   font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1204,7 +1204,7 @@ body {
 .tui-hud .hud-tag {
   color: var(--t-violet);
   font-weight: 700;
-  text-shadow: 0 0 10px rgba(167, 139, 250, 0.6);
+  text-shadow: 0 0 10px rgba(228, 208, 161, 0.6);
 }
 .tui-hud .hud-sep {
   color: var(--t-line-2);
@@ -1306,7 +1306,7 @@ body {
   background-size: 100% 30px, 30px 100%, auto;
   font-family: var(--t-mono);
   box-shadow:
-    0 -1px 0 rgba(167, 139, 250, 0.22),
+    0 -1px 0 rgba(228, 208, 161, 0.22),
     0 -14px 34px -24px var(--t-violet);
   isolation: isolate;
 }
@@ -1333,7 +1333,7 @@ body {
   gap: 12px;
   padding: 6px 12px 6px 16px;
   border-bottom: 1px solid var(--t-line);
-  background: linear-gradient(180deg, #0c0c16, #08080e);
+  background: linear-gradient(180deg, #080706, #050504);
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1360,7 +1360,7 @@ body {
 .term-dock-tab b {
   color: var(--t-violet);
   font-weight: 700;
-  text-shadow: 0 0 9px rgba(167, 139, 250, 0.5);
+  text-shadow: 0 0 9px rgba(228, 208, 161, 0.5);
 }
 .term-dock-tab .term-dock-state {
   color: var(--t-faint);
@@ -1388,7 +1388,7 @@ body {
   max-height: 34vh;
   padding: 12px 16px 8px;
   font-size: 12.5px;
-  text-shadow: 0 0 2px rgba(231, 231, 240, 0.2);
+  text-shadow: 0 0 2px rgba(239, 237, 232, 0.2);
 }
 
 /* ===== Layout com sidebar (Workspace 2.0) ===== */
@@ -1408,7 +1408,7 @@ body {
   gap: 8px;
   padding: 10px 8px;
   border-right: 1px solid var(--t-line);
-  background: #0a0a12;
+  background: #060605;
   overflow-y: auto;
 }
 .sidebar .sb-nav {
@@ -1468,7 +1468,7 @@ body {
   color: var(--t-violet);
 }
 .sidebar .sb-item.active {
-  background: linear-gradient(90deg, rgba(167, 139, 250, 0.14), transparent 85%);
+  background: linear-gradient(90deg, rgba(228, 208, 161, 0.14), transparent 85%);
   color: var(--t-text);
   border-left-color: var(--t-violet);
 }
@@ -1596,7 +1596,7 @@ body {
   background: #ffffff06;
 }
 .fi-row.active {
-  background: linear-gradient(90deg, rgba(167, 139, 250, 0.12), transparent 80%);
+  background: linear-gradient(90deg, rgba(228, 208, 161, 0.12), transparent 80%);
   border-left-color: var(--t-violet);
 }
 .fi-row-text {
@@ -1711,7 +1711,7 @@ body {
   height: 26px;
   padding: 0 8px;
   border-top: 1px solid var(--t-line);
-  background: linear-gradient(180deg, #0b0b13, #07070b);
+  background: linear-gradient(180deg, #070605, #040403);
   color: var(--t-faint);
   font-family: var(--t-mono);
   font-size: 11px;
@@ -1837,7 +1837,7 @@ body {
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: radial-gradient(60% 60% at 50% 44%, #0b0b17 0%, #06060b 78%);
+  background: radial-gradient(60% 60% at 50% 44%, #080706 0%, #040403 78%);
   animation: ut-fade 1500ms ease forwards;
 }
 @keyframes ut-fade {
@@ -1879,7 +1879,7 @@ body {
   line-height: 1.04;
   letter-spacing: 1px;
   color: var(--t-violet);
-  text-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+  text-shadow: 0 0 10px rgba(228, 208, 161, 0.5);
 }
 .ut-caption {
   display: inline-flex;
@@ -1890,7 +1890,7 @@ body {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--t-cyan);
-  text-shadow: 0 0 10px rgba(79, 209, 224, 0.4);
+  text-shadow: 0 0 10px rgba(131, 172, 152, 0.4);
 }
 .ut-dot {
   width: 8px;
@@ -1956,7 +1956,7 @@ body {
   z-index: 60;
   pointer-events: none;
   background: linear-gradient(90deg, transparent, var(--t-violet), var(--t-cyan), transparent);
-  box-shadow: 0 0 26px 7px rgba(167, 139, 250, 0.55);
+  box-shadow: 0 0 26px 7px rgba(228, 208, 161, 0.55);
   animation: q-sweep-down 1150ms cubic-bezier(0.4, 0, 0.3, 1) forwards;
 }
 @keyframes q-sweep-down {

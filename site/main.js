@@ -37,7 +37,7 @@ let height = 0;
 let codeStreams = [];
 let readingZones = [];
 const codeGlyphs = '01{}[]<>/\\|=+*#$%&xX';
-const rainColors = ['#a78bfa', '#6ea8ff', '#4fd1e0'];
+const rainColors = ['#e4d0a1', '#dec68f', '#83ac98'];
 let radarVisible = true;
 let terminalVisible = false;
 let radarX = 0;
@@ -212,7 +212,7 @@ function drawAmbient(delta) {
   if (!ctx) return;
   ctx.clearRect(0, 0, width, height);
   const drift = reduced.matches ? 0 : Math.sin(elapsed / 16000) * 8;
-  ctx.strokeStyle = '#a78bfa07';
+  ctx.strokeStyle = '#e4d0a107';
   ctx.lineWidth = 0.5;
   ctx.beginPath();
   for (let x = -80 + drift; x < width + 80; x += 80) {
@@ -230,8 +230,8 @@ function drawAmbient(delta) {
       : width * (0.65 + Math.sin(elapsed / 20000) * 0.15);
   const glowY = pointer.active && fine.matches ? pointer.smoothY : height * 0.35;
   const glow = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, mobile.matches ? 170 : 370);
-  glow.addColorStop(0, '#7c5cff0c');
-  glow.addColorStop(1, '#7c5cff00');
+  glow.addColorStop(0, '#dabf810c');
+  glow.addColorStop(1, '#dabf8100');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, width, height);
   const glyphSize = mobile.matches ? 11 : 13;
@@ -275,7 +275,7 @@ function drawAmbient(delta) {
   }
   ctx.globalAlpha = 1;
   // A few ambient points share this canvas and clock, rather than another renderer.
-  ctx.fillStyle = '#a78bfa25';
+  ctx.fillStyle = '#e4d0a125';
   for (let index = 0; index < Math.min(codeStreams.length, mobile.matches ? 3 : 8); index++) {
     const stream = codeStreams[index];
     const x = (stream.x * 2.7 + 25) % width;
